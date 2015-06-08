@@ -39,7 +39,7 @@ task :amazon_search do
 			results.push "#{i+1}. | #{sku.center(20)} | #{num_results.center(10)}"
 			browser.li(id:'result_0').flash
 		end
-		ap results
+		results.each { |r| puts r}
 		puts "finished processing"
 	rescue Exception => e
 		@error = true
