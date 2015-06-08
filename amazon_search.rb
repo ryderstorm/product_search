@@ -2,9 +2,6 @@ def amazon_search
 	puts "Beginning Amazon Search"
 	@error = false
 	begin
-		def send_enter
-			@browser.send_keys :enter
-		end
 
 		skus = File.read('amazon_skus.txt').split("\n")
 
