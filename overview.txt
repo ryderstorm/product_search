@@ -12,10 +12,30 @@ Amazon
 
 Pricesmart
 
-*Review each customer Web Site and check that HMI product we show in War Board is listed on site, 
-
-adjust any discrepencies on customer site or War Board.
-
+*Review each customer Web Site and check that HMI product we show in War Board is listed on site, adjust any discrepencies on customer site or War Board.
+(search amazon for sku)
+	-does it show up in the results?
+		-grab url of results
+		-take screenshot
+(click first result)
+	-grab url of results
+	-grab screenshot
+	-does pricing match warboard?
+	-pull product 
+		name
+		description
+		details
+		thumbnail of each photo
+(go to reviews page)
+	-get overall star rating
+	-get number of reviews
+	-pull out new reviews since last report
+		-user
+		-date
+		-star rating
+		-text of review
+(go to questions & answers)
+	-look for new questions
 *During product search, check reviews of each product and develop an analysis of reviews, by customer
 
 *During product search, check to make sure detailed specs and copy are correct.  Suggest improvements

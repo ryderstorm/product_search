@@ -29,7 +29,9 @@ def amazon_search
 			results.push "#{i+1}. | #{sku.center(20)} | #{num_results.center(10)}"
 			browser.li(id:'result_0').flash
 		end
+		puts "\n==============="
 		results.each { |r| puts r}
+		puts "===============\n"
 		puts "finished processing"
 	rescue Exception => e
 		@error = true
