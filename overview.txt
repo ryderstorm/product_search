@@ -1,0 +1,25 @@
+1): Review virtual War Board for product detail and placement by customer:
+
+Costco.com
+
+Costco.ca
+
+Costco.mx
+
+Costco.uk
+
+Amazon
+
+Pricesmart
+
+*Review each customer Web Site and check that HMI product we show in War Board is listed on site, 
+
+adjust any discrepencies on customer site or War Board.
+
+*During product search, check reviews of each product and develop an analysis of reviews, by customer
+
+*During product search, check to make sure detailed specs and copy are correct.  Suggest improvements
+
+*During product search, check photography, suggest improvements
+
+
