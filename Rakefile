@@ -1,4 +1,6 @@
 require './lib.rb'
+@headless = false
+@headless = true if Socket.gethostname == 'ryderstorm-amazon_search-1580844'
 
 task default:'amazon_search' 
 

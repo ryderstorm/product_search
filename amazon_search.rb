@@ -6,8 +6,10 @@ def amazon_search
 		temp_folder = "./amazon_temp/#{tstamp}"
 		Dir.mkdir(temp_folder)
 		skus = File.read('amazon_skus.txt').split("\n")
-		headless = Headless.new
-		headless.start
+		if @headless
+			headless = Headless.new
+			headless.start
+		end
 		browser = Watir::Browser.new
 		@browser = browser
 		browser.window.resize_to(900, 1000)
@@ -51,7 +53,7 @@ def amazon_search
 		binding.pry
 	end
 	browser.close
-	headless.destroy
+	headless.destroy if @headless
 	no_dots
 	puts "Amazon scrape completed succesfully." unless @error
 end
