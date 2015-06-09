@@ -18,14 +18,14 @@ Pricesmart
 		-grab url of results
 		-take screenshot
 (click first result)
-	-grab url of results
-	-grab screenshot
+	-grab url of first result
+	-take screenshot
 	-does pricing match warboard?
-	-pull product 
-		name
-		description
-		details
-		thumbnail of each photo
+	-pull the following:
+		-name
+		-description
+		-details
+		-thumbnail of each product photo
 (go to reviews page)
 	-get overall star rating
 	-get number of reviews
@@ -43,3 +43,8 @@ Pricesmart
 *During product search, check photography, suggest improvements
 
 
+
+
+NOTES FOR DAMIEN:
+-export all data to a spreadsheet during product searches
+-have a separate process that parses the spreadsheet and creates a pretty html report
