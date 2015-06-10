@@ -33,7 +33,16 @@ end
 def take_screenshot(filename = 'screenshot')
 	complete_name = "#{@temp_folder}/#{filename}_#{tstamp}.png"
 	@browser.screenshot.save complete_name
-	complete_name
+	File.absolute_path(complete_name)
+end
+
+def save_image(name, src)
+	extension = src.split('.').last
+	complete_name = "#{@temp_folder}/#{name}_#{tstamp}.#{extension}"
+	File.open(complete_name, 'wb') do |f|
+		f.write open(src).read
+	end
+	File.absolute_path(complete_name)
 end
 
 def error_report(e)
@@ -62,13 +71,4 @@ def seconds_to_string(s)
 	output = "#{d} day#{pluralize(d)}, #{h} hour#{pluralize(h)}, #{m} minute#{pluralize(m)}, #{s} second#{pluralize(s)}" if (d > 0)
 
 	return output
-end
-
-def save_image(name, src)
-	extension = src.split('.').last
-	complete_name = "#{@temp_folder}/#{name}_#{tstamp}.#{extension}"
-	File.open(complete_name, 'wb') do |f|
-	  f.write open(src).read
-	end
-	complete_name
 end
