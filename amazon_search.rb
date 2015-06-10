@@ -10,7 +10,12 @@ def amazon_search
 		result_counts = []
 		workbook = RubyXL::Workbook.new
 		workbook_location = "#{@temp_folder}/AMAZON_DATA_#{tstamp}.xlsx"
+		workbook[0].sheet_name = 'Summary'
+		workbook[0].change_column_width(0, 50)
 		skus = File.read('amazon_skus.txt').split("\n")
+		skus.each_with_index { |sku, i| workbook[0].add_cell(i, 0, sku)}
+		workbook.write(workbook_location)
+
 		if @headless
 			headless = Headless.new
 			headless.start
@@ -36,10 +41,10 @@ def amazon_search
 			browser.div(id:'navFooter').wait_until_present
 			worksheet.add_cell(1, 0, "Search results URL")
 			worksheet.add_cell(1, 1, '', "HYPERLINK(\"#{browser.url}\")")
-			worksheet[1][1].change_fill('6699FF')
+			worksheet[1][1].change_font_color('0000CC')
 			image = take_screenshot("#{sku}_SEARCH_RESULTS")
 			worksheet.add_cell(1, 2, '', "HYPERLINK(\"#{image}\")")
-			worksheet[1][2].change_fill('6699FF')
+			worksheet[1][2].change_font_color('0000CC')
 			if browser.element(id:'noresult_countsTitle').present?
 				# move on if no results were found
 				result_counts.push "#{i+1}. | #{sku.center(20)} | #{desc} | NO result_counts FOUND"
@@ -60,7 +65,7 @@ def amazon_search
 			worksheet.add_cell(2, 1, number_results)
 			image = save_image("#{sku}_SEARCH_THUMBNAIL", browser.li(id:'result_0').imgs.first.attribute_value('src'))
 			worksheet.add_cell(2, 2, '', "HYPERLINK(\"#{image}\")")
-			worksheet[2][2].change_fill('6699FF')
+			worksheet[2][2].change_font_color('0000CC')
 
 			unless no_results
 				# go to the first result
@@ -113,9 +118,9 @@ def amazon_search
 			end
 
 			# save the workbook
-			worksheet.change_column_width(0, 30) 
-			worksheet.change_column_width(1, 30) 
-			worksheet.change_column_width(2, 30) 
+			worksheet.change_column_width(0, 25) 
+			worksheet.change_column_width(1, 50) 
+			worksheet.change_column_width(2, 50) 
 			workbook.write(workbook_location)
 		end
 		no_dots
@@ -136,6 +141,6 @@ def amazon_search
 	no_dots
 	unless @error
 		puts "Amazon scrape completed succesfully." 
-		`#{File.absolute_path(workbook_location)}`
+		system("start #{File.absolute_path(workbook_location)}")
 	end
 end
