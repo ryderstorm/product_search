@@ -12,7 +12,7 @@ Amazon
 
 Pricesmart
 
-*Review each customer Web Site and check that HMI product we show in War Board is listed on site, adjust any discrepencies on customer site or War Board.
+*Review each customer Web Site and check that the HMI product we show in War Board is listed on site, adjust any discrepencies on customer site or War Board.
 (search amazon for sku)
 	-does it show up in the results?
 		-grab url of results
