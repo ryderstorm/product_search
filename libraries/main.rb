@@ -25,6 +25,7 @@ def no_dots
 end
 
 def take_screenshot(filename = 'screenshot')
+	return if @browser.nil?
 	complete_name = "#{@temp_folder}/#{filename}_#{tstamp}.png"
 	@browser.screenshot.save complete_name
 	File.absolute_path(complete_name)
@@ -79,7 +80,7 @@ end
 
 @computer = Socket.gethostname
 @amazon_data = @computer.include?('digital-ocean') ? File.absolute_path('data/amazon.xlsx') : File.absolute_path('data/amazon_test.xlsx')
-@headless = false
+@headless = true
 @headless = true if @computer == 'ryderstorm-amazon_search-1580844'
 @headless = true if @computer.include?('testing-worker-linux-docker')
 @headless = true if @computer.include?('digital-ocean')
