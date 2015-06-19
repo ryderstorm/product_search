@@ -1,17 +1,11 @@
-
 require 'watir-webdriver'
 require 'headless'
 require 'rubyXL'
-require './amazon_search.rb'
 require 'pry'
 require 'open-uri'
 
-def send_enter	
+def send_enter
 	@browser.send_keys :enter
-end
-
-def read_workbook
-	@workbook = RubyXL::Parser.parse('data.xlsx')
 end
 
 def tstamp
@@ -48,7 +42,7 @@ end
 def error_report(e)
 	puts "\n!!!!!!!!!!!!!!!!!!!!!\nAn error has occurred:"
 	puts "#{e.message}"
-	(0..8).each { |i| puts "\t" + e.backtrace[i] }
+	(0..10).each { |i| puts "\t" + e.backtrace[i] }
 	puts "!!!!!!!!!!!!!!!!!!!!!\n"
 end
 
@@ -72,3 +66,21 @@ def seconds_to_string(s)
 
 	return output
 end
+
+def parse_secrets(secrets_location)
+	secrets = {}
+	info = File.read(secrets_location).split
+	info.each do |i|
+		secrets.store(i.split('|').first.to_sym, i.split('|').last)
+	end
+	secrets
+end
+
+
+@computer = Socket.gethostname
+@amazon_data = @computer.include?('digital-ocean') ? File.absolute_path('data/amazon.xlsx') : File.absolute_path('data/amazon_test.xlsx')
+@headless = false
+@headless = true if @computer == 'ryderstorm-amazon_search-1580844'
+@headless = true if @computer.include?('testing-worker-linux-docker')
+@headless = true if @computer.include?('digital-ocean')
+@secrets = parse_secrets(File.absolute_path('secret/secret.txt'))
