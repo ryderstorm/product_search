@@ -131,7 +131,7 @@ begin
 		end
 
 		# Reviews
-		if browser.
+		# if browser.
 
 		# save the workbook
 		worksheet.change_column_width(0, 25)
