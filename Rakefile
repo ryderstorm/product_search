@@ -1,3 +1,7 @@
+unless File.exist?('secret/secret.txt')
+	puts "Secret.txt doesn't exist and application cannot continue."
+	exit
+end
 require_relative 'libraries/main.rb'
 require_relative 'libraries/digital_ocean.rb'
 require_relative 'libraries/pushbullet.rb'
