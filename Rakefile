@@ -1,9 +1,11 @@
-@start_time = Time.now
-@root_folder = File.absolute_path(File.dirname(__FILE__))
-
-
 require_relative 'libraries/main.rb'
 require_relative 'libraries/digital_ocean.rb'
+require_relative 'libraries/pushbullet.rb'
+@start_time = Time.now
+@run_stamp = tstamp
+@root_folder = File.absolute_path(File.dirname(__FILE__))
+@results_folder = @root_folder + "/results/" 
+puts "Root folder = #{@root_folder}"
 
 #run tasks
 task default: :run_all
@@ -18,10 +20,11 @@ end
 desc 'Pusbullet file results'
 task :pushbullet do
 	Dir.glob('results/*').each do |file|
-		pushbullet_file_to_all(File.basename(file), file, "")
+		if File.basename(file).include?(@run_stamp)
+			pushbullet_file_to_all(File.basename(file), file, "")
+		end
 	end
 end
-
 
 desc 'Report total time'
 task :total_time do
