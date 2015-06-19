@@ -1,42 +1,36 @@
 GEM
   remote: https://rubygems.org/
   specs:
+    awesome_print (1.6.1)
     childprocess (0.5.6)
       ffi (~> 1.0, >= 1.0.11)
     coderay (1.1.0)
     commonwatir (4.0.0)
-    digitalocean (1.2.0)
-      faraday (~> 0.8.9)
-      faraday_middleware (~> 0.9.0)
-      recursive-open-struct (~> 0.4.5)
-    dotenv (2.0.1)
-    faraday (0.8.9)
-      multipart-post (~> 1.2.0)
+    digitalocean (1.0.1)
+      faraday
+      faraday_middleware
+      recursive-open-struct
+    dotenv (2.0.2)
+    faraday (0.9.1)
+      multipart-post (>= 1.2, < 3)
     faraday_middleware (0.9.1)
       faraday (>= 0.7.4, < 0.10)
     ffi (1.9.8)
-    ffi (1.9.8-x64-mingw32)
     headless (2.1.0)
     method_source (0.8.2)
+    mime-types (2.6.1)
     mini_portile (0.6.2)
-    multi_json (1.11.0)
-    multipart-post (1.2.0)
+    multi_json (1.11.1)
+    multipart-post (2.0.0)
     nokogiri (1.6.6.2)
-      mini_portile (~> 0.6.0)
-    nokogiri (1.6.6.2-x64-mingw32)
       mini_portile (~> 0.6.0)
     ocra (1.3.5)
     pry (0.10.1)
       coderay (~> 1.1.0)
       method_source (~> 0.8.1)
       slop (~> 3.4)
-    pry (0.10.1-x64-mingw32)
-      coderay (~> 1.1.0)
-      method_source (~> 0.8.1)
-      slop (~> 3.4)
-      win32console (~> 1.3)
     rake (10.4.2)
-    recursive-open-struct (0.4.5)
+    recursive-open-struct (0.6.4)
     rubyXL (3.3.8)
       nokogiri (>= 1.4.4)
       rubyzip (>= 1.1.6)
@@ -47,19 +41,21 @@ GEM
       rubyzip (~> 1.0)
       websocket (~> 1.0)
     slop (3.6.0)
+    washbullet (0.4.0)
+      faraday (~> 0.9.0)
+      mime-types
     watir (5.0.0)
       commonwatir (~> 4)
       watir-webdriver
     watir-webdriver (0.7.0)
       selenium-webdriver (>= 2.45)
     websocket (1.2.2)
-    win32console (1.3.2)
 
 PLATFORMS
   ruby
-  x64-mingw32
 
 DEPENDENCIES
+  awesome_print
   digitalocean
   dotenv
   headless
@@ -67,4 +63,9 @@ DEPENDENCIES
   pry
   rake
   rubyXL
+  washbullet (>= 0.4.0)
   watir
+  watir-webdriver
+
+BUNDLED WITH
+   1.10.4
