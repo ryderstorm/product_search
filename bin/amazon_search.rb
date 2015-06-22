@@ -1,5 +1,7 @@
 @error = false
 begin
+	asins_imported = ARGV[0]
+	batch_number = ARGV[1]
 	puts "Beginning Amazon Search"
 	@temp_folder = @root_folder + "/temp/amazon_#{tstamp}"
 	FileUtils.mkdir_p(@temp_folder)
@@ -110,7 +112,15 @@ begin
 
 			# Price
 			puts "\nGetting price"
-			price = browser.span(id:'priceblock_ourprice').text
+			if browser.a(text:'See price in cart').present?
+				browser.a(text:'See price in cart').click
+				browser.span(id:'priceblock_ourprice').wait_until_present
+				price = browser.span(id:'priceblock_ourprice').text
+				browser.button(data_action:'a-popover-close').wait_until_present
+				browser.button(data_action:'a-popover-close').click
+			else
+				price = browser.span(id:'priceblock_ourprice').text
+			end
 			worksheet.add_cell(0, 2, price)
 
 			# Features
