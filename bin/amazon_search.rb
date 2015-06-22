@@ -5,6 +5,7 @@ begin
 	FileUtils.mkdir_p(@temp_folder)
 	puts "Temp folder location: #{File.absolute_path(@temp_folder)}"
 	dots
+	puts "\nCreating results workbook"
 	result_urls = []
 	result_counts = []
 	workbook = RubyXL::Workbook.new
@@ -21,6 +22,7 @@ begin
 	end
 	workbook.write(workbook_location)
 
+	puts "\nCreating browser instance"
 	if @headless
 		headless = Headless.new
 		headless.start
@@ -42,6 +44,7 @@ begin
 		worksheet.add_cell(0, 1, desc)
 		searchbox.set asin
 		send_enter
+		puts "\nSearching for asin"
 		sleep 1
 		browser.div(id:'navFooter').wait_until_present
 		worksheet.add_cell(1, 0, "Search results URL")
@@ -80,14 +83,18 @@ begin
 		worksheet.add_cell(2, 0, "Number of search results")
 		worksheet.add_cell(2, 1, number_results)
 
-		unless no_results
+		if no_results
+			puts "\nNo results found"
+		else
 			# go to the first result
+			puts "\nSelecting first result"
 			browser.li(id:'result_0').links.first.click
 			sleep 1
 			browser.div(id:'navFooter').wait_until_present
 
 			# record the name, price, features, desc, details
 			# Name
+			puts "\nGetting name"
 			worksheet.add_cell(3, 0, "Product Name")
 			if browser.span(id:'productTitle').exist?
 				name = browser.span(id:'productTitle').text
@@ -102,10 +109,12 @@ begin
 			worksheet[3][1].change_fill('FF6161') unless found
 
 			# Price
+			puts "\nGetting price"
 			price = browser.span(id:'priceblock_ourprice').text
 			worksheet.add_cell(0, 2, price)
 
 			# Features
+			puts "\nGetting features"
 			worksheet.add_cell(4, 0, "Product Features")
 			if browser.div(id:'feature-bullets').exist?
 				features =browser.div(id:'feature-bullets').text
@@ -118,6 +127,7 @@ begin
 			worksheet[4][1].change_fill('FF6161') unless found
 
 			# Description
+			puts "\nGetting description"
 			worksheet.add_cell(5, 0, "Product Description")
 			if browser.iframe(id:'product-description-iframe').div(id:'productDescription').exist?
 				desc = browser.iframe(id:'product-description-iframe').div(id:'productDescription').text.sub("Product Description\n", '')
@@ -130,6 +140,7 @@ begin
 			worksheet[5][1].change_fill('FF6161') unless found
 
 			# Details
+			puts "\nGetting details"
 			worksheet.add_cell(6, 0, "Product Details")
 			if browser.div(id:'detail-bullets_feature_div').exist?
 				details = browser.div(id:'detail-bullets_feature_div').text.sub("Product Details\n", '').sub(browser.div(id:'detail-bullets_feature_div').div(class:'bucket').text, '')
@@ -140,45 +151,48 @@ begin
 			end
 			worksheet.add_cell(6, 1, details)
 			worksheet[6][1].change_fill('FF6161') unless found
+
+			# Reviews
+			puts "\nGetting reviews"
+			worksheet.add_cell(7, 0, "Product Reviews")
+			if browser.div(id:'averageCustomerReviews_feature_div').text == 'Be the first to review this item'
+				worksheet.add_cell(7, 1, "No reviews exist for this product")
+				worksheet[7][1].change_fill('FF6161')
+			else
+				review_avg = browser.div(id:'averageCustomerReviews').span(id:'acrPopover').title.split.first
+				review_total = browser.span(id:'acrCustomerReviewText').text.split.first
+				# review_link = browser.a(id:'acrCustomerReviewLink').href # link to reviews section of product page
+				review_link = browser.div(id:'revF').as.first.href # link to all reviews on separate page
+				worksheet.add_cell(7, 1, "#{review_avg} average rating")
+				worksheet.add_cell(7, 2, "#{review_total} total reviews")
+				worksheet.add_cell(7, 3, '', "HYPERLINK(\"#{review_link}\")")
+				worksheet[7][3].change_font_color('0000CC')
+			end
+
+			# Questions & answers
+			# puts "\nGetting questions"
+			# worksheet.add_cell(8, 0, "Product Questions")
+			# if browser.div(class:'askQuestionExamples').exist?
+			# 	worksheet.add_cell(8, 1, "No questions exist for this product")
+			# 	worksheet[8][1].change_fill('FF6161')
+			# else
+			# 	num_questions = browser.a(class:'askSeeMoreQuestionsLink').text.split('(').last.chop
+
 		end
-
-		# Reviews
-		worksheet.add_cell(7, 0, "Product Reviews")
-		if browser.div(id:'averageCustomerReviews_feature_div').text == 'Be the first to review this item'
-			worksheet.add_cell(7, 1, "No reviews exist for this product")
-			worksheet[7][1].change_fill('FF6161')
-		else
-			review_avg = browser.div(id:'averageCustomerReviews').span(id:'acrPopover').title.split.first
-			review_total = browser.span(id:'acrCustomerReviewText').text.split.first
-			# review_link = browser.a(id:'acrCustomerReviewLink').href # link to reviews section of product page
-			review_link = browser.div(id:'revF').as.first.href # link to all reviews on separate page
-			worksheet.add_cell(7, 1, "#{review_avg} average rating")
-			worksheet.add_cell(7, 2, "#{review_total} total reviews")
-			worksheet.add_cell(7, 3, '', "HYPERLINK(\"#{review_link}\")")
-			worksheet[7][3].change_font_color('0000CC')
-		end
-
-		# Questions & answers
-		# worksheet.add_cell(8, 0, "Product Questions")
-		# if browser.div(class:'askQuestionExamples').exist?
-		# 	worksheet.add_cell(8, 1, "No questions exist for this product")
-		# 	worksheet[8][1].change_fill('FF6161')
-		# else
-		# 	num_questions = browser.a(class:'askSeeMoreQuestionsLink').text.split('(').last.chop
-
-
 
 		# save the workbook
+		puts "\nSaving workbook after collecting data"
 		worksheet.change_column_width(0, 25)
 		worksheet.change_column_width(1, 50)
 		worksheet.change_column_width(2, 50)
 		workbook.write(workbook_location)
 	end
-	no_dots
-	puts "\n==============="
-	result_counts.each { |r| puts r }
-	puts "===============\n"
-	puts "finished processing"
+	# no_dots
+	# puts "\n==============="
+	# result_counts.each { |r| puts r }
+	puts "\n===============\n"
+	puts "\nFinished processing"
+	puts "\nCopying workbook to results folder"
 	FileUtils.copy_file(workbook_location, @results_folder + File.basename(workbook_location))
 rescue Exception => e
 	@error = true
@@ -194,6 +208,7 @@ rescue Exception => e
 	puts "Exiting after fail due to error."
 	binding.pry
 end
+puts "\nClosing browser"
 browser.close
 headless.destroy if @headless
 no_dots
