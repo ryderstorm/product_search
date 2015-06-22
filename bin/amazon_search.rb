@@ -236,8 +236,10 @@ rescue Exception => e
 		error_file = take_screenshot('ERROR')
 		puts "Screenshot saved as [#{error_file}]"
 		pushbullet_file_to_all("Screenshot of Automation Error", error_file, '')
+		error_report(e, @browser.url)
+	else	
+		error_report(e)
 	end
-	error_report(e, @browser.url)
 	puts "Exiting after fail due to error."
 	binding.pry
 end
