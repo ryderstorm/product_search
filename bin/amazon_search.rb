@@ -112,17 +112,23 @@ begin
 
 			# Price
 			puts "\nGetting price"
-			if browser.a(text:'See price in cart').present?
+			case
+			when browser.span(id:'priceblock_ourprice').present?
+				price = browser.span(id:'priceblock_ourprice').text
+			when browser.a(text:'See price in cart').present?
 				browser.a(text:'See price in cart').click
 				browser.span(id:'priceblock_ourprice').wait_until_present
 				price = browser.span(id:'priceblock_ourprice').text
 				browser.button(data_action:'a-popover-close').wait_until_present
 				browser.button(data_action:'a-popover-close').click
+			when browser.div(id:'olp_feature_div').present?
+				price = browser.div(id:'olp_feature_div').text.split('from ').last
 			else
-				price = browser.span(id:'priceblock_ourprice').text
+				price = "No price found on page, see url for details"
 			end
 			worksheet.add_cell(0, 2, price)
-
+			worksheet[0][2].change_fill('FF6161') if price.length > 10
+			
 			# Features
 			puts "\nGetting features"
 			worksheet.add_cell(4, 0, "Product Features")
@@ -214,7 +220,7 @@ rescue Exception => e
 		puts "Screenshot saved as [#{error_file}]"
 		pushbullet_file_to_all("Screenshot of Automation Error", error_file, '')
 	end
-	error_report(e)
+	error_report(e, @browser.url)
 	puts "Exiting after fail due to error."
 	binding.pry
 end
