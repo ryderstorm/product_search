@@ -44,13 +44,13 @@ begin
 		model, upc, desc, asin = item
 		case 
 		when !asin.nil?
-			product = asin
+			product = asin.to_s
 		when !upc.nil?
-			product = upc
+			product = upc.to_s
 		when !model.nil?
-			product = model
+			product = model.to_s
 		when !desc.nil?
-			product = desc
+			product = desc.to_s
 		else
 			puts "Can't search when all info is nil!"	
 			puts item
@@ -63,7 +63,7 @@ begin
 		worksheet.add_cell(0, 1, desc)
 		searchbox.set product
 		send_enter
-		puts "\nSearching for product"
+		puts "\nSearching for product: [#{product}]"
 		sleep 1
 		browser.div(id:'navFooter').wait_until_present
 		worksheet.add_cell(1, 0, "Search results URL")
