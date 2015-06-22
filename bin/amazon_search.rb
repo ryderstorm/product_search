@@ -1,7 +1,7 @@
 @error = false
 begin
 	asins_imported = ARGV[0]
-	batch_number = ARGV[1].empty? ? 1.to_s : ARGV[1].to_s
+	batch_number = ARGV[1].nil? ? 1.to_s : ARGV[1].to_s
 	puts "Beginning Amazon Search"
 	@temp_folder = @root_folder + "/temp/amazon_#{tstamp}"
 	FileUtils.mkdir_p(@temp_folder)
