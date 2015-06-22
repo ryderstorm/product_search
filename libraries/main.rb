@@ -41,10 +41,14 @@ def save_image(name, src)
 end
 
 def error_report(e)
-	puts "\n!!!!!!!!!!!!!!!!!!!!!\nAn error has occurred:"
+	pushbullet_note_to_all("An error has occurred in the automation!", e.message)
+	puts "\n!!!!!!!!!!!!!!!!!!!!!\nAn error occurred!\n!!!!!!!!!!!!!!!!!!!!!\n"
+	puts "Current time: #{Time.now}"
+	puts "Time since application start: #{seconds_to_string(Time.now - @start_time)}"
+	puts "Error message contents:"
 	puts "#{e.message}"
 	(0..10).each { |i| puts "\t" + e.backtrace[i] }
-	puts "!!!!!!!!!!!!!!!!!!!!!\n"
+	puts "\n!!!!!!!!!!!!!!!!!!!!!\n"
 end
 
 def pluralize(number)
@@ -77,10 +81,10 @@ def parse_secrets(secrets_location)
 	secrets
 end
 
-
 @computer = Socket.gethostname
 @amazon_data = @computer.include?('digital-ocean') ? File.absolute_path('data/amazon.xlsx') : File.absolute_path('data/amazon_test.xlsx')
-@headless = true
+# @amazon_data = File.absolute_path('data/amazon.xlsx')
+@headless = false
 @headless = true if @computer == 'ryderstorm-amazon_search-1580844'
 @headless = true if @computer.include?('testing-worker-linux-docker')
 @headless = true if @computer.include?('digital-ocean')
