@@ -12,6 +12,7 @@ begin
 	workbook[0].sheet_name = 'Summary'
 	workbook[0].change_column_width(0, 50)
 	asins = RubyXL::Parser.parse(@amazon_data).first.extract_data
+	asins.delete_if { |a| a.to_s == "[nil, nil, nil, nil]" }
 	asins.each_with_index do |asin, i|
 		workbook[0].add_cell(i, 0, asin[0])
 		workbook[0].add_cell(i, 1, asin[1])
@@ -49,7 +50,12 @@ begin
 		image = take_screenshot("#{asin}_SEARCH_RESULTS")
 		worksheet.add_cell(1, 2, '', "HYPERLINK(\"#{image}\")")
 		worksheet[1][2].change_font_color('0000CC')
-		if browser.element(id:'noresult_countsTitle').present?
+		case 
+		when browser.h1(id:'noResultsTitle').present?
+			# move on if no results were found
+			result_counts.push "#{i+1}. | #{asin.center(20)} | #{desc} | NO results FOUND"
+			no_results = true			
+		when browser.element(id:'noresult_countsTitle').present?
 			# move on if no results were found
 			result_counts.push "#{i+1}. | #{asin.center(20)} | #{desc} | NO results FOUND"
 			no_results = true
@@ -78,7 +84,7 @@ begin
 			sleep 1
 			browser.div(id:'navFooter').wait_until_present
 
-			# record the name, features, desc, details
+			# record the name, price, features, desc, details
 			# Name
 			worksheet.add_cell(3, 0, "Product Name")
 			if browser.span(id:'productTitle').exist?
@@ -91,7 +97,11 @@ begin
 			worksheet.add_cell(3, 1, name)
 			worksheet.add_cell(3, 2, '', "HYPERLINK(\"#{browser.url}\")")
 			worksheet[3][2].change_font_color('0000CC')
-			worksheet[3][1].change_fill('FF0000') unless found
+			worksheet[3][1].change_fill('FF6161') unless found
+
+			# Price
+			price = browser.span(id:'priceblock_ourprice').text
+			worksheet.add_cell(0, 2, price)
 
 			# Features
 			worksheet.add_cell(4, 0, "Product Features")
@@ -103,7 +113,7 @@ begin
 				found = false
 			end
 			worksheet.add_cell(4, 1, features)
-			worksheet[4][1].change_fill('FF0000') unless found
+			worksheet[4][1].change_fill('FF6161') unless found
 
 			# Description
 			worksheet.add_cell(5, 0, "Product Description")
@@ -115,7 +125,7 @@ begin
 				found=false
 			end
 			worksheet.add_cell(5, 1, desc)
-			worksheet[5][1].change_fill('FF0000') unless found
+			worksheet[5][1].change_fill('FF6161') unless found
 
 			# Details
 			worksheet.add_cell(6, 0, "Product Details")
@@ -127,11 +137,34 @@ begin
 				found=false
 			end
 			worksheet.add_cell(6, 1, details)
-			worksheet[6][1].change_fill('FF0000') unless found
+			worksheet[6][1].change_fill('FF6161') unless found
 		end
 
 		# Reviews
-		# if browser.
+		worksheet.add_cell(7, 0, "Product Reviews")
+		if browser.div(id:'averageCustomerReviews_feature_div').text == 'Be the first to review this item'
+			worksheet.add_cell(7, 1, "No reviews exist for this product")
+			worksheet[7][1].change_fill('FF6161')
+		else
+			review_avg = browser.div(id:'averageCustomerReviews').span(id:'acrPopover').title.split.first
+			review_total = browser.span(id:'acrCustomerReviewText').text.split.first
+			# review_link = browser.a(id:'acrCustomerReviewLink').href # link to reviews section of product page
+			review_link = browser.div(id:'revF').as.first.href # link to all reviews on separate page
+			worksheet.add_cell(7, 1, "#{review_avg} average rating")
+			worksheet.add_cell(7, 2, "#{review_total} total reviews")
+			worksheet.add_cell(7, 3, '', "HYPERLINK(\"#{review_link}\")")
+			worksheet[7][3].change_font_color('0000CC')
+		end
+
+		# Questions & answers
+		# worksheet.add_cell(8, 0, "Product Questions")
+		# if browser.div(class:'askQuestionExamples').exist?
+		# 	worksheet.add_cell(8, 1, "No questions exist for this product")
+		# 	worksheet[8][1].change_fill('FF6161')
+		# else
+		# 	num_questions = browser.a(class:'askSeeMoreQuestionsLink').text.split('(').last.chop
+
+
 
 		# save the workbook
 		worksheet.change_column_width(0, 25)
@@ -148,9 +181,14 @@ begin
 rescue Exception => e
 	@error = true
 	no_dots
-	# error_file = take_screenshot('ERROR')
+	unless @browser.nil?
+		puts "URL of browser at error:"
+		puts @browser.url
+		error_file = take_screenshot('ERROR')
+		puts "Screenshot saved as [#{error_file}]"
+	end
 	error_report(e)
-	puts "Exiting after fail due to error." # Screenshot saved as [#{error_file}]"
+	puts "Exiting after fail due to error."
 	binding.pry
 end
 browser.close
