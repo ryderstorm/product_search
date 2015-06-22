@@ -18,23 +18,25 @@ Pricesmart
 		-grab url of results
 		-take screenshot
 (click first result)
-	-grab url of first result
+	-report url of first result
 	-take screenshot
 	-does pricing match warboard?
 	-pull the following:
 		-name
+		-price
 		-description
 		-details
 		-thumbnail of each product photo
 (go to reviews page)
-	-get overall star rating
-	-get number of reviews
+	-report overall star rating
+	-report number of reviews and comments
 	-pull out new reviews since last report
 		-user
 		-date
 		-star rating
 		-text of review
 (go to questions & answers)
+	-report total # of questions and average number of answers
 	-look for new questions
 *During product search, check reviews of each product and develop an analysis of reviews, by customer
 
