@@ -40,8 +40,12 @@ def save_image(name, src)
 	File.absolute_path(complete_name)
 end
 
-def error_report(e)
-	pushbullet_note_to_all("An error has occurred in the automation!", e.message)
+def error_report(e, url=nil)
+	if url.nil?
+		pushbullet_note_to_all("An error has occurred in the automation!", e.message)
+	else
+		pushbullet_link_to_all("An error has occurred in the automation!", url, e.message)
+	end
 	puts "\n!!!!!!!!!!!!!!!!!!!!!\nAn error occurred!\n!!!!!!!!!!!!!!!!!!!!!\n"
 	puts "Current time: #{Time.now}"
 	puts "Time since application start: #{seconds_to_string(Time.now - @start_time)}"
