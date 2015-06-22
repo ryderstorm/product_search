@@ -1,14 +1,14 @@
 @error = false
 begin
 	asins_imported = ARGV[0]
-	batch_number = ARGV[1]
+	batch_number = ARGV[1].empty? ? 1.to_s : ARGV[1].to_s
 	puts "Beginning Amazon Search"
 	@temp_folder = @root_folder + "/temp/amazon_#{tstamp}"
 	FileUtils.mkdir_p(@temp_folder)
 	puts "Temp folder location: #{File.absolute_path(@temp_folder)}"
 	dots
 
-	workbook_location = "#{@temp_folder}/AMAZON_DATA_#{@run_stamp}.xlsx"
+	workbook_location = "#{@temp_folder}/AMAZON_DATA_#{@run_stamp}_batch#{batch_number}.xlsx"
 	puts "\nCreating results workbook at #{workbook_location}"
 	result_urls = []
 	result_counts = []
@@ -40,32 +40,47 @@ begin
 	asins[1..-1].each_with_index do |item, i|
 		puts "\nApplication runtime: #{seconds_to_string(Time.now - @start_time)}"
 
-		#search for the current asin
+		#search for the current product
 		model, upc, desc, asin = item
-		puts "\nprocessing asin [#{asin} | #{desc}] - #{i + 1} of #{asins.count - 1}"
-		worksheet = workbook.add_worksheet(asin)
-		worksheet.add_cell(0, 0, asin)
+		case 
+		when !asin.nil?
+			product = asin
+		when !upc.nil?
+			product = upc
+		when !model.nil?
+			product = model
+		when !desc.nil?
+			product = desc
+		else
+			puts "Can't search when all info is nil!"	
+			puts item
+			pushbullet_note_to_all("Encountered nil item in automation!", "Item ##{i} is nil!\n#{item.to_s}")
+			next
+		end
+		puts "\nprocessing product [#{product} | #{desc}] - #{i + 1} of #{asins.count - 1}"
+		worksheet = workbook.add_worksheet(product)
+		worksheet.add_cell(0, 0, product)
 		worksheet.add_cell(0, 1, desc)
-		searchbox.set asin
+		searchbox.set product
 		send_enter
-		puts "\nSearching for asin"
+		puts "\nSearching for product"
 		sleep 1
 		browser.div(id:'navFooter').wait_until_present
 		worksheet.add_cell(1, 0, "Search results URL")
 		worksheet.add_cell(1, 1, '', "HYPERLINK(\"#{browser.url}\")")
 		worksheet[1][1].change_font_color('0000CC')
-		image = take_screenshot("#{asin}_SEARCH_RESULTS")
+		image = take_screenshot("#{product}_SEARCH_RESULTS")
 		worksheet.add_cell(1, 2, '', "HYPERLINK(\"#{image}\")")
 		worksheet[1][2].change_font_color('0000CC')
 		case 
 		when browser.h1(id:'noResultsTitle').present?
 			# move on if no results were found
-			result_counts.push "#{i+1}. | #{asin.center(20)} | #{desc} | NO results FOUND"
+			result_counts.push "#{i+1}. | #{product.center(20)} | #{desc} | NO results FOUND"
 			no_results = true
 			number_results = 0
 		when browser.element(id:'noresult_countsTitle').present?
 			# move on if no results were found
-			result_counts.push "#{i+1}. | #{asin.center(20)} | #{desc} | NO results FOUND"
+			result_counts.push "#{i+1}. | #{product.center(20)} | #{desc} | NO results FOUND"
 			no_results = true
 			number_results = 0
 		else
@@ -79,7 +94,7 @@ begin
 			else
 				number_results = search_result_counts.split(' ').first
 			end
-			# image = save_image("#{asin}_SEARCH_THUMBNAIL", browser.li(id:'result_0').imgs.first.attribute_value('src'))
+			# image = save_image("#{product}_SEARCH_THUMBNAIL", browser.li(id:'result_0').imgs.first.attribute_value('src'))
 			image = browser.li(id:'result_0').imgs.first.attribute_value('src')
 			worksheet.add_cell(2, 2, '', "HYPERLINK(\"#{image}\")")
 			worksheet[2][2].change_font_color('0000CC')
