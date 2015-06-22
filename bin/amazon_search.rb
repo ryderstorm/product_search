@@ -7,11 +7,12 @@ begin
 	FileUtils.mkdir_p(@temp_folder)
 	puts "Temp folder location: #{File.absolute_path(@temp_folder)}"
 	dots
-	puts "\nCreating results workbook"
+
+	workbook_location = "#{@temp_folder}/AMAZON_DATA_#{@run_stamp}.xlsx"
+	puts "\nCreating results workbook at #{workbook_location}"
 	result_urls = []
 	result_counts = []
 	workbook = RubyXL::Workbook.new
-	workbook_location = "#{@temp_folder}/AMAZON_DATA_#{@run_stamp}.xlsx"
 	workbook[0].sheet_name = 'Summary'
 	workbook[0].change_column_width(0, 50)
 	asins = RubyXL::Parser.parse(@amazon_data).first.extract_data
@@ -128,7 +129,7 @@ begin
 			end
 			worksheet.add_cell(0, 2, price)
 			worksheet[0][2].change_fill('FF6161') if price.length > 10
-			
+
 			# Features
 			puts "\nGetting features"
 			worksheet.add_cell(4, 0, "Product Features")
