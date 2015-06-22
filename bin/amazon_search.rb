@@ -54,11 +54,13 @@ begin
 		when browser.h1(id:'noResultsTitle').present?
 			# move on if no results were found
 			result_counts.push "#{i+1}. | #{asin.center(20)} | #{desc} | NO results FOUND"
-			no_results = true			
+			no_results = true
+			number_results = 0
 		when browser.element(id:'noresult_countsTitle').present?
 			# move on if no results were found
 			result_counts.push "#{i+1}. | #{asin.center(20)} | #{desc} | NO results FOUND"
 			no_results = true
+			number_results = 0
 		else
 			# get the number of results
 			no_results = false
@@ -70,13 +72,13 @@ begin
 			else
 				number_results = search_result_counts.split(' ').first
 			end
+			# image = save_image("#{asin}_SEARCH_THUMBNAIL", browser.li(id:'result_0').imgs.first.attribute_value('src'))
+			image = browser.li(id:'result_0').imgs.first.attribute_value('src')
+			worksheet.add_cell(2, 2, '', "HYPERLINK(\"#{image}\")")
+			worksheet[2][2].change_font_color('0000CC')
 		end
 		worksheet.add_cell(2, 0, "Number of search results")
 		worksheet.add_cell(2, 1, number_results)
-		# image = save_image("#{asin}_SEARCH_THUMBNAIL", browser.li(id:'result_0').imgs.first.attribute_value('src'))
-		image = browser.li(id:'result_0').imgs.first.attribute_value('src')
-		worksheet.add_cell(2, 2, '', "HYPERLINK(\"#{image}\")")
-		worksheet[2][2].change_font_color('0000CC')
 
 		unless no_results
 			# go to the first result
