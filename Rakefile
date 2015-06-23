@@ -21,6 +21,7 @@ init_variables
 
 puts "Root folder = #{@root_folder}"
 puts "Running on [#{@computer}] with [#{@cores}] cores"
+puts "Runstamp = #{@run_stamp}"
 
 #run tasks
 task default: :run_all
@@ -34,6 +35,7 @@ task :amazon do
 		headless.start
 	end
 	data_groups = read_amazon_data(@group_size)
+	threads = []
 	browsers = Array.new(data_groups.count)
 	data_groups.each_with_index do |data, i|
 		unless free_core
@@ -42,7 +44,7 @@ task :amazon do
 		end
 		break unless @success
 		puts "Amazon search [#{i+1} of #{data_groups.count}] starting..."
-		result = Thread.new do
+		threads.push Thread.new do
 			puts "\nCreating browser instance #{i}"
 			browsers[i] = Watir::Browser.new
 			amazon_search(browsers[i], data, i)
@@ -50,6 +52,7 @@ task :amazon do
 			puts "Amazon search [#{i}] ended with status: #{@success}"
 		end
 	end
+	threads.each {|t| t.join(5)}
 	headless.destroy if @headless
 end
 
