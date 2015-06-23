@@ -21,9 +21,11 @@ task run_all: %i(amazon pushbullet total_time)
 desc 'Search amazon for the specified skus'
 task :amazon do
 	data_groups = read_amazon_data
-	data_groups.each do |data|
+	data_groups.each_with_index do |data, i|
+		puts "Amazon search [#{i+1} of #{data_groups.count}] starting..."
 		result = amazon_search(data, 1)
-	puts "Amazon search ended with status: #{result}"
+		puts "Amazon search [#{i+1} of #{data_groups.count}] ended with status: #{result}"
+	end
 end
 
 desc 'Pusbullet file results'

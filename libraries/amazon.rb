@@ -55,7 +55,7 @@ def amazon_search(asins, batch_number = 1.to_s)
 			pushbullet_note_to_all("Encountered nil item in automation!", "Item ##{i} is nil!\n#{item.to_s}")
 			next
 		end
-		puts "\nprocessing product [#{product} | #{desc}] - #{i + 1} of #{asins.count - 1}"
+		puts "\nprocessing product [#{product} | #{desc}] - #{i + 1} of #{asins.count}"
 		worksheet = workbook.add_worksheet(product)
 		worksheet.add_cell(0, 0, product)
 		worksheet.add_cell(0, 1, desc)
