@@ -35,7 +35,7 @@ def amazon_search(asins, batch_number = 1.to_s)
 	browser.goto 'http://www.amazon.com'
 
 	searchbox = browser.text_field(id:'twotabsearchtextbox')
-	asins[1..-1].each_with_index do |item, i|
+	asins.each_with_index do |item, i|
 		puts "\nApplication runtime: #{seconds_to_string(Time.now - @start_time)}"
 
 		#search for the current product
