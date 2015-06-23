@@ -1,4 +1,4 @@
-def amazon_search(asins, batch_number = 1.to_s)
+def amazon_search(browser, asins, batch_number = 1.to_s)
 	error = false
 	temp_folder = @root_folder + "/temp/amazon_#{tstamp}"
 	FileUtils.mkdir_p(temp_folder)
@@ -21,20 +21,11 @@ def amazon_search(asins, batch_number = 1.to_s)
 	end
 	workbook.write(workbook_location)
 
-	puts "\nCreating browser instance"
-	if @headless
-		headless = Headless.new
-		headless.start
-	end
-	browser_instance = "amazon_search_#{tstamp}"
-	@browsers.store browser_instance.to_sym, Watir::Browser.new
-	browser = @browsers[browser_instance.to_sym]
 	unless @headless
 		browser.window.resize_to(900, 1000)
 		browser.window.move_to(0, 0)
 	end
 	browser.goto 'http://www.amazon.com'
-
 	searchbox = browser.text_field(id:'twotabsearchtextbox')
 	asins.each_with_index do |item, i|
 		puts "\nApplication runtime: #{seconds_to_string(Time.now - @start_time)}"
@@ -249,9 +240,8 @@ ensure
 	browser.close rescue nil
 	workbook.write(workbook_location) rescue nil
 	puts "Workbook located at:\n#{workbook_location}"
-	headless.destroy if @headless
+	# headless.destroy if @headless
 	no_dots
 	@success = !error
-	puts "Amazon search [#{batch_number}] ended with status: #{@success}"
 	return !error
 end

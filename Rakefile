@@ -29,17 +29,27 @@ task run_all: %i(amazon pushbullet_files finish)
 
 desc 'Search amazon for the specified skus'
 task :amazon do
+	if @headless
+		headless = Headless.new
+		headless.start
+	end
 	data_groups = read_amazon_data(@group_size)
+	browsers = Array.new(data_groups.count)
 	data_groups.each_with_index do |data, i|
+		unless free_core
+			sleep 1
+			next
+		end
 		break unless @success
 		puts "Amazon search [#{i+1} of #{data_groups.count}] starting..."
-		result = Thread.new{ amazon_search(data, i)}
-		if @cores > 1
-			sleep(0.1) until free_core
-		else
-			sleep(0.1) until Thread.list.count == 1
+		result = Thread.new do
+			puts "\nCreating browser instance"
+			browsers[i] = Watir::Browser.new
+			amazon_search(browsers[i], data, i)
+			puts "Amazon search [#{i}] ended with status: #{@success}"
 		end
 	end
+	headless.destroy if @headless
 end
 
 desc 'Pusbullet file results'
