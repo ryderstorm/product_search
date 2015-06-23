@@ -1,8 +1,19 @@
-require 'watir-webdriver'
-require 'headless'
-require 'rubyXL'
-require 'pry'
-require 'open-uri'
+def init_variables
+	@start_time = Time.now
+	@run_stamp = tstamp
+	@results_folder = @root_folder + "/results/"
+	@group_size = 10
+	@success = true
+	@cores = Facter.value('processors')['count']
+	@computer = Socket.gethostname
+	# @amazon_data = @computer.include?('digital-ocean') ? File.absolute_path('data/amazon.xlsx') : File.absolute_path('data/amazon_test.xlsx')
+	@amazon_data = File.absolute_path('data/amazon.xlsx')
+	@headless = true
+	@headless = true if @computer == 'ryderstorm-amazon_search-1580844'
+	@headless = true if @computer.include?('testing-worker-linux-docker')
+	@headless = true if @computer.include?('digital-ocean')
+	@secrets = parse_secrets(File.absolute_path('secret/secret.txt'))
+end
 
 def read_amazon_data(group_size = 25)
 	asins = RubyXL::Parser.parse(@amazon_data).first.extract_data
@@ -95,12 +106,3 @@ def parse_secrets(secrets_location)
 	end
 	secrets
 end
-
-@computer = Socket.gethostname
-# @amazon_data = @computer.include?('digital-ocean') ? File.absolute_path('data/amazon.xlsx') : File.absolute_path('data/amazon_test.xlsx')
-@amazon_data = File.absolute_path('data/amazon.xlsx')
-@headless = true
-@headless = true if @computer == 'ryderstorm-amazon_search-1580844'
-@headless = true if @computer.include?('testing-worker-linux-docker')
-@headless = true if @computer.include?('digital-ocean')
-@secrets = parse_secrets(File.absolute_path('secret/secret.txt'))

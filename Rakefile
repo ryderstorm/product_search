@@ -2,18 +2,25 @@ unless File.exist?('secret/secret.txt')
 	puts "Secret.txt doesn't exist and application cannot continue."
 	exit
 end
+
+require 'watir-webdriver'
+require 'headless'
+require 'rubyXL'
+require 'pry'
+require 'open-uri'
+require 'facter'
+
+@root_folder = File.absolute_path(File.dirname(__FILE__))
+
 require_relative 'libraries/main.rb'
 require_relative 'libraries/digital_ocean.rb'
 require_relative 'libraries/pushbullet.rb'
 require_relative 'libraries/amazon.rb'
 
-@start_time = Time.now
-@run_stamp = tstamp
-@root_folder = File.absolute_path(File.dirname(__FILE__))
-@results_folder = @root_folder + "/results/"
-@group_size = 10
-@success = true
+init_variables
+
 puts "Root folder = #{@root_folder}"
+puts "Running on [#{@computer}] with [#{@cores}] cores"
 
 #run tasks
 task default: :run_all
