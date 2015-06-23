@@ -237,7 +237,7 @@ rescue Interrupt
 	puts "User pressed Ctrl+C"
 ensure	
 	puts "\nClosing resources"
-	browser.close rescue nil
+	#browser.close rescue nil
 	workbook.write(workbook_location) rescue nil
 	puts "Workbook located at:\n#{workbook_location}"
 	# headless.destroy if @headless
