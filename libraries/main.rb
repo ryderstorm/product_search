@@ -4,12 +4,14 @@ require 'rubyXL'
 require 'pry'
 require 'open-uri'
 
-def send_enter
-	@browser.send_keys :enter
+def read_amazon_data
+	asins = RubyXL::Parser.parse(@amazon_data).first.extract_data
+	asins.delete_if { |a| a.to_s == "[nil, nil, nil, nil]" }
+	asins
 end
 
 def tstamp
-	Time.now.strftime("%Y.%m.%d-%H.%M.%S").to_s
+	Time.now.strftime("%Y%m%d%H%M%S").to_s
 end
 
 def dots
@@ -86,8 +88,8 @@ def parse_secrets(secrets_location)
 end
 
 @computer = Socket.gethostname
-@amazon_data = @computer.include?('digital-ocean') ? File.absolute_path('data/amazon.xlsx') : File.absolute_path('data/amazon_test.xlsx')
-# @amazon_data = File.absolute_path('data/amazon.xlsx')
+# @amazon_data = @computer.include?('digital-ocean') ? File.absolute_path('data/amazon.xlsx') : File.absolute_path('data/amazon_test.xlsx')
+@amazon_data = File.absolute_path('data/amazon.xlsx')
 @headless = false
 @headless = true if @computer == 'ryderstorm-amazon_search-1580844'
 @headless = true if @computer.include?('testing-worker-linux-docker')

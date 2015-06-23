@@ -5,6 +5,8 @@ end
 require_relative 'libraries/main.rb'
 require_relative 'libraries/digital_ocean.rb'
 require_relative 'libraries/pushbullet.rb'
+require_relative 'libraries/amazon.rb'
+
 @start_time = Time.now
 @run_stamp = tstamp
 @root_folder = File.absolute_path(File.dirname(__FILE__))
@@ -18,7 +20,8 @@ task run_all: %i(amazon pushbullet total_time)
 
 desc 'Search amazon for the specified skus'
 task :amazon do
-	load 'bin/amazon_search.rb'
+	asins = read_amazon_data
+	amazon_search(asins, 1)
 end
 
 desc 'Pusbullet file results'
