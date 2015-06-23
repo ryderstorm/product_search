@@ -1,27 +1,24 @@
-@error = false
-begin
-	asins_imported = ARGV[0]
-	batch_number = ARGV[1].nil? ? 1.to_s : ARGV[1].to_s
+def amazon_search(asins, batch_number = 1.to_s)
+	error = false
 	puts "Beginning Amazon Search"
-	@temp_folder = @root_folder + "/temp/amazon_#{tstamp}"
-	FileUtils.mkdir_p(@temp_folder)
-	puts "Temp folder location: #{File.absolute_path(@temp_folder)}"
+	temp_folder = @root_folder + "/temp/amazon_#{tstamp}"
+	FileUtils.mkdir_p(temp_folder)
+	puts "Temp folder location: #{File.absolute_path(temp_folder)}"
 	dots
 
-	workbook_location = "#{@temp_folder}/AMAZON_DATA_#{@run_stamp}_batch#{batch_number}.xlsx"
+	workbook_location = "#{temp_folder}/AMAZON_DATA_#{@run_stamp}_batch#{batch_number}.xlsx"
 	puts "\nCreating results workbook at #{workbook_location}"
 	result_urls = []
 	result_counts = []
 	workbook = RubyXL::Workbook.new
 	workbook[0].sheet_name = 'Summary'
 	workbook[0].change_column_width(0, 50)
-	asins = RubyXL::Parser.parse(@amazon_data).first.extract_data
-	asins.delete_if { |a| a.to_s == "[nil, nil, nil, nil]" }
 	asins.each_with_index do |asin, i|
-		workbook[0].add_cell(i, 0, asin[0])
-		workbook[0].add_cell(i, 1, asin[1])
-		workbook[0].add_cell(i, 2, asin[2])
-		workbook[0].add_cell(i, 3, asin[3])
+		row = i + 1
+		workbook[0].add_cell(row, 0, asin[0])
+		workbook[0].add_cell(row, 1, asin[1])
+		workbook[0].add_cell(row, 2, asin[2])
+		workbook[0].add_cell(row, 3, asin[3])
 	end
 	workbook.write(workbook_location)
 
@@ -31,9 +28,10 @@ begin
 		headless.start
 	end
 	browser = Watir::Browser.new
-	@browser = browser
-	browser.window.resize_to(900, 1000)
-	browser.window.move_to(0, 0)
+	unless @headless
+		browser.window.resize_to(900, 1000)
+		browser.window.move_to(0, 0)
+	end
 	browser.goto 'http://www.amazon.com'
 
 	searchbox = browser.text_field(id:'twotabsearchtextbox')
@@ -62,10 +60,9 @@ begin
 		worksheet.add_cell(0, 0, product)
 		worksheet.add_cell(0, 1, desc)
 		searchbox.set product
-		send_enter
+		browser.send_keys :enter
 		puts "\nSearching for product: [#{product}]"
 		sleep 1
-		browser.div(id:'navFooter').wait_until_present
 		worksheet.add_cell(1, 0, "Search results URL")
 		worksheet.add_cell(1, 1, '', "HYPERLINK(\"#{browser.url}\")")
 		worksheet[1][1].change_font_color('0000CC')
@@ -102,6 +99,7 @@ begin
 		worksheet.add_cell(2, 0, "Number of search results")
 		worksheet.add_cell(2, 1, number_results)
 
+		browser.div(id:'navFooter').wait_until_present
 		if no_results
 			puts "\nNo results found"
 		else
@@ -210,7 +208,6 @@ begin
 			# 	worksheet[8][1].change_fill('FF6161')
 			# else
 			# 	num_questions = browser.a(class:'askSeeMoreQuestionsLink').text.split('(').last.chop
-
 		end
 
 		# save the workbook
@@ -228,25 +225,36 @@ begin
 	puts "\nCopying workbook to results folder"
 	FileUtils.copy_file(workbook_location, @results_folder + File.basename(workbook_location))
 rescue Exception => e
-	@error = true
+	error = true
 	no_dots
-	unless @browser.nil?
+	browser_exist = browser.nil? rescue false
+	if browser_exist
 		puts "URL of browser at error:"
-		puts @browser.url
+		puts browser.url
 		error_file = take_screenshot('ERROR')
 		puts "Screenshot saved as [#{error_file}]"
 		pushbullet_file_to_all("Screenshot of Automation Error", error_file, '')
-		error_report(e, @browser.url)
-	else	
+		error_report(e, browser.url)
+	else
+		puts "Browser did not exist at time of error"
 		error_report(e)
 	end
 	puts "Exiting after fail due to error."
 	binding.pry
-end
-puts "\nClosing browser"
-browser.close
-headless.destroy if @headless
-no_dots
-unless @error
-	puts "Amazon scrape completed succesfully."
+rescue Interrupt
+	puts "User pressed Ctrl+C"
+ensure	
+	puts "\nClosing resources"
+	browser.close rescue nil
+	workbook.write(workbook_location) rescue nil
+	puts "Workbook located at:\n#{workbook_location}"
+	headless.destroy if @headless
+	no_dots
+	if error
+		puts "Amazon scrape encountered an error"
+		return false
+	else
+		puts "Amazon scrape completed succesfully."
+		return true
+	end
 end
