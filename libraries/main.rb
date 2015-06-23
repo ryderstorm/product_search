@@ -4,13 +4,13 @@ require 'rubyXL'
 require 'pry'
 require 'open-uri'
 
-def read_amazon_data
+def read_amazon_data(group_size = 25)
 	asins = RubyXL::Parser.parse(@amazon_data).first.extract_data
 	asins.delete_if { |a| a.to_s == "[nil, nil, nil, nil]" }
 	asins.delete_at(0)
 	groups = []
 	while asins.count > 0
-		groups.push asins.slice!(0, 25)
+		groups.push asins.slice!(0, group_size.to_i)
 	end
 	groups
 end
@@ -48,18 +48,22 @@ def save_image(name, src)
 end
 
 def error_report(e, url=nil)
+	message = ""
+	message << "\n!!!!!!!!!!!!!!!!!!!!!\nAn error occurred!\n!!!!!!!!!!!!!!!!!!!!!\n"
+	message << "\nCurrent computer: #{@computer}"
+	message << "\nCurrent time: #{Time.now}"
+	message << "\nTime since application start: #{seconds_to_string(Time.now - @start_time)}"
+	message << "\nURL at time of error:\n#{url}" unless url.nil?
+	message << "\nError message contents:"
+	message << "\n#{e.message}"
+	(0..10).each { |i| message << "\n\t" + e.backtrace[i] }
+	message << "\n\n!!!!!!!!!!!!!!!!!!!!!\n"
+	puts message
 	if url.nil?
-		pushbullet_note_to_all("An error has occurred in the automation!", e.message)
+		pushbullet_note_to_all("An error has occurred in the automation!", message)
 	else
-		pushbullet_link_to_all("An error has occurred in the automation!", url, e.message)
+		pushbullet_link_to_all("An error has occurred in the automation!", url, message)
 	end
-	puts "\n!!!!!!!!!!!!!!!!!!!!!\nAn error occurred!\n!!!!!!!!!!!!!!!!!!!!!\n"
-	puts "Current time: #{Time.now}"
-	puts "Time since application start: #{seconds_to_string(Time.now - @start_time)}"
-	puts "Error message contents:"
-	puts "#{e.message}"
-	(0..10).each { |i| puts "\t" + e.backtrace[i] }
-	puts "\n!!!!!!!!!!!!!!!!!!!!!\n"
 end
 
 def pluralize(number)

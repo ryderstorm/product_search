@@ -10,7 +10,8 @@ require_relative 'libraries/amazon.rb'
 @start_time = Time.now
 @run_stamp = tstamp
 @root_folder = File.absolute_path(File.dirname(__FILE__))
-@results_folder = @root_folder + "/results/" 
+@results_folder = @root_folder + "/results/"
+@group_size = 10
 puts "Root folder = #{@root_folder}"
 
 #run tasks
@@ -20,11 +21,12 @@ task run_all: %i(amazon pushbullet total_time)
 
 desc 'Search amazon for the specified skus'
 task :amazon do
-	data_groups = read_amazon_data
+	data_groups = read_amazon_data(@group_size)
 	data_groups.each_with_index do |data, i|
 		puts "Amazon search [#{i+1} of #{data_groups.count}] starting..."
 		result = amazon_search(data, 1)
 		puts "Amazon search [#{i+1} of #{data_groups.count}] ended with status: #{result}"
+		next unless result
 	end
 end
 

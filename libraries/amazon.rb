@@ -1,6 +1,5 @@
 def amazon_search(asins, batch_number = 1.to_s)
 	error = false
-	puts "Beginning Amazon Search"
 	temp_folder = @root_folder + "/temp/amazon_#{tstamp}"
 	FileUtils.mkdir_p(temp_folder)
 	puts "Temp folder location: #{File.absolute_path(temp_folder)}"
