@@ -31,12 +31,13 @@ desc 'Search amazon for the specified skus'
 task :amazon do
 	data_groups = read_amazon_data(@group_size)
 	data_groups.each_with_index do |data, i|
+		break unless @success
 		puts "Amazon search [#{i+1} of #{data_groups.count}] starting..."
-		result = amazon_search(data, 1)
-		puts "Amazon search [#{i+1} of #{data_groups.count}] ended with status: #{result}"
-		unless result
-			@success = false
-			break
+		result = Thread.new{ amazon_search(data, i)}
+		if @cores > 1
+			sleep(0.1) until free_core
+		else
+			sleep(0.1) until Thread.list.count == 1
 		end
 	end
 end

@@ -249,5 +249,7 @@ ensure
 	puts "Workbook located at:\n#{workbook_location}"
 	headless.destroy if @headless
 	no_dots
+	@success = !error
+	puts "Amazon search [#{batch_number}] ended with status: #{@success}"
 	return !error
 end

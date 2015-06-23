@@ -15,6 +15,11 @@ def init_variables
 	@secrets = parse_secrets(File.absolute_path('secret/secret.txt'))
 end
 
+def free_core
+	return false if @cores == 1
+	@cores > Thread.list.count - 1
+end
+
 def read_amazon_data(group_size = 25)
 	asins = RubyXL::Parser.parse(@amazon_data).first.extract_data
 	asins.delete_if { |a| a.to_s == "[nil, nil, nil, nil]" }
