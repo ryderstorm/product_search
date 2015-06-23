@@ -13,11 +13,12 @@ def init_variables
 	@headless = true if @computer.include?('testing-worker-linux-docker')
 	@headless = true if @computer.include?('digital-ocean')
 	@secrets = parse_secrets(File.absolute_path('secret/secret.txt'))
-	@browsers = {}
 end
 
 def free_core
-	return false if @cores == 1
+	if @cores == 1
+		return false unless Thread.list.count == 1
+	end
 	@cores > Thread.list.count - 1
 end
 
