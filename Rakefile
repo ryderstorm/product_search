@@ -12,12 +12,13 @@ require_relative 'libraries/amazon.rb'
 @root_folder = File.absolute_path(File.dirname(__FILE__))
 @results_folder = @root_folder + "/results/"
 @group_size = 10
+@success = true
 puts "Root folder = #{@root_folder}"
 
 #run tasks
 task default: :run_all
 
-task run_all: %i(amazon pushbullet total_time)
+task run_all: %i(amazon pushbullet_files finish)
 
 desc 'Search amazon for the specified skus'
 task :amazon do
@@ -26,12 +27,15 @@ task :amazon do
 		puts "Amazon search [#{i+1} of #{data_groups.count}] starting..."
 		result = amazon_search(data, 1)
 		puts "Amazon search [#{i+1} of #{data_groups.count}] ended with status: #{result}"
-		next unless result
+		unless result
+			@success = false
+			break
+		end
 	end
 end
 
 desc 'Pusbullet file results'
-task :pushbullet do
+task :pushbullet_files do
 	Dir.glob('results/*').each do |file|
 		if File.basename(file).include?(@run_stamp)
 			pushbullet_file_to_all(File.basename(file), file, "")
@@ -40,6 +44,10 @@ task :pushbullet do
 end
 
 desc 'Report total time'
-task :total_time do
-	puts "\n===============\nTotal processing time: #{seconds_to_string(Time.now - @start_time)}"
+task :finish do
+	title = "Product scraping complete on #{@computer}"
+	message = "Process completed with status of #{@success ? "success" : "failure"}"
+	message << "\nTotal processing time: #{seconds_to_string(Time.now - @start_time)}"
+	puts message
+	pushbullet_note_to_all(title, message)
 end
