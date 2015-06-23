@@ -26,7 +26,9 @@ def amazon_search(asins, batch_number = 1.to_s)
 		headless = Headless.new
 		headless.start
 	end
-	browser = Watir::Browser.new
+	browser_instance = "amazon_search_#{tstamp}"
+	@browsers.store browser_instance.to_sym, Watir::Browser.new
+	browser = @browsers[browser_instance.to_sym]
 	unless @headless
 		browser.window.resize_to(900, 1000)
 		browser.window.move_to(0, 0)
