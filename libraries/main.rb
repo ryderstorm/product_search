@@ -74,9 +74,9 @@ def error_report(e, url=nil)
 	message << "\nURL at time of error:\n#{url}" unless url.nil?
 	message << "\nError message contents:"
 	message << "\n#{e.message}"
-	(0..10).each { |i| message << "\n\t" + e.backtrace[i] }
+	e.backtrace.each { |i| message << "\n\t" + e.backtrace[i] }
 	message << "\n\n!!!!!!!!!!!!!!!!!!!!!\n"
-	puts message
+	return message
 	if url.nil?
 		pushbullet_note_to_all("An error has occurred in the automation!", message)
 	else
@@ -112,4 +112,15 @@ def parse_secrets(secrets_location)
 		secrets.store(i.split('|').first.to_sym, i.split('|').last)
 	end
 	secrets
+end
+
+def log(file, message)
+	File.open(file, "a") do |f|
+		if message[0] == "\t"
+				f.puts message
+		else
+			f.puts "#{Time.now} | #{message}"
+		end
+	end
+	message
 end

@@ -1,12 +1,14 @@
 def amazon_search(browser, asins, batch_number = 1.to_s)
 	error = false
-	temp_folder = @root_folder + "/temp/amazon_#{tstamp}"
+	temp_folder = @root_folder + "/temp/amazon_#{@run_stamp}"
+	Dir.mkdir(temp_folder) unless Dir.exist?(temp_folder)
+	logfile = temp_folder + "/amazon_run_#{@run_stamp}_#{batch_number}.txt"
 	FileUtils.mkdir_p(temp_folder)
-	puts "Temp folder location: #{File.absolute_path(temp_folder)}"
+	puts log logfile, "Temp folder location: #{File.absolute_path(temp_folder)}"
 	dots
 
 	workbook_location = "#{temp_folder}/AMAZON_DATA_#{@run_stamp}_batch#{batch_number}.xlsx"
-	puts "\nCreating results workbook at #{workbook_location}"
+	log logfile, "Creating results workbook at #{workbook_location}"
 	result_urls = []
 	result_counts = []
 	workbook = RubyXL::Workbook.new
@@ -28,7 +30,7 @@ def amazon_search(browser, asins, batch_number = 1.to_s)
 	browser.goto 'http://www.amazon.com'
 	searchbox = browser.text_field(id:'twotabsearchtextbox')
 	asins.each_with_index do |item, i|
-		puts "\nApplication runtime: #{seconds_to_string(Time.now - @start_time)}"
+		log logfile, "Application runtime: #{seconds_to_string(Time.now - @start_time)}"
 
 		#search for the current product
 		model, upc, desc, asin = item
@@ -42,18 +44,18 @@ def amazon_search(browser, asins, batch_number = 1.to_s)
 		when !desc.nil?
 			product = desc.to_s
 		else
-			puts "Can't search when all info is nil!"	
-			puts item
-			pushbullet_note_to_all("Encountered nil item in automation!", "Item ##{i} is nil!\n#{item.to_s}")
+			log logfile, "Can't search when all info is nil!"	
+			log logfile, item
+			pushbullet_note_to_all("Encountered nil item in automation!", "Item ##{i} is nil!#{item.to_s}")
 			next
 		end
-		puts "\nprocessing product [#{product} | #{desc}] - #{i + 1} of #{asins.count}"
+		log logfile, "processing product [#{product} | #{desc}] - #{i + 1} of #{asins.count}"
 		worksheet = workbook.add_worksheet(product)
 		worksheet.add_cell(0, 0, product)
 		worksheet.add_cell(0, 1, desc)
 		searchbox.set product
 		browser.send_keys :enter
-		puts "\nSearching for product: [#{product}]"
+		log logfile, "Searching for product: [#{product}]"
 		sleep 1
 		worksheet.add_cell(1, 0, "Search results URL")
 		worksheet.add_cell(1, 1, '', "HYPERLINK(\"#{browser.url}\")")
@@ -93,17 +95,17 @@ def amazon_search(browser, asins, batch_number = 1.to_s)
 
 		browser.div(id:'navFooter').wait_until_present
 		if no_results
-			puts "\nNo results found"
+			log logfile, "No results found"
 		else
 			# go to the first result
-			puts "\nSelecting first result"
+			log logfile, "Selecting first result"
 			browser.li(id:'result_0').links.first.click
 			sleep 1
 			browser.div(id:'navFooter').wait_until_present
 
 			# record the name, price, features, desc, details
 			# Name
-			puts "\nGetting name"
+			log logfile, "Getting name"
 			worksheet.add_cell(3, 0, "Product Name")
 			if browser.span(id:'productTitle').exist?
 				name = browser.span(id:'productTitle').text
@@ -118,7 +120,7 @@ def amazon_search(browser, asins, batch_number = 1.to_s)
 			worksheet[3][1].change_fill('FF6161') unless found
 
 			# Price
-			puts "\nGetting price"
+			log logfile, "Getting price"
 			case
 			when browser.span(id:'priceblock_ourprice').present?
 				price = browser.span(id:'priceblock_ourprice').text
@@ -137,7 +139,7 @@ def amazon_search(browser, asins, batch_number = 1.to_s)
 			worksheet[0][2].change_fill('FF6161') if price.length > 10
 
 			# Features
-			puts "\nGetting features"
+			log logfile, "Getting features"
 			worksheet.add_cell(4, 0, "Product Features")
 			if browser.div(id:'feature-bullets').exist?
 				features =browser.div(id:'feature-bullets').text
@@ -150,7 +152,7 @@ def amazon_search(browser, asins, batch_number = 1.to_s)
 			worksheet[4][1].change_fill('FF6161') unless found
 
 			# Description
-			puts "\nGetting description"
+			log logfile, "Getting description"
 			worksheet.add_cell(5, 0, "Product Description")
 			if browser.iframe(id:'product-description-iframe').div(id:'productDescription').exist?
 				desc = browser.iframe(id:'product-description-iframe').div(id:'productDescription').text.sub("Product Description\n", '')
@@ -163,7 +165,7 @@ def amazon_search(browser, asins, batch_number = 1.to_s)
 			worksheet[5][1].change_fill('FF6161') unless found
 
 			# Details
-			puts "\nGetting details"
+			log logfile, "Getting details"
 			worksheet.add_cell(6, 0, "Product Details")
 			if browser.div(id:'detail-bullets_feature_div').exist?
 				details = browser.div(id:'detail-bullets_feature_div').text.sub("Product Details\n", '').sub(browser.div(id:'detail-bullets_feature_div').div(class:'bucket').text, '')
@@ -176,7 +178,7 @@ def amazon_search(browser, asins, batch_number = 1.to_s)
 			worksheet[6][1].change_fill('FF6161') unless found
 
 			# Reviews
-			puts "\nGetting reviews"
+			log logfile, "Getting reviews"
 			worksheet.add_cell(7, 0, "Product Reviews")
 			if browser.div(id:'averageCustomerReviews_feature_div').text == 'Be the first to review this item'
 				worksheet.add_cell(7, 1, "No reviews exist for this product")
@@ -193,7 +195,7 @@ def amazon_search(browser, asins, batch_number = 1.to_s)
 			end
 
 			# Questions & answers
-			# puts "\nGetting questions"
+			# log logfile, "Getting questions"
 			# worksheet.add_cell(8, 0, "Product Questions")
 			# if browser.div(class:'askQuestionExamples').exist?
 			# 	worksheet.add_cell(8, 1, "No questions exist for this product")
@@ -203,45 +205,46 @@ def amazon_search(browser, asins, batch_number = 1.to_s)
 		end
 
 		# save the workbook
-		puts "\nSaving workbook after collecting data"
+		log logfile, "Saving workbook after collecting data"
 		worksheet.change_column_width(0, 25)
 		worksheet.change_column_width(1, 50)
 		worksheet.change_column_width(2, 50)
 		workbook.write(workbook_location)
 	end
 	# no_dots
-	# puts "\n==============="
-	# result_counts.each { |r| puts r }
-	puts "\n===============\n"
-	puts "\nFinished processing"
-	puts "\nCopying workbook to results folder"
+	# log logfile, "==============="
+	# result_counts.each { |r| log logfile, r }
+	log logfile, "==============="
+	log logfile, "Finished processing"
+	log logfile, "Copying workbook to results folder"
 	FileUtils.copy_file(workbook_location, @results_folder + File.basename(workbook_location))
 rescue Exception => e
 	error = true
 	no_dots
 	browser_exist = browser.nil? rescue false
 	if browser_exist
-		puts "URL of browser at error:"
-		puts browser.url
+		log logfile, "URL of browser at error:"
+		log logfile, browser.url
 		error_file = take_screenshot('ERROR')
-		puts "Screenshot saved as [#{error_file}]"
+		log logfile, "Screenshot saved as [#{error_file}]"
 		pushbullet_file_to_all("Screenshot of Automation Error", error_file, '')
-		error_report(e, browser.url)
+		log logfile, error_report(e, browser.url)
 	else
-		puts "Browser did not exist at time of error"
-		error_report(e)
+		log logfile, "Browser did not exist at time of error"
+		log logfile, error_report(e)
 	end
-	puts "Exiting after fail due to error."
+	log logfile, "Exiting after fail due to error."
 	binding.pry
 rescue Interrupt
-	puts "User pressed Ctrl+C"
+	log logfile, "User pressed Ctrl+C"
 ensure	
-	puts "\nClosing resources"
+	log logfile, "Closing resources"
 	#browser.close rescue nil
 	workbook.write(workbook_location) rescue nil
-	puts "Workbook located at:\n#{workbook_location}"
+	log logfile, "Workbook located at:#{workbook_location}"
 	# headless.destroy if @headless
 	no_dots
 	@success = !error
+	pushbullet_note_to_all("Amazon search #{@run_stamp}-#{batch_number}: #{!error}", File.read(temp_folder + "/amazon_run_#{@run_stamp}_#{batch_number}.txt"))
 	return !error
 end
