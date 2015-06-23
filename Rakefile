@@ -21,7 +21,8 @@ task run_all: %i(amazon pushbullet total_time)
 desc 'Search amazon for the specified skus'
 task :amazon do
 	asins = read_amazon_data
-	amazon_search(asins, 1)
+	result = amazon_search(asins, 1)
+	puts "Amazon search ended with status: #{result}"
 end
 
 desc 'Pusbullet file results'

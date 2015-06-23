@@ -250,11 +250,5 @@ ensure
 	puts "Workbook located at:\n#{workbook_location}"
 	headless.destroy if @headless
 	no_dots
-	if error
-		puts "Amazon scrape encountered an error"
-		return false
-	else
-		puts "Amazon scrape completed succesfully."
-		return true
-	end
+	return !error
 end
