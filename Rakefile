@@ -44,13 +44,14 @@ task :amazon do
 		end
 		break unless @success
 		puts "Amazon search [#{i+1} of #{data_groups.count}] starting..."
-		threads.push Thread.new do
+		new = Thread.new do
 			puts "\nCreating browser instance #{i}"
 			browsers[i] = Watir::Browser.new
 			amazon_search(browsers[i], data, i)
 			browsers[i].close rescue nil
 			puts "Amazon search [#{i}] ended with status: #{@success}"
 		end
+		threads.push new
 	end
 	threads.each {|t| t.join(5)}
 	headless.destroy if @headless
