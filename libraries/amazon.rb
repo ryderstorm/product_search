@@ -136,7 +136,7 @@ def amazon_search(browser, asins, batch_number = 1)
 				price = "No price found on page, see url for details"
 			end
 			worksheet.add_cell(0, 2, price)
-			worksheet[0][2].change_fill('FF6161') if price.length > 10
+			worksheet[0][2].change_fill('FF6161') if price.to_s.length > 10
 
 			# Features
 			log logfile, "Getting features"
@@ -217,7 +217,7 @@ def amazon_search(browser, asins, batch_number = 1)
 	log logfile, "==============="
 	log logfile, "Finished processing"
 	log logfile, "Copying workbook to results folder"
-	FileUtils.copy_file(workbook_location, @root_folder + "/results/" + File.basename(workbook_location))
+	# FileUtils.copy_file(workbook_location, @root_folder + "/results/" + File.basename(workbook_location))
 rescue Exception => e
 	error = true
 	no_dots
