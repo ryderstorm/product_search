@@ -1,14 +1,28 @@
 require 'pry'
-@root_folder = "/home/damien/amazon_search"
-@run_stamp = "20150624005951"
-log_location = @root_folder + "/temp/**/*amazon*runlog*#{@run_stamp}*"
-# log_location = "/home/damien/amazon_search/temp/**/*amazon*runlog*.txt"
-logs = Dir.glob(log_location)
-master_log = "./master_log"
-logs.sort.each do |log|
-	File.open(master_log, "a") do |f|
-		f.puts File.read(log)
+stamps = []
+logs = Dir.glob("**/temp/**/*runlog*")
+logs.each{ |log| stamps.push(File.basename(log).split("_")[2])}
+run_stamp = stamps.uniq.sort.last
+begin
+	logs = []
+	current_logs = []
+	threads = []
+	old_logs = []
+	loop do
+		logs = Dir.glob("**/temp/**/*runlog*#{run_stamp}*")
+		current_logs = []
+		threads = []
+		logs.each {|log| current_logs.push log unless File.read(log).include?("Closing resources") }
+		log_list = ""
+		current_logs.each{ |log| log_list << "#{File.absolute_path(log)} " }
+		next if current_logs == old_logs
+		command = "tail --lines=4 -f #{log_list}"
+		tail = Thread.new{system(command)}
+		threads.push tail
+		sleep 5
+		old_logs = current_logs
+		return if current_logs.empty?
 	end
+ensure
+	threads.each {|t| t.join}
 end
-binding.pry
-system("s #{File.absolute_path(master_log)}")
