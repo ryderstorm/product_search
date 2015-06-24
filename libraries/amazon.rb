@@ -234,8 +234,9 @@ rescue Exception => e
 		# binding.pry
 		# puts log logfile, error_report(e)
 	# end
-	puts error_report(e)
-	log logfile, error_report(e)
+	report = error_report(e)
+	puts report
+	log logfile, report
 	log logfile, "Exiting after fail due to error."
 	# binding.pry
 rescue Interrupt

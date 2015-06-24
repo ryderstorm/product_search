@@ -64,6 +64,11 @@ task :amazon do
 	end
 end
 
+desc 'Creates the finalized spreadsheet from all the other spreadsheets'
+task :create_spreadsheet do
+	create_master_spreadsheet
+end
+
 desc 'Creates a master log file from all of the other logs'
 task :create_log do
 	system("s #{create_master_log}")
