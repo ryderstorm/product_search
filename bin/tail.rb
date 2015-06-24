@@ -1,6 +1,8 @@
 require 'pry'
-# log_location = @root_folder + "/temp/**/*amazon*runlog*#{@run_stamp}"
-log_location = "/home/damien/amazon_search/temp/**/*amazon*runlog*.txt"
+@root_folder = "/home/damien/amazon_search"
+@run_stamp = "20150624005951"
+log_location = @root_folder + "/temp/**/*amazon*runlog*#{@run_stamp}*"
+# log_location = "/home/damien/amazon_search/temp/**/*amazon*runlog*.txt"
 logs = Dir.glob(log_location)
 master_log = "./master_log"
 logs.sort.each do |log|
