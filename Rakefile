@@ -41,14 +41,15 @@ task :amazon do
 	threads = []
 	browsers = Array.new(data_groups.count)
 	data_groups.each_with_index do |data, i|
+		batch_number = i.to_s.rjust(data_groups.to_s.length, '0')
 		sleep 1 while !free_core
 		break unless @success
-		puts "Amazon search [#{i+1} of #{data_groups.count}] starting..."
+		puts "Amazon search [#{batch_number} of [#{data_groups.count-1}] starting..."
 		new = Thread.new do
 			begin
-			puts "\nCreating browser instance #{i}"
+			puts "\nCreating browser instance #{batch_number}"
 			browsers[i] = Watir::Browser.new
-			amazon_search(browsers[i], data, i)
+			amazon_search(browsers[i], data, batch_number)
 			rescue Exception => e
 				puts "Encountered error during Rake:amazon"
 				puts e
