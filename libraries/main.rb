@@ -3,13 +3,40 @@ require 'headless'
 require 'rubyXL'
 require 'pry'
 require 'open-uri'
+require 'facter'
 
-def send_enter
-	@browser.send_keys :enter
+def init_variables
+	@start_time = Time.now
+	@run_stamp = tstamp
+	@group_size = 10
+	@success = true
+	@cores = Facter.value('processors')['count']
+	@computer = Socket.gethostname
+	@headless = false
+	@headless = true if @computer == 'ryderstorm-amazon_search-1580844'
+	@headless = true if @computer.include?('testing-worker-linux-docker')
+	@headless = true if @computer.include?('digital-ocean')
+	@secrets = parse_secrets(File.absolute_path('secret/secret.txt'))
+end
+
+def free_core
+	return (Thread.list.count <= 2 ? true : false) if @cores == 1
+	@cores > Thread.list.count - 1
+end
+
+def read_amazon_data(group_size = 25)
+	asins = RubyXL::Parser.parse(@amazon_data).first.extract_data
+	asins.delete_if { |a| a.to_s == "[nil, nil, nil, nil]" }
+	asins.delete_at(0)
+	groups = []
+	while asins.count > 0
+		groups.push asins.slice!(0, group_size.to_i)
+	end
+	groups
 end
 
 def tstamp
-	Time.now.strftime("%Y.%m.%d-%H.%M.%S").to_s
+	Time.now.strftime("%Y%m%d%H%M%S").to_s
 end
 
 def dots
@@ -25,6 +52,7 @@ def no_dots
 end
 
 def take_screenshot(filename = 'screenshot')
+	return if @browser.nil?
 	complete_name = "#{@temp_folder}/#{filename}_#{tstamp}.png"
 	@browser.screenshot.save complete_name
 	File.absolute_path(complete_name)
@@ -39,11 +67,23 @@ def save_image(name, src)
 	File.absolute_path(complete_name)
 end
 
-def error_report(e)
-	puts "\n!!!!!!!!!!!!!!!!!!!!!\nAn error has occurred:"
-	puts "#{e.message}"
-	(0..10).each { |i| puts "\t" + e.backtrace[i] }
-	puts "!!!!!!!!!!!!!!!!!!!!!\n"
+def error_report(e, url=nil)
+	message = ""
+	message << "\n!!!!!!!!!!!!!!!!!!!!!\nAn error occurred!\n!!!!!!!!!!!!!!!!!!!!!\n"
+	message << "\nCurrent computer: #{@computer}"
+	message << "\nCurrent time: #{Time.now}"
+	message << "\nTime since application start: #{seconds_to_string(Time.now - @start_time)}"
+	message << "\nURL at time of error:\n#{url}" unless url.nil?
+	message << "\nError message contents:"
+	message << "\n#{e.message}"
+	e.backtrace.each { |trace| message << "\n\t#{trace}" }
+	message << "\n\n!!!!!!!!!!!!!!!!!!!!!\n"
+	return message
+	# if url.nil?
+	# 	pushbullet_note_to_all("An error has occurred in the automation!", message)
+	# else
+	# 	pushbullet_link_to_all("An error has occurred in the automation!", url, message)
+	# end
 end
 
 def pluralize(number)
@@ -76,11 +116,24 @@ def parse_secrets(secrets_location)
 	secrets
 end
 
+def log(file, message)
+	File.open(file, "a") do |f|
+		if message[0] == "\t"
+				f.puts message
+		else
+			f.puts "#{Time.now} | #{message}"
+		end
+	end
+	message
+end
 
-@computer = Socket.gethostname
-@amazon_data = @computer.include?('digital-ocean') ? File.absolute_path('data/amazon.xlsx') : File.absolute_path('data/amazon_test.xlsx')
-@headless = false
-@headless = true if @computer == 'ryderstorm-amazon_search-1580844'
-@headless = true if @computer.include?('testing-worker-linux-docker')
-@headless = true if @computer.include?('digital-ocean')
-@secrets = parse_secrets(File.absolute_path('secret/secret.txt'))
+def create_master_log
+	logs = Dir.glob(@root_folder + "/temp/**/*runlog*#{@run_stamp}*")
+	master_log = "#{@root_folder}/results/master_log_#{@run_stamp}.txt"
+	logs.sort.each do |log|
+		File.open(master_log, "a") do |f|
+			f.puts File.read(log)
+		end
+	end
+	File.absolute_path(master_log)
+end

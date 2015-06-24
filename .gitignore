@@ -1,3 +1,5 @@
 amazon_temp/*
 temp/*
 secret/
+results/*
+Gemfile.lock

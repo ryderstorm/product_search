@@ -2,9 +2,8 @@ require 'watir-webdriver'
 require 'headless'
 require 'rubyXL'
 require 'pry'
-require './amazon_search.rb'
-require './lib.rb'
 require 'awesome_print'
+require_relative '../libraries/main.rb'
 
 start = Time.now
 puts "Loading browser"
@@ -27,7 +26,7 @@ binding.pry
 puts "Clearing resources"
 dots
 browser.close
-headless.destroy
+headless.destroy unless headless.nil?
 File.delete(loaded_image)
 no_dots
 puts "Resources cleared - exiting"

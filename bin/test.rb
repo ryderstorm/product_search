@@ -1,8 +1,11 @@
-require './secret/secrets.rb'
+require_relative "../libraries/main.rb"
+require_relative "../libraries/amazon.rb"
 require 'pry'
 require 'rubyXL'
-asins = RubyXL::Parser.parse(@amazon_data_test).first.extract_data
-asins.each { |asin| puts asin.to_s }
-puts "finished loading"
+require 'awesome_print'
+
+puts "reading data"
+data = read_amazon_data
+puts "ready for testing"
 binding.pry
 puts "exiting..."
