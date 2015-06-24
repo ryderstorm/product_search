@@ -15,7 +15,7 @@ def amazon_search(browser, asins, batch_number = 1)
 	workbook[0].sheet_name = 'Summary'
 	workbook[0].change_column_width(0, 50)
 	asins.each_with_index do |asin, i|
-		row = i + 1
+		row = i
 		workbook[0].add_cell(row, 0, asin[0])
 		workbook[0].add_cell(row, 1, asin[1])
 		workbook[0].add_cell(row, 2, asin[2])
