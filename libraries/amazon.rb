@@ -1,11 +1,12 @@
-def amazon_search(browser, asins, batch_number = 1.to_s)
+def amazon_search(browser, asins, batch_number = 1)
 	error = false
 	temp_folder = @root_folder + "/temp/amazon_#{@run_stamp}"
 	Dir.mkdir(temp_folder) unless Dir.exist?(temp_folder)
-	logfile = temp_folder + "/amazon_run_#{@run_stamp}_#{batch_number}.txt"
+	logfile = temp_folder + "/amazon_runlog_#{@run_stamp}_#{batch_number}.txt"
+	puts logfile
 	FileUtils.mkdir_p(temp_folder)
 	puts log logfile, "Temp folder location: #{File.absolute_path(temp_folder)}"
-	dots
+	# dots
 
 	workbook_location = "#{temp_folder}/AMAZON_DATA_#{@run_stamp}_batch#{batch_number}.xlsx"
 	log logfile, "Creating results workbook at #{workbook_location}"
@@ -234,10 +235,11 @@ rescue Exception => e
 		log logfile, error_report(e)
 	end
 	log logfile, "Exiting after fail due to error."
-	binding.pry
+	# binding.pry
 rescue Interrupt
 	log logfile, "User pressed Ctrl+C"
-ensure	
+ensure
+	# binding.pry
 	log logfile, "Closing resources"
 	#browser.close rescue nil
 	workbook.write(workbook_location) rescue nil
@@ -245,6 +247,6 @@ ensure
 	# headless.destroy if @headless
 	no_dots
 	@success = !error
-	pushbullet_note_to_all("Amazon search #{@run_stamp}-#{batch_number}: #{!error}", File.read(temp_folder + "/amazon_run_#{@run_stamp}_#{batch_number}.txt"))
+	pushbullet_note_to_all("Amazon search #{@run_stamp}-#{batch_number}: #{!error}", File.read(temp_folder + "/amazon_runlog_#{@run_stamp}_#{batch_number}.txt"))
 	return !error
 end

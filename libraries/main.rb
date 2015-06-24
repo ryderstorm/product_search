@@ -8,7 +8,7 @@ def init_variables
 	@computer = Socket.gethostname
 	# @amazon_data = @computer.include?('digital-ocean') ? File.absolute_path('data/amazon.xlsx') : File.absolute_path('data/amazon_test.xlsx')
 	@amazon_data = File.absolute_path('data/amazon.xlsx')
-	@headless = true
+	@headless = false
 	@headless = true if @computer == 'ryderstorm-amazon_search-1580844'
 	@headless = true if @computer.include?('testing-worker-linux-docker')
 	@headless = true if @computer.include?('digital-ocean')
