@@ -4,7 +4,7 @@ def amazon_search(browser, asins, batch_number = 1)
 	Dir.mkdir(temp_folder) unless Dir.exist?(temp_folder)
 	logfile = temp_folder + "/amazon_runlog_#{@run_stamp}_#{batch_number}.txt"
 	FileUtils.mkdir_p(temp_folder)
-	puts log logfile, "Temp folder location: #{File.absolute_path(temp_folder)}"
+	# puts log logfile, "Temp folder location: #{File.absolute_path(temp_folder)}"
 	# dots
 
 	workbook_location = "#{temp_folder}/AMAZON_DATA_#{@run_stamp}_batch#{batch_number}.xlsx"
@@ -217,7 +217,7 @@ def amazon_search(browser, asins, batch_number = 1)
 	log logfile, "==============="
 	log logfile, "Finished processing"
 	log logfile, "Copying workbook to results folder"
-	FileUtils.copy_file(workbook_location, @results_folder + File.basename(workbook_location))
+	FileUtils.copy_file(workbook_location, @root_folder + "/results/" + File.basename(workbook_location))
 rescue Exception => e
 	error = true
 	no_dots
@@ -227,10 +227,12 @@ rescue Exception => e
 		log logfile, browser.url
 		error_file = take_screenshot('ERROR')
 		log logfile, "Screenshot saved as [#{error_file}]"
-		pushbullet_file_to_all("Screenshot of Automation Error", error_file, '')
+		# pushbullet_file_to_all("Screenshot of Automation Error", error_file, '')
 		log logfile, error_report(e, browser.url)
 	else
 		log logfile, "Browser did not exist at time of error"
+		puts "attempt to log error report"
+		binding.pry
 		log logfile, error_report(e)
 	end
 	log logfile, "Exiting after fail due to error."
@@ -246,6 +248,6 @@ ensure
 	# headless.destroy if @headless
 	no_dots
 	@success = !error
-	pushbullet_note_to_all("Amazon search #{@run_stamp}-#{batch_number}: #{!error}", File.read(temp_folder + "/amazon_runlog_#{@run_stamp}_#{batch_number}.txt"))
+	log logfile, "Amazon search #{@run_stamp}-#{batch_number}: #{!error}"
 	return !error
 end

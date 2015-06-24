@@ -1,13 +1,17 @@
+require 'watir-webdriver'
+require 'headless'
+require 'rubyXL'
+require 'pry'
+require 'open-uri'
+require 'facter'
+
 def init_variables
 	@start_time = Time.now
 	@run_stamp = tstamp
-	@results_folder = @root_folder + "/results/"
 	@group_size = 10
 	@success = true
 	@cores = Facter.value('processors')['count']
 	@computer = Socket.gethostname
-	# @amazon_data = @computer.include?('digital-ocean') ? File.absolute_path('data/amazon.xlsx') : File.absolute_path('data/amazon_test.xlsx')
-	@amazon_data = File.absolute_path('data/amazon.xlsx')
 	@headless = false
 	@headless = true if @computer == 'ryderstorm-amazon_search-1580844'
 	@headless = true if @computer.include?('testing-worker-linux-docker')
@@ -16,9 +20,7 @@ def init_variables
 end
 
 def free_core
-	if @cores == 1
-		return false unless Thread.list.count == 1
-	end
+	return (Thread.list.count <= 2 ? true : false) if @cores == 1
 	@cores > Thread.list.count - 1
 end
 
@@ -74,14 +76,14 @@ def error_report(e, url=nil)
 	message << "\nURL at time of error:\n#{url}" unless url.nil?
 	message << "\nError message contents:"
 	message << "\n#{e.message}"
-	e.backtrace.each { |i| message << "\n\t" + e.backtrace[i] }
+	e.backtrace.each { |trace| message << "\n\t#{trace}" }
 	message << "\n\n!!!!!!!!!!!!!!!!!!!!!\n"
 	return message
-	if url.nil?
-		pushbullet_note_to_all("An error has occurred in the automation!", message)
-	else
-		pushbullet_link_to_all("An error has occurred in the automation!", url, message)
-	end
+	# if url.nil?
+	# 	pushbullet_note_to_all("An error has occurred in the automation!", message)
+	# else
+	# 	pushbullet_link_to_all("An error has occurred in the automation!", url, message)
+	# end
 end
 
 def pluralize(number)
@@ -123,4 +125,15 @@ def log(file, message)
 		end
 	end
 	message
+end
+
+def create_master_log
+	logs = Dir.glob(@root_folder + "/temp/**/*runlog*#{@run_stamp}*")
+	master_log = "#{@root_folder}/results/master_log_#{@run_stamp}.txt"
+	logs.sort.each do |log|
+		File.open(master_log, "a") do |f|
+			f.puts File.read(log)
+		end
+	end
+	File.absolute_path(master_log)
 end
