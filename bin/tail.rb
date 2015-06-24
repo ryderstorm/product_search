@@ -2,6 +2,7 @@ require 'pry'
 loop do
 	completed = 0
 	successful = 0
+	failed = 0
 	stamps = []
 	all_logs = Dir.glob("**/temp/**/*runlog*")
 	all_logs.each{ |log| stamps.push(File.basename(log).split("_")[2])}
@@ -9,10 +10,10 @@ loop do
 	logs = Dir.glob("**/temp/**/*runlog*#{run_stamp}*")
 	in_progress = []
 	logs.each {|log| in_progress.push log unless File.read(log).include?("Closing resources") }
-	in_progress.each do |log|
-		puts log
+	in_progress.sort.each do |log|
+		puts "\n#{File.basename(log)}"
 		contents = `tail -n 2 #{File.absolute_path(log)}`
-		contents.split.each{ |c| puts "\t#{c}"}
+		contents.split("\n").each{ |c| puts "\t#{c}"}
 	end
 
 	logs.each do |log|
@@ -20,14 +21,17 @@ loop do
 		if contents.include?("Closing resources")
 			completed += 1 
 			successful += 1 if contents.split.last.include?("true")
+			failed += 1 if contents.split.last.include?("false")
 		end
 	end
-
-	puts "#{completed} of #{logs.count} batches have completed"
-	puts "#{successful} of #{logs.count} batches were successful"
+	puts "\n==============================\n"
+	puts "There are #{logs.count} logs available"
+	puts "#{completed} / #{(completed.to_f / logs.count * 100.0).to_i}% have completed"
+	puts "#{successful} / #{(successful.to_f / logs.count * 100.0).to_i}% were successful"
+	puts "#{failed} / #{(failed.to_f / logs.count * 100.0).to_i}% failed."
 	puts "Press enter to generate new status report, or type exit and press enter to exit"
 	response = gets.chomp
-	exit if response = 'exit'
+	exit if response == 'exit'
 end
 
 # logs = []
