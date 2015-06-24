@@ -220,21 +220,22 @@ def amazon_search(browser, asins, batch_number = 1)
 	# FileUtils.copy_file(workbook_location, @root_folder + "/results/" + File.basename(workbook_location))
 rescue Exception => e
 	error = true
-	no_dots
-	browser_exist = browser.nil? rescue false
-	if browser_exist
-		log logfile, "URL of browser at error:"
-		log logfile, browser.url
-		error_file = take_screenshot('ERROR')
-		log logfile, "Screenshot saved as [#{error_file}]"
-		# pushbullet_file_to_all("Screenshot of Automation Error", error_file, '')
-		log logfile, error_report(e, browser.url)
-	else
-		log logfile, "Browser did not exist at time of error"
-		puts "attempt to log error report"
+	# no_dots
+	# browser_exist = browser.nil? rescue false
+	# if browser_exist
+	# 	log logfile, "URL of browser at error:"
+	# 	log logfile, browser.url
+	# 	error_file = take_screenshot('ERROR')
+	# 	log logfile, "Screenshot saved as [#{error_file}]"
+	# 	# pushbullet_file_to_all("Screenshot of Automation Error", error_file, '')
+	# 	# log logfile, error_report(e, browser.url)
+	# else
+	# 	log logfile, "Browser did not exist at time of error"
 		# binding.pry
-		log logfile, error_report(e)
-	end
+		# puts log logfile, error_report(e)
+	# end
+	puts error_report(e)
+	log logfile, error_report(e)
 	log logfile, "Exiting after fail due to error."
 	# binding.pry
 rescue Interrupt

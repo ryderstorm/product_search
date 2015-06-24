@@ -67,13 +67,13 @@ def save_image(name, src)
 	File.absolute_path(complete_name)
 end
 
-def error_report(e, url=nil)
+def error_report(e)
 	message = ""
 	message << "\n!!!!!!!!!!!!!!!!!!!!!\nAn error occurred!\n!!!!!!!!!!!!!!!!!!!!!\n"
 	message << "\nCurrent computer: #{@computer}"
 	message << "\nCurrent time: #{Time.now}"
 	message << "\nTime since application start: #{seconds_to_string(Time.now - @start_time)}"
-	message << "\nURL at time of error:\n#{url}" unless url.nil?
+	# message << "\nURL at time of error:\n#{url}" unless url.nil?
 	message << "\nError message contents:"
 	message << "\n#{e.message}"
 	e.backtrace.each { |trace| message << "\n\t#{trace}" }
