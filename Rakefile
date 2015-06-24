@@ -52,6 +52,7 @@ task :amazon do
 					puts e
 					puts e.backtrace
 				ensure
+					puts "\n#{Time.now} | Closing browser instance #{batch_number}"
 					browsers[i].close rescue nil
 					puts "\n#{Time.now} | Amazon search [#{i}] ended with status: #{@success}"
 				end
