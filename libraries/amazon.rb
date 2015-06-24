@@ -232,7 +232,7 @@ rescue Exception => e
 	else
 		log logfile, "Browser did not exist at time of error"
 		puts "attempt to log error report"
-		binding.pry
+		# binding.pry
 		log logfile, error_report(e)
 	end
 	log logfile, "Exiting after fail due to error."
