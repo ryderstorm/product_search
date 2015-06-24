@@ -3,7 +3,6 @@ def amazon_search(browser, asins, batch_number = 1)
 	temp_folder = @root_folder + "/temp/amazon_#{@run_stamp}"
 	Dir.mkdir(temp_folder) unless Dir.exist?(temp_folder)
 	logfile = temp_folder + "/amazon_runlog_#{@run_stamp}_#{batch_number}.txt"
-	puts logfile
 	FileUtils.mkdir_p(temp_folder)
 	puts log logfile, "Temp folder location: #{File.absolute_path(temp_folder)}"
 	# dots
