@@ -19,6 +19,20 @@ def init_variables
 	@secrets = parse_secrets(File.absolute_path('secret/secret.txt'))
 end
 
+class Product
+	attr_accessor :product_id, :model, :upc, :desc, :asin, :search_url, :search_screenshot, :num_of_results, :title, :price, :features, :description, :details, :reviews_average, :reviews_total, :reviews_link, :questions_total, :answers_total
+
+	def initialize(product_id)
+		@product_id = product_id
+	end
+
+	def display
+		puts "Information for #{@product_id}:"
+		self.instance_variables.each { |v| puts "\t-#{v.to_s.sub('@', '')}: #{self.instance_variable_get(v)}"}
+	end
+
+end
+
 def free_core
 	return (Thread.list.count <= 2 ? true : false) if @cores == 1
 	@cores > Thread.list.count - 1
