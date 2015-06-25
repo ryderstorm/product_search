@@ -50,3 +50,13 @@ Pricesmart
 NOTES FOR DAMIEN:
 -export all data to a spreadsheet during product searches
 -have a separate process that parses the spreadsheet and creates a pretty html report
+
+
+read the input data
+split it into chunks of 25 products each
+pass each chunk into the main function
+	create logfile with batch number
+	create browser with batch number
+		store all browsers in an array to use for controlling # of open browsers?
+	create workbook with batch number
+
