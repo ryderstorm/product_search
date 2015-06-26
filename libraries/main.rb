@@ -8,7 +8,7 @@ require 'facter'
 def init_variables
 	@start_time = Time.now
 	@run_stamp = tstamp
-	@group_size = 10
+	@group_size = 2
 	@success = true
 	@cores = Facter.value('processors')['count']
 	@computer = Socket.gethostname
@@ -20,16 +20,46 @@ def init_variables
 end
 
 class Product
-	attr_accessor :product_id, :model, :upc, :desc, :asin, :search_url, :search_screenshot, :num_of_results, :title, :price, :features, :description, :details, :reviews_average, :reviews_total, :reviews_link, :questions_total, :answers_total
+	attr_accessor :info, :product_id, :search_term, :model, :upc, :desc, :asin, :search_url, :search_screenshot, :num_of_results, :title, :price, :features, :description, :details, :reviews_average, :reviews_total, :reviews_link, :questions_total, :answers_total, :name
 
-	def initialize(product_id)
-		@product_id = product_id
+	def initialize(info)
+		@info = info
 	end
 
 	def display
-		puts "Information for #{@product_id}:"
-		self.instance_variables.each { |v| puts "\t-#{v.to_s.sub('@', '')}: #{self.instance_variable_get(v)}"}
+		data = []
+		title = "Information for #{@info}:"
+		puts title
+		data.push title
+		self.instance_variables.each do |v|
+			info = "\t-#{v.to_s.sub('@', '')}: #{self.instance_variable_get(v)}"
+			puts info
+			data.push info
+		end
+		return data
 	end
+
+	# answers_total
+	# asin
+	# desc
+	# description
+	# details
+	# features
+	# info
+	# model
+	# name
+	# num_of_results
+	# price
+	# product_id
+	# questions_total
+	# reviews_average
+	# reviews_link
+	# reviews_total
+	# search_screenshot
+	# search_term
+	# search_url
+	# title
+	# upc
 
 end
 

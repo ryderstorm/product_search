@@ -1,4 +1,3 @@
-require 'pry'
 loop do
 	completed = 0
 	successful = 0

@@ -30,6 +30,7 @@ task :amazon do
 		puts "\n#{Time.now} | Starting Amazon search..."
 		# @amazon_data = @computer.include?('digital-ocean') ? File.absolute_path('data/amazon.xlsx') : File.absolute_path('data/amazon_test.xlsx')
 		@amazon_data = @root_folder + ('/data/amazon.xlsx')
+		@amazon_products = []
 		if @headless
 			headless = Headless.new
 			headless.start
@@ -41,10 +42,9 @@ task :amazon do
 			batch_number = i.to_s.rjust(data_groups.count.to_s.length, '0')
 			sleep 1 while !free_core
 			break unless @success
-			puts "\n#{Time.now} | Amazon search [#{batch_number}] of [#{data_groups.count-1}] starting..."
 			new = Thread.new do
 				begin
-					puts "\n#{Time.now} | Creating browser instance #{batch_number}"
+					puts "\n#{Time.now} | Amazon search [#{batch_number}] of [#{data_groups.count-1}] starting...\n\tCreating browser instance #{batch_number}"
 					browsers[i] = Watir::Browser.new
 					amazon_search(browsers[i], data, batch_number)
 				rescue Exception => e
@@ -54,15 +54,25 @@ task :amazon do
 				ensure
 					puts "\n#{Time.now} | Closing browser instance #{batch_number}"
 					browsers[i].close rescue nil
-					puts "\n#{Time.now} | Amazon search [#{i}] ended with status: #{@success}"
+					puts "\n#{Time.now} | Amazon search [#{batch_number}] ended with status: #{@success}"
 				end
 			end
 			threads.push new
 		end
 	ensure
-		threads.each {|t| t.join(5)}
+		threads.each {|t| t.join(1)}
+		counter = 0
+		puts "Waiting for all threads to close"
+		loop do
+			puts counter
+			break if Thread.list.count == 1
+			break if counter > 30
+			counter += 1
+			sleep 1
+		end
 		headless.destroy if @headless
 	end
+	binding.pry
 end
 
 desc 'Creates the finalized spreadsheet from all the other spreadsheets'
