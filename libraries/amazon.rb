@@ -50,28 +50,29 @@ def amazon_search(browser, asins, batch_number = 1)
 			# move on if no results were found
 			result_counts.push "#{i+1}. | #{product.search_term.center(20)} | #{product.name} | NO results FOUND"
 			no_results = true
-			product.num_of_results = 0
+			product.number_of_results = 0
 		when browser.element(id:'noresult_countsTitle').present?
 			# move on if no results were found
 			result_counts.push "#{i+1}. | #{product.search_term.center(20)} | #{product.name} | NO results FOUND"
 			no_results = true
-			product.num_of_results = 0
+			product.number_of_results = 0
 		else
 			# get the number of results
 			no_results = false
 			search_result_counts = browser.element(id:'s-result-count').text
 			if search_result_counts.include?('1 result')
-					product.num_of_results = 1
+					product.number_of_results = 1
 			elsif search_result_counts.include?(' of ')
-				product.num_of_results = search_result_counts.split('of ').last.split(' results').first
+				product.number_of_results = search_result_counts.split('of ').last.split(' results').first
 			else
-				product.num_of_results = search_result_counts.split(' ').first
+				product.number_of_results = search_result_counts.split(' ').first
 			end
 			# image = save_image("#{product}_SEARCH_THUMBNAIL", browser.li(id:'result_0').imgs.first.attribute_value('src'))
 			# image = browser.li(id:'result_0').imgs.first.attribute_value('src')
 		end
 
 		browser.div(id:'navFooter').wait_until_present
+		product.search_link = browser.url
 		if no_results
 			log logfile, "No results found"
 		else
@@ -80,7 +81,7 @@ def amazon_search(browser, asins, batch_number = 1)
 			browser.li(id:'result_0').links.first.click
 			sleep 1
 			browser.div(id:'navFooter').wait_until_present
-
+			product.item_link
 			# record the Title, price, features, desc, details
 			# Title
 			log logfile, "Getting name"
@@ -118,9 +119,9 @@ def amazon_search(browser, asins, batch_number = 1)
 			# Description
 			log logfile, "Getting description"
 			if browser.iframe(id:'product-description-iframe').div(id:'productDescription').exist?
-				product.desc = browser.iframe(id:'product-description-iframe').div(id:'productDescription').text.sub("Product Description\n", '')
+				product.description = browser.iframe(id:'product-description-iframe').div(id:'productDescription').text.sub("Product Description\n", '')
 			else
-				product.desc = 'no description listed for product'
+				product.description = 'no description listed for product'
 			end
 
 			# Details

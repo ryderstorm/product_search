@@ -25,14 +25,14 @@ puts "Main log = #{@main_log}"
 #run tasks
 task default: :run_all
 
-task run_all: %i(amazon create_log pushbullet_files finish)
+task run_all: %i(amazon create_log create_spreadsheet pushbullet_files finish)
 
 desc 'Search amazon for the specified skus'
 task :amazon do
 	begin
 		puts "\n#{Time.now} | Starting Amazon search..."
 		# @amazon_data = @computer.include?('digital-ocean') ? File.absolute_path('data/amazon.xlsx') : File.absolute_path('data/amazon_test.xlsx')
-		@amazon_data = @root_folder + ('/data/amazon.xlsx')
+		@amazon_data = @root_folder + ('/data/amazon_test_big.xlsx')
 		@amazon_products = []
 		if @headless
 			headless = Headless.new
@@ -58,7 +58,7 @@ task :amazon do
 					puts e.backtrace
 				ensure
 					puts "\n#{Time.now} | Closing browser instance #{batch_number}"
-					browsers[i].close rescue nil
+					# browsers[i].close rescue nil
 					puts "\n#{Time.now} | Amazon search [#{batch_number}] ended with status: #{@success}"
 				end
 			end

@@ -12,7 +12,7 @@ def init_variables
 	@success = true
 	@cores = Facter.value('processors')['count']
 	@computer = Socket.gethostname
-	@headless = false
+	@headless = true
 	@headless = true if @computer == 'ryderstorm-amazon_search-1580844'
 	@headless = true if @computer.include?('testing-worker-linux-docker')
 	@headless = true if @computer.include?('digital-ocean')
@@ -20,7 +20,7 @@ def init_variables
 end
 
 class Product
-	attr_accessor :model, :upc, :name, :asin, :search_term, :search_url, :num_of_results, :title, :price, :features, :desc, :details, :reviews_average, :reviews_link, :reviews_total, :questions_total, :answers_total, :search_screenshot, :info
+	attr_accessor :model, :upc, :name, :asin, :search_term, :search_link, :number_of_results, :item_link, :title, :price, :features, :description, :details, :reviews_average, :reviews_link, :reviews_total, :questions_total, :answers_total, :search_screenshot, :info
 
 	def initialize(info)
 		@info = info
@@ -31,22 +31,29 @@ class Product
 		header = "Information for #{@info}:"
 		puts header
 		all_data.store 'Header', header
-		self.headers.each do |header|
-			value = self.instance_variable_get(header.downcase.gsub(' ', '_'))
-			puts "\t#{header}: #{value}"
+		self.instance_variables.each do |v|
+			current_header = ''
+			self.headers.each do |h|
+				if v.to_s.sub('@', '') == h.downcase.gsub(' ', '_')
+					current_header = h
+					break
+				end
+			end
+			value = self.instance_variable_get(v)
+			puts "\t#{current_header}: #{value}"
 			all_data.store header, value
 		end
 		return all_data
 	end
 
 	def headers
-		['Model', 'UPC', 'Name', 'ASIN', 'Search Term', 'Search URL', 'Number of Results', 'Ttitle', 'Price', 'Features', 'Description', 'Details', 'Reviews Average', 'Reviews Link', 'Reviews Total', 'Questions Total', 'Answers Total']
+		['Model', 'UPC', 'Name', 'ASIN', 'Search Term', 'Search Link', 'Number of Results', 'Item Link', 'Title', 'Price', 'Features', 'Description', 'Details', 'Reviews Average', 'Reviews Link', 'Reviews Total', 'Questions Total', 'Answers Total']
 	end
 end
 
 def free_core
 	return (Thread.list.count <= 2 ? true : false) if @cores == 1
-	@cores  > Thread.list.count - 1
+	@cores - 1 > Thread.list.count - 1
 end
 
 def read_amazon_data(group_size = 25)
@@ -161,4 +168,20 @@ def create_master_log
 		end
 	end
 	File.absolute_path(master_log)
+end
+
+def create_master_spreadsheet
+	all_data = {}
+	master_wb = RubyXL::Workbook.new
+	master_wb[0].sheet_name = 'Summary'
+	puts "starting column creation"
+	# binding.pry
+
+rescue Exception => e
+	@error_info = e
+	puts "Encoutered the following error:"
+	puts e.message
+	puts e.backtrace
+# ensure
+# 	binding.pry
 end
