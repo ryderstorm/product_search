@@ -1,3 +1,36 @@
+require './libraries/main.rb'
+
+def pluralize(number)
+	number == 1 ? (return ""):(return "s")
+end
+
+def seconds_to_string(s)
+	# d = days, h = hours, m = minutes, s = seconds
+	m = (s / 60).floor
+	s = (s % 60).floor
+	h = (m / 60).floor
+	m = m % 60
+	d = (h / 24).floor
+	h = h % 24
+
+	output = "#{s} second#{pluralize(s)}" if (s > 0)
+	output = "#{m} minute#{pluralize(m)}, #{s} second#{pluralize(s)}" if (m > 0)
+	output = "#{h} hour#{pluralize(h)}, #{m} minute#{pluralize(m)}, #{s} second#{pluralize(s)}" if (h > 0)
+	output = "#{d} day#{pluralize(d)}, #{h} hour#{pluralize(h)}, #{m} minute#{pluralize(m)}, #{s} second#{pluralize(s)}" if (d > 0)
+
+	return output
+end
+
+main_log = Dir.glob("**/temp/main_log*.txt").sort.last
+puts main_log
+contents = File.read(main_log).split("\n")
+puts contents
+time = contents[0]
+puts time
+@start_time = Time.parse(time)
+puts @start_time
+data_groups = contents[1].split(": ").last
+
 loop do
 	completed = 0
 	successful = 0
@@ -24,10 +57,11 @@ loop do
 		end
 	end
 	puts "\n==============================\n"
-	puts "There are #{logs.count} logs available"
-	puts "#{completed} / #{(completed.to_f / logs.count * 100.0).to_i}% have completed"
-	puts "#{successful} / #{(successful.to_f / logs.count * 100.0).to_i}% were successful"
-	puts "#{failed} / #{(failed.to_f / logs.count * 100.0).to_i}% failed."
+	puts "Test has been running for #{seconds_to_string(Time.now - @start_time)}"
+	puts "There are #{logs.count} logs available of #{data_groups} total runs"
+	puts "#{completed} / #{(completed.to_f / data_groups.to_i * 100.0).round(2)}% have completed"
+	puts "#{successful} / #{(successful.to_f / completed * 100.0).round(2)}% successful so far"
+	puts "#{failed} / #{(failed.to_f / completed * 100.0).round(2)}% failed so far"
 	puts "Press enter to generate new status report, or type exit and press enter to exit"
 	response = gets.chomp
 	exit if response == 'exit'

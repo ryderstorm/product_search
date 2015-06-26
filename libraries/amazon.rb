@@ -185,6 +185,7 @@ ensure
 	# no_dots
 	@success = !error
 	log logfile, product.display
+	log logfile, "Amazon search #{batch_number} ended in status: #{!error}"
 	@amazon_products.push product
 	return [!error, product]
 end
