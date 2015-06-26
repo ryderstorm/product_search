@@ -20,47 +20,28 @@ def init_variables
 end
 
 class Product
-	attr_accessor :info, :product_id, :search_term, :model, :upc, :desc, :asin, :search_url, :search_screenshot, :num_of_results, :title, :price, :features, :description, :details, :reviews_average, :reviews_total, :reviews_link, :questions_total, :answers_total, :name
+	attr_accessor :model, :upc, :name, :asin, :search_term, :search_url, :num_of_results, :title, :price, :features, :desc, :details, :reviews_average, :reviews_link, :reviews_total, :questions_total, :answers_total, :search_screenshot, :info
 
 	def initialize(info)
 		@info = info
 	end
 
 	def display
-		data = []
-		title = "Information for #{@info}:"
-		puts title
-		data.push title
-		self.instance_variables.each do |v|
-			info = "\t-#{v.to_s.sub('@', '')}: #{self.instance_variable_get(v)}"
-			puts info
-			data.push info
+		all_data = {}
+		header = "Information for #{@info}:"
+		puts header
+		all_data.store 'Header', header
+		self.headers.each do |header|
+			value = self.instance_variable_get(header.downcase.gsub(' ', '_'))
+			puts "\t#{header}: #{value}"
+			all_data.store header, value
 		end
-		return data
+		return all_data
 	end
 
-	# answers_total
-	# asin
-	# desc
-	# description
-	# details
-	# features
-	# info
-	# model
-	# name
-	# num_of_results
-	# price
-	# product_id
-	# questions_total
-	# reviews_average
-	# reviews_link
-	# reviews_total
-	# search_screenshot
-	# search_term
-	# search_url
-	# title
-	# upc
-
+	def headers
+		['Model', 'UPC', 'Name', 'ASIN', 'Search Term', 'Search URL', 'Number of Results', 'Ttitle', 'Price', 'Features', 'Description', 'Details', 'Reviews Average', 'Reviews Link', 'Reviews Total', 'Questions Total', 'Answers Total']
+	end
 end
 
 def free_core

@@ -21,7 +21,7 @@ def amazon_search(browser, asins, batch_number = 1)
 		
 		#search for the current product
 		searchbox = browser.text_field(id:'twotabsearchtextbox')
-		product.model, product.upc, product.desc, product.asin = item
+		product.model, product.upc, product.name, product.asin = item
 		case 
 		when !product.asin.nil?
 			product.search_term = product.asin.to_s
@@ -29,15 +29,15 @@ def amazon_search(browser, asins, batch_number = 1)
 			product.search_term = product.upc.to_s
 		when !product.model.nil?
 			product.search_term = product.model.to_s
-		when !product.desc.nil?
-			product.search_term = product.desc.to_s
+		when !product.name.nil?
+			product.search_term = product.name.to_s
 		else
 			log logfile, "Can't search when all info is nil!"	
 			log logfile, item
 			pushbullet_note_to_all("Encountered nil item in automation!", "Item ##{i} is nil!#{item.to_s}")
 			next
 		end
-		log logfile, "processing product [#{product.search_term} | #{product.desc}] - #{i + 1} of #{asins.count}"
+		log logfile, "processing product [#{product.search_term} | #{product.name}] - #{i + 1} of #{asins.count}"
 		searchbox.set product.search_term
 		browser.send_keys :enter
 		log logfile, "Searching for product: [#{product.search_term}]"
@@ -48,12 +48,12 @@ def amazon_search(browser, asins, batch_number = 1)
 		case 
 		when browser.h1(id:'noResultsTitle').present?
 			# move on if no results were found
-			result_counts.push "#{i+1}. | #{product.search_term.center(20)} | #{product.desc} | NO results FOUND"
+			result_counts.push "#{i+1}. | #{product.search_term.center(20)} | #{product.name} | NO results FOUND"
 			no_results = true
 			product.num_of_results = 0
 		when browser.element(id:'noresult_countsTitle').present?
 			# move on if no results were found
-			result_counts.push "#{i+1}. | #{product.search_term.center(20)} | #{product.desc} | NO results FOUND"
+			result_counts.push "#{i+1}. | #{product.search_term.center(20)} | #{product.name} | NO results FOUND"
 			no_results = true
 			product.num_of_results = 0
 		else
@@ -81,13 +81,13 @@ def amazon_search(browser, asins, batch_number = 1)
 			sleep 1
 			browser.div(id:'navFooter').wait_until_present
 
-			# record the name, price, features, desc, details
-			# Name
+			# record the Title, price, features, desc, details
+			# Title
 			log logfile, "Getting name"
 			if browser.span(id:'productTitle').exist?
-				product.name = browser.span(id:'productTitle').text
+				product.title = browser.span(id:'productTitle').text
 			else
-				product.name = 'no title listed for product'
+				product.title = 'no title listed for product'
 			end
 
 			# Price
@@ -185,6 +185,7 @@ ensure
 	# no_dots
 	@success = !error
 	log logfile, product.display
+	log logfile, ""
 	@amazon_products.push product
 	return [!error, product]
 end
