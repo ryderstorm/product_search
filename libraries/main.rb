@@ -46,7 +46,7 @@ end
 
 def free_core
 	return (Thread.list.count <= 2 ? true : false) if @cores == 1
-	@cores > Thread.list.count - 1
+	@cores  > Thread.list.count - 1
 end
 
 def read_amazon_data(group_size = 25)

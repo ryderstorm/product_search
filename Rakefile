@@ -18,6 +18,9 @@ init_variables
 puts "Root folder = #{@root_folder}"
 puts "Running on [#{@computer}] with [#{@cores}] cores"
 puts "Runstamp = #{@run_stamp}"
+@main_log = @root_folder + "/temp/main_log_#{@run_stamp}.txt"
+File.write(@main_log, "#{Time.now} | Creating logfile for run #{@run_stamp}\n")
+puts "Main log = #{@main_log}"
 
 #run tasks
 task default: :run_all
@@ -36,11 +39,13 @@ task :amazon do
 			headless.start
 		end
 		data_groups = read_amazon_data(@group_size)
+		log @main_log, "#{Time.now} | Number of data groups: #{data_groups.count}\n"
 		threads = []
 		browsers = Array.new(data_groups.count)
 		data_groups.each_with_index do |data, i|
 			batch_number = i.to_s.rjust(data_groups.count.to_s.length, '0')
 			sleep 1 while !free_core
+			sleep 2
 			break unless @success
 			new = Thread.new do
 				begin
@@ -62,17 +67,17 @@ task :amazon do
 	ensure
 		threads.each {|t| t.join(1)}
 		counter = 0
-		puts "Waiting for all threads to close"
-		loop do
-			puts counter
-			break if Thread.list.count == 1
-			break if counter > 30
-			counter += 1
-			sleep 1
-		end
+#		puts "Waiting for all threads to close"
+#		loop do
+#			puts counter
+#			break if Thread.list.count == 1
+#			break if counter > 30
+#			counter += 1
+#			sleep 1
+#		end
 		headless.destroy if @headless
 	end
-	binding.pry
+#	binding.pry
 end
 
 desc 'Creates the finalized spreadsheet from all the other spreadsheets'
