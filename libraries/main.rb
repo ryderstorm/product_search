@@ -53,6 +53,7 @@ class Product
 end
 
 def free_core
+	@cores = 4 if @computer == "GSOD-DSTORM"
 	return (Thread.list.count <= 2 ? true : false) if @cores == 1
 	@cores > Thread.list.count - 1
 end
@@ -190,16 +191,22 @@ end
 
 def update_path
 	chromedriver_location = @root_folder + "/setup"
-	unless ENV['PATH'].include?(chromedriver_location)
-		puts "Current PATH does not include chromedriver:\n#{ENV['PATH']}"
-		# if ENV['PATH'].include?("\\")
-		# 	ENV['PATH'] = ENV['PATH'] + ";#{@root_folder}/setup".gsub("/","\\")
-		# else
-			File.open('~/.bashrc', 'a') { |f| f.puts("Adding path to chromedriver\nPATH=$PATH;#{chromedriver_location}")}
-			# ENV['PATH'] = ENV['PATH'] + ":#{@root_folder}/setup"
-			puts "~/.bashrc has been updated to include chromedriver.\nPlease exit this shell and start a new one before running Rake again."
-			exit
-		# end
-		# puts "Updated PATH:\n#{ENV['PATH']}"
+	if ENV['PATH'].include?("\\")
+		unless ENV['PATH'].include?(chromedriver_location.gsub("/", "\\"))
+			puts "Current PATH does not include chromedriver:\n#{ENV['PATH']}"
+			ENV['PATH'] = ENV['PATH'] + ";#{@root_folder}/setup".gsub("/","\\")
+		end
+	else
+		unless ENV['PATH'].include?(chromedriver_location)
+			puts "Current PATH does not include chromedriver:\n#{ENV['PATH']}"
+			# if ENV['PATH'].include?("\\")
+			# else
+				File.open('~/.profile', 'a') { |f| f.puts("Adding path to chromedriver\nPATH=$PATH;#{chromedriver_location}")}
+				# ENV['PATH'] = ENV['PATH'] + ":#{@root_folder}/setup"
+				puts "~/.bashrc has been updated to include chromedriver.\nPlease exit this shell and start a new one before running Rake again."
+				exit
+			# end
+			# puts "Updated PATH:\n#{ENV['PATH']}"
+		end
 	end
 end
