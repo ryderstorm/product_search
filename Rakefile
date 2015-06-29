@@ -6,23 +6,6 @@ end
 @root_folder = File.absolute_path(File.dirname(__FILE__))
 Dir.mkdir('results') unless Dir.exist?('results')
 Dir.mkdir('temp') unless Dir.exist?('temp')
-update_path # update path to include chromedriver
-
-def update_path
-	chromedriver_location = @root_folder + "/setup"
-	unless ENV['PATH'].include?(chromedriver_location)
-		puts "Current PATH does not include chromedriver:\n#{ENV['PATH']}"
-		# if ENV['PATH'].include?("\\")
-		# 	ENV['PATH'] = ENV['PATH'] + ";#{@root_folder}/setup".gsub("/","\\")
-		# else
-			File.open('~/.bashrc', 'a') { |f| f.puts("Adding path to chromedriver\nPATH=$PATH;#{chromedriver_location}")}
-			# ENV['PATH'] = ENV['PATH'] + ":#{@root_folder}/setup"
-			puts "~/.bashrc has been updated to include chromedriver.\nPlease exit this shell and start a new one before running Rake again."
-			exit
-		# end
-		# puts "Updated PATH:\n#{ENV['PATH']}"
-	end
-end
 
 require_relative 'libraries/main.rb'
 require_relative 'libraries/digital_ocean.rb'
@@ -30,6 +13,7 @@ require_relative 'libraries/pushbullet.rb'
 require_relative 'libraries/amazon.rb'
 
 dots
+update_path # update path to include chromedriver
 init_variables
 
 puts "Root folder = #{@root_folder}"
