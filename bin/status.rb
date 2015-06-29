@@ -1,4 +1,16 @@
-require 'pry'
+require 'awesome_print'
+require './libraries/main.rb'
+
+main_log = Dir.glob("**/temp/main_log*.txt").sort.last
+puts main_log
+contents = File.read(main_log).split("\n")
+ap contents
+time = contents[0]
+puts time
+@start_time = Time.parse(time)
+puts @start_time
+data_groups = contents[2].split(": ").last
+
 loop do
 	completed = 0
 	successful = 0
@@ -25,10 +37,13 @@ loop do
 		end
 	end
 	puts "\n==============================\n"
-	puts "There are #{logs.count} logs available"
-	puts "#{completed} / #{(completed.to_f / logs.count * 100.0).to_i}% have completed"
-	puts "#{successful} / #{(successful.to_f / logs.count * 100.0).to_i}% were successful"
-	puts "#{failed} / #{(failed.to_f / logs.count * 100.0).to_i}% failed."
+	puts "Test has been running for #{seconds_to_string(Time.now - @start_time)}"
+	puts "There are #{logs.count} logs available of #{data_groups} total runs"
+	puts "#{completed} / #{(completed.to_f / data_groups.to_i * 100.0).round(2)}% have completed"
+	unless completed == 0
+		puts "#{successful} / #{(successful.to_f / completed * 100.0).round(2)}% successful so far"
+		puts "#{failed} / #{(failed.to_f / completed * 100.0).round(2)}% failed so far"
+	end
 	puts "Press enter to generate new status report, or type exit and press enter to exit"
 	response = gets.chomp
 	exit if response == 'exit'
