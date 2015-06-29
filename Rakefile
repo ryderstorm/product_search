@@ -8,7 +8,7 @@ Dir.mkdir('results') unless Dir.exist?('results')
 Dir.mkdir('temp') unless Dir.exist?('temp')
 
 require_relative 'libraries/main.rb'
-require_relative 'libraries/digital_ocean.rb'
+# require_relative 'libraries/digital_ocean.rb'
 require_relative 'libraries/pushbullet.rb'
 require_relative 'libraries/amazon.rb'
 
@@ -42,8 +42,9 @@ task :amazon do
 		end
 		data_groups = read_amazon_data(@group_size)
 		log @main_log, "#{Time.now} | Number of data groups: #{data_groups.count}\n"
-		threads = []
-		browsers = Array.new(data_groups.count)
+		@threads = []
+		@completed = []
+		@browsers = Array.new(data_groups.count)
 		data_groups.each_with_index do |data, i|
 			batch_number = i.to_s.rjust(data_groups.count.to_s.length, '0')
 			sleep 1 while !free_core
@@ -52,34 +53,38 @@ task :amazon do
 			new = Thread.new do
 				begin
 					puts "\n#{Time.now} | Amazon search [#{batch_number}] of [#{data_groups.count-1}] starting...\n\tCreating browser instance #{batch_number}"
-					browsers[i] = Watir::Browser.new :chrome
-					amazon_search(browsers[i], data, batch_number)
-				rescue Exception => e
+					@browsers[i] = Watir::Browser.new #:chrome
+					amazon_search(@browsers[i], data, batch_number)
+				rescue => e
 					puts "\n#{Time.now} | Encountered error during Rake:amazon"
 					puts e
 					puts e.backtrace
 				ensure
-					puts "\n#{Time.now} | Closing browser instance #{batch_number}"
-					# browsers[i].close rescue nil
-					puts "\n#{Time.now} | Amazon search [#{batch_number}] ended with status: #{@success}"
+					# puts "\n#{Time.now} | Closing browser instance #{batch_number}"
+					@browsers[i].close rescue nil
+					search_status = "\n#{Time.now} | Amazon search [#{batch_number}] with browser(#{i}) ended with status: #{@success}"
+					@completed.push search_status
+					puts search_status
 				end
 			end
-			threads.push new
+			@threads.push new
+		end
+		counter = 0
+		loop do
+			if @completed.count == data_groups.count
+				puts "All searches complete!"
+				break
+			end
+			if counter > 300
+				puts "Counter reached before all searches were completed."
+				break
+			end
 		end
 	ensure
-		threads.each {|t| t.join(1)}
-		counter = 0
-#		puts "Waiting for all threads to close"
-#		loop do
-#			puts counter
-#			break if Thread.list.count == 1
-#			break if counter > 30
-#			counter += 1
-#			sleep 1
-#		end
+		@threads.each {|t| t.join(1)}
+		@browsers.each { |b| b.close rescue nil}
 		headless.destroy if @headless
 	end
-#	binding.pry
 end
 
 desc 'Creates the finalized spreadsheet from all the other spreadsheets'
@@ -89,24 +94,38 @@ end
 
 desc 'Creates a master log file from all of the other logs'
 task :create_log do
-	system("s #{create_master_log}")
+	log = create_master_log
+	puts "\nLogfile generated at this location:\n#{log}\n"
+	system("start #{log}")
 end
 
 desc 'Pusbullet file results'
 task :pushbullet_files do
-	Dir.glob('results/*').each do |file|
-		if File.basename(file).include?(@run_stamp)
-			pushbullet_file_to_all(File.basename(file), file, "")
+	begin
+		Dir.glob('results/*').each do |file|
+			if File.basename(file).include?(@run_stamp)
+				pushbullet_file_to_all(File.basename(file), file, "")
+			end
 		end
+	rescue Exception => e
+		# puts e.message
+		# puts e.backtrace
+		puts "\n======================\nEncountered error during pushbullet, probably has to do with stupid windows pushbullet issues"
 	end
 end
 
 desc 'Report total time'
 task :finish do
-	title = "Product scraping complete on #{@computer}"
-	message = "Process completed with status of #{@success ? "success" : "failure"}"
-	message << "\nTotal processing time: #{seconds_to_string(Time.now - @start_time)}"
-	no_dots
-	puts "\n#{Time.now} | \n#{message}"
-	pushbullet_note_to_all(title, message)
+	begin
+		title = "Product scraping complete on #{@computer}"
+		message = "Process completed with status of #{@success ? "success" : "failure"}"
+		message << "\nTotal processing time: #{seconds_to_string(Time.now - @start_time)}"
+		no_dots
+		puts "\n#{Time.now} | \n#{message}"
+		pushbullet_note_to_all(title, message)
+	rescue Exception => e
+		# puts e.message
+		# puts e.backtrace
+		puts "\n======================\nEncountered error during report total time, probably has to do with stupid windows pushbullet issues"
+	end
 end
