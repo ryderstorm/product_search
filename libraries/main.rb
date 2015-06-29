@@ -192,13 +192,17 @@ def update_path
 	chromedriver_location = @root_folder + "/setup"
 	unless ENV['PATH'].include?(chromedriver_location)
 		puts "Current PATH does not include chromedriver:\n#{ENV['PATH']}"
+		if File.read(File.expand_path('~/.profile')).include?(chromedriver_location)
+			puts "~/.profile does include chromedriver, so you need to restart this shell before running rake again!"
+			exit
+		end
 		# if ENV['PATH'].include?("\\")
 		# 	ENV['PATH'] = ENV['PATH'] + ";#{@root_folder}/setup".gsub("/","\\")
 		# else
-			File.open('~/.bashrc', 'a') { |f| f.puts("Adding path to chromedriver\nPATH=$PATH;#{chromedriver_location}")}
-			# ENV['PATH'] = ENV['PATH'] + ":#{@root_folder}/setup"
-			puts "~/.bashrc has been updated to include chromedriver.\nPlease exit this shell and start a new one before running Rake again."
-			exit
+		File.open(File.expand_path('~/.profile'), 'a') { |f| f.puts("# Adding path to chromedriver\nPATH='$PATH:/home/damien/amazon_search/setup'")}
+		# ENV['PATH'] = ENV['PATH'] + ":#{@root_folder}/setup"
+		puts "~/.profile has now been updated to include chromedriver.\nPlease exit this shell and start a new one before running Rake again."
+		exit
 		# end
 		# puts "Updated PATH:\n#{ENV['PATH']}"
 	end
