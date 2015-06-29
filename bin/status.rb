@@ -1,14 +1,15 @@
+require 'awesome_print'
 require './libraries/main.rb'
 
 main_log = Dir.glob("**/temp/main_log*.txt").sort.last
 puts main_log
 contents = File.read(main_log).split("\n")
-puts contents
+ap contents
 time = contents[0]
 puts time
 @start_time = Time.parse(time)
 puts @start_time
-data_groups = contents[1].split(": ").last
+data_groups = contents[2].split(": ").last
 
 loop do
 	completed = 0
