@@ -2,6 +2,7 @@ require 'watir-webdriver'
 require 'headless'
 require 'rubyXL'
 require 'pry'
+require 'pry-byebug'
 require 'open-uri'
 require 'facter'
 
@@ -53,7 +54,7 @@ end
 
 def free_core
 	return (Thread.list.count <= 2 ? true : false) if @cores == 1
-	@cores - 1 > Thread.list.count - 1
+	@cores > Thread.list.count - 1
 end
 
 def read_amazon_data(group_size = 25)
@@ -156,6 +157,7 @@ def log(file, message)
 			f.puts "#{Time.now} | #{message}"
 		end
 	end
+	puts message
 	message
 end
 
@@ -175,8 +177,8 @@ def create_master_spreadsheet
 	master_wb = RubyXL::Workbook.new
 	master_wb[0].sheet_name = 'Summary'
 	puts "starting column creation"
-	# binding.pry
-
+	binding.pry
+	puts "finished create_master_spreadsheet"
 rescue Exception => e
 	@error_info = e
 	puts "Encoutered the following error:"
