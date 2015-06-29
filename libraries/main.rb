@@ -6,19 +6,6 @@ require 'pry-byebug'
 require 'open-uri'
 require 'facter'
 
-# add chromedriver location to PATH
-chromedriver_location = @root_folder + "/setup"
-if ENV['PATH'].include?(chromedriver_location)
-	puts "PATH already includes chromedriver"
-else
-	puts "Current PATH:\n#{ENV['PATH']}"
-	if ENV['PATH'].include?("\\")
-		ENV['PATH'] = ENV['PATH'] + ";#{@root_folder}/setup".gsub("/","\\")
-	else
-		ENV['PATH'] = ENV['PATH'] + ":#{@root_folder}/setup"
-	end
-	puts "Updated PATH:\n#{ENV['PATH']}"
-end
 def init_variables
 	@start_time = Time.now
 	@run_stamp = tstamp

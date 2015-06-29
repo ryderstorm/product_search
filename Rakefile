@@ -7,6 +7,20 @@ end
 Dir.mkdir('results') unless Dir.exist?('results')
 Dir.mkdir('temp') unless Dir.exist?('temp')
 
+# add chromedriver location to PATH
+chromedriver_location = @root_folder + "/setup"
+if ENV['PATH'].include?(chromedriver_location)
+	puts "PATH already includes chromedriver"
+else
+	puts "Current PATH:\n#{ENV['PATH']}"
+	if ENV['PATH'].include?("\\")
+		ENV['PATH'] = ENV['PATH'] + ";#{@root_folder}/setup".gsub("/","\\")
+	else
+		ENV['PATH'] = ENV['PATH'] + ":#{@root_folder}/setup"
+	end
+	puts "Updated PATH:\n#{ENV['PATH']}"
+end
+
 require_relative 'libraries/main.rb'
 require_relative 'libraries/digital_ocean.rb'
 require_relative 'libraries/pushbullet.rb'
