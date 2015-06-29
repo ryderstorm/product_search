@@ -1,3 +1,4 @@
+require 'pry'
 require 'awesome_print'
 require './libraries/main.rb'
 

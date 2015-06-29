@@ -51,7 +51,7 @@ task :amazon do
 			new = Thread.new do
 				begin
 					puts "\n#{Time.now} | Amazon search [#{batch_number}] of [#{data_groups.count-1}] starting...\n\tCreating browser instance #{batch_number}"
-					browsers[i] = Watir::Browser.new
+					browsers[i] = Watir::Browser.new :chrome
 					amazon_search(browsers[i], data, batch_number)
 				rescue Exception => e
 					puts "\n#{Time.now} | Encountered error during Rake:amazon"

@@ -6,6 +6,13 @@ require 'pry-byebug'
 require 'open-uri'
 require 'facter'
 
+# add chromedriver location to PATH
+if ENV['PATH'].include?("\\")
+	ENV['PATH'] = ENV['PATH'] + ":#{@root_folder}/setup"
+else
+	ENV['PATH'] = ENV['PATH'] + ";#{@root_folder}/setup".gsub("/","\\")
+end
+
 def init_variables
 	@start_time = Time.now
 	@run_stamp = tstamp
@@ -13,7 +20,7 @@ def init_variables
 	@success = true
 	@cores = Facter.value('processors')['count']
 	@computer = Socket.gethostname
-	@headless = true
+	@headless = false
 	@headless = true if @computer == 'ryderstorm-amazon_search-1580844'
 	@headless = true if @computer.include?('testing-worker-linux-docker')
 	@headless = true if @computer.include?('digital-ocean')
