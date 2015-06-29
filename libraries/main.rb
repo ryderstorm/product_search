@@ -187,3 +187,19 @@ rescue Exception => e
 # ensure
 # 	binding.pry
 end
+
+def update_path
+	chromedriver_location = @root_folder + "/setup"
+	unless ENV['PATH'].include?(chromedriver_location)
+		puts "Current PATH does not include chromedriver:\n#{ENV['PATH']}"
+		# if ENV['PATH'].include?("\\")
+		# 	ENV['PATH'] = ENV['PATH'] + ";#{@root_folder}/setup".gsub("/","\\")
+		# else
+			File.open('~/.bashrc', 'a') { |f| f.puts("Adding path to chromedriver\nPATH=$PATH;#{chromedriver_location}")}
+			# ENV['PATH'] = ENV['PATH'] + ":#{@root_folder}/setup"
+			puts "~/.bashrc has been updated to include chromedriver.\nPlease exit this shell and start a new one before running Rake again."
+			exit
+		# end
+		# puts "Updated PATH:\n#{ENV['PATH']}"
+	end
+end
