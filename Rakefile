@@ -35,6 +35,7 @@ task :amazon do
 		@amazon_data = @root_folder + ('/data/amazon_test_big.xlsx')
 		@amazon_products = []
 		if @headless
+			log @main_log, "#{Time.now} | Running headless\n"
 			headless = Headless.new
 			headless.start
 		end
