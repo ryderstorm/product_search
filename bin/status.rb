@@ -2,17 +2,23 @@ require 'pry'
 require 'awesome_print'
 require './libraries/main.rb'
 
-main_log = Dir.glob("**/temp/main_log*.txt").sort.last
-puts main_log
-contents = File.read(main_log).split("\n")
-ap contents
-time = contents[0]
-puts time
-@start_time = Time.parse(time)
-puts @start_time
-data_groups = contents[1].split(": ").last
-
+old_log = ''
+data_groups = 0
 loop do
+	main_logs = Dir.glob("**/temp/main_log*.txt").sort
+	current_log = main_logs.last
+	if current_log != old_log
+		puts current_log
+		contents = File.read(current_log).split("\n")
+		ap contents
+		time = contents[0]
+		puts time
+		@start_time = Time.parse(time)
+		puts @start_time
+		data_groups = contents[2].split("Number of data groups: ").last
+		old_log = current_log
+	end
+
 	completed = 0
 	successful = 0
 	failed = 0
@@ -25,7 +31,7 @@ loop do
 	logs.each {|log| in_progress.push log unless File.read(log).include?("Closing resources") }
 	in_progress.sort.each do |log|
 		puts "\n#{File.basename(log)}"
-		contents = `tail -n 2 #{File.absolute_path(log)}`
+		contents = `tail -n 5 #{File.absolute_path(log)}`
 		contents.split("\n").each{ |c| puts "\t#{c}"}
 	end
 
@@ -45,11 +51,13 @@ loop do
 		puts "#{successful} / #{(successful.to_f / completed * 100.0).round(2)}% successful so far"
 		puts "#{failed} / #{(failed.to_f / completed * 100.0).round(2)}% failed so far"
 	end
+
+	# if completed == data_groups
+		
 	puts "Press enter to generate new status report, or type exit and press enter to exit"
 	response = gets.chomp
 	exit if response == 'exit'
 end
-
 # logs = []
 # current_logs = []
 # threads = []
