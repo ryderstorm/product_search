@@ -182,6 +182,8 @@ def create_master_log
 end
 
 def create_master_spreadsheet
+	wb_location = "#{@root_folder}/results/amazon_products_#{@run_stamp}.xlsx"
+	puts log @main_log, "#{Time.now} | Starting creation of results workbook\n\t#{wb_location}"
 	all_data = {}
 	master_wb = RubyXL::Workbook.new
 	summary_sheet = master_wb[0]
@@ -190,7 +192,7 @@ def create_master_spreadsheet
 		summary_sheet.add_cell(0, i, h)
 	end
 	@amazon_products.each_with_index do |product, i|
-		# binding.pry
+		puts log @main_log, "#{Time.now} | Processing product [#{i+1}] of [#{@amazon_products.count}]: #{product}"
 		master_wb.add_worksheet(product.search_term)
 		sheet = master_wb[product.search_term]
 		product.instance_variables.each_with_index do |variable, j|
@@ -221,18 +223,17 @@ def create_master_spreadsheet
 			sheet.change_column_width(1, 150)
 		end
 	end
-	wb_location = "#{@root_folder}/results/amazon_products_#{@run_stamp}.xlsx"
 	master_wb.write(wb_location)
-	log @main_log, "Created results workbook:\n#{wb_location}"
+	log @main_log, "Completed creation of results workbook:\n#{wb_location}"
 	return wb_location
-
+rescue Interrupt
+	log logfile, "User pressed Ctrl+C during workbook creation"
+	binding.pry		
 rescue => e
 	@error_info = e
 	puts log @main_log, "Encoutered the following error:"
 	puts log @main_log, e.message
 	puts log @main_log, e.backtrace
-# ensure
-# 	binding.pry
 end
 
 def update_path
@@ -257,4 +258,16 @@ end
 
 def open_file(file)
 	ENV['OS'].nil? ? system("gnome-open #{file}") : system("start #{file}")
+end
+
+def report_error(error_message)
+  (Thread.current[:errors] ||= []) << "#{error_message}"
+end
+
+def log_errors
+  File.open(@error_log, 'a') do |file|
+    (Thread.current[:errors] ||= []).each do |error|
+      file.puts error
+    end
+  end
 end

@@ -184,12 +184,11 @@ def amazon_search(browser, asins, batch_number = 1)
 			log logfile, error_report(e, browser.url)
 		end
 		log logfile, "Exiting after fail due to error."
-		binding.pry
+		# binding.pry
 	rescue Interrupt
 		log logfile, "User pressed Ctrl+C"
-		binding.pry
-	ensure
 		# binding.pry
+	ensure
 		log logfile, "Closing resources"
 		#browser.close rescue nil
 		# headless.destroy if @headless

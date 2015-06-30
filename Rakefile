@@ -19,8 +19,10 @@ puts "Root folder = #{@root_folder}"
 puts "Running on [#{@computer}] with [#{@cores}] cores"
 puts "Runstamp = #{@run_stamp}"
 @main_log = @root_folder + "/temp/main_log_#{@run_stamp}.txt"
+@error_log = @root_folder + "/results/error_log_#{@run_stamp}.txt"
 File.write(@main_log, "#{Time.now} | Creating logfile for run #{@run_stamp}\n")
 puts "Main log = #{@main_log}"
+puts "Error log = #{@error_log}"
 update_path # update path to include chromedriver
 
 #run tasks
@@ -57,7 +59,7 @@ task :amazon do
 					@browsers[i] = Watir::Browser.new :chrome, :http_client => client
 					amazon_search(@browsers[i], data, batch_number)
 				rescue => e
-					puts "\n#{Time.now} | Encountered error during Rake:amazon"
+					puts "\n#{Time.now} | Encountered error during browser creation in Rake:amazon"
 					puts e
 					puts e.backtrace
 				ensure
@@ -82,12 +84,13 @@ task :amazon do
 		end
 	rescue Interrupt
 		log logfile, "User pressed Ctrl+C"
-		binding.pry		
+		# binding.pry		
 	rescue => e
 		puts "\n#{Time.now} | Encountered error during Rake:amazon"
 		puts e
 		puts e.backtrace
-		binding.pry
+		report_error("#{Time.now} | #{e.class}\n\t#{e.message}\n\t#{e.backtrace}")
+		# binding.pry
 	ensure
 		@threads.each {|t| t.join(1)}
 		@browsers.each { |b| b.close rescue nil}
@@ -142,3 +145,5 @@ task :finish do
 		puts log @main_log, "Encountered error during report total time, probably has to do with stupid windows pushbullet issues"
 	end
 end
+
+at_exit { log_errors }
