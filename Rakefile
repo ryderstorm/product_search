@@ -43,6 +43,7 @@ task :amazon do
 		@threads = []
 		@completed = []
 		@browsers = Array.new(data_groups.count)
+
 		data_groups.each_with_index do |data, i|
 			batch_number = i.to_s.rjust(data_groups.count.to_s.length, '0')
 			sleep 1 while !free_core
@@ -51,7 +52,9 @@ task :amazon do
 			new = Thread.new do
 				begin
 					log @main_log, "\n#{Time.now} | Amazon search [#{batch_number}] of [#{data_groups.count-1}] starting...\n\tCreating browser instance #{batch_number}"
-					@browsers[i] = Watir::Browser.new :chrome
+					client = Selenium::WebDriver::Remote::Http::Default.new
+					client.timeout = 360 # seconds - default is 60
+					@browsers[i] = Watir::Browser.new :chrome, :http_client => client
 					amazon_search(@browsers[i], data, batch_number)
 				rescue => e
 					puts "\n#{Time.now} | Encountered error during Rake:amazon"

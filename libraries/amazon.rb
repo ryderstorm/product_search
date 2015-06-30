@@ -173,14 +173,14 @@ def amazon_search(browser, asins, batch_number = 1)
 		# no_dots
 		report = error_report(e)
 		puts log logfile, report
-		pushbullet_note_to_all("Error occurred in automation!", report, @chrome)
+		# pushbullet_note_to_all("Error occurred in automation!", report, @chrome)
 		browser_exist = !browser.nil? rescue false
 		if browser_exist
 			log logfile, "URL of browser at error:"
 			log logfile, browser.url
 			error_file = take_screenshot('ERROR')
 			log logfile, "Screenshot saved as [#{error_file}]"
-			pushbullet_file_to_all("Screenshot of Automation Error", error_file, '', @chrome)
+			pushbullet_file_to_all("Screenshot of Automation Error", error_file, report, @chrome)
 			log logfile, error_report(e, browser.url)
 		end
 		log logfile, "Exiting after fail due to error."
