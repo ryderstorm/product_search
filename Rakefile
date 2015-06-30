@@ -32,8 +32,8 @@ desc 'Search amazon for the specified skus'
 task :amazon do
 	begin
 		log @main_log, "#{Time.now} | Starting Amazon search..."
-		# @amazon_data = @computer.include?('digital-ocean') ? File.absolute_path('data/amazon.xlsx') : File.absolute_path('data/amazon_test.xlsx')
-		@amazon_data = @root_folder + ('/data/amazon_test_big.xlsx')
+		@amazon_data = @computer.include?('digital-ocean') ? File.absolute_path('data/amazon.xlsx') : File.absolute_path('data/amazon_test.xlsx');@group_size = 2
+		# @amazon_data = @root_folder + ('/data/amazon_test_big.xlsx')
 		@amazon_products = []
 		data_groups = read_amazon_data(@group_size)
 		log @main_log, "#{Time.now} | Number of data groups: #{data_groups.count}\n"

@@ -197,7 +197,7 @@ def create_master_spreadsheet
 					else
 						summary_sheet.add_cell(i+1, k, value_to_write)
 					end
-					sheet[i+1][k].change_horizontal_alignment('left')
+					summary_sheet[i+1][k].change_horizontal_alignment('left')
 					summary_sheet[i+1][k].change_fill('FF6161') if value_to_write == 'no data'
 				end
 			end
