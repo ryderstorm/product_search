@@ -18,8 +18,9 @@ init_variables
 puts "Root folder = #{@root_folder}"
 puts "Running on [#{@computer}] with [#{@cores}] cores"
 puts "Runstamp = #{@run_stamp}"
-@main_log = @root_folder + "/temp/main_log_#{@run_stamp}.txt"
+@main_log = @root_folder + "/results/main_log_#{@run_stamp}.txt"
 @error_log = @root_folder + "/results/error_log_#{@run_stamp}.txt"
+@product_log = @root_folder + "/temp/product_log_#{@run_stamp}.txt"
 File.write(@main_log, "#{Time.now} | Creating logfile for run #{@run_stamp}\n")
 puts "Main log = #{@main_log}"
 puts "Error log = #{@error_log}"
@@ -53,7 +54,7 @@ task :amazon do
 			break if @error
 			new = Thread.new do
 				begin
-					log @main_log, "\n#{Time.now} | Amazon search [#{batch_number}] of [#{data_groups.count-1}] starting...\n\tCreating browser instance #{batch_number}"
+					log @main_log, "#{Time.now} | Amazon search [#{batch_number}] of [#{data_groups.count-1}] starting...\n\tCreating browser instance #{batch_number}"
 					client = Selenium::WebDriver::Remote::Http::Default.new
 					client.timeout = 360 # seconds - default is 60
 					@browsers[i] = Watir::Browser.new :chrome, :http_client => client
@@ -63,8 +64,9 @@ task :amazon do
 					puts e
 					puts e.backtrace
 				ensure
+					log @main_log, "#{Time.now} | Closing browser instance [#{i}]..."
 					@browsers[i].close rescue nil
-					search_status = "\n#{Time.now} | Amazon search [#{batch_number}] with browser(#{i}) ended with status: #{!@error}"
+					search_status = "#{Time.now} | Amazon search [#{batch_number}] with browser(#{i}) ended with status: #{!@error}"
 					@completed.push search_status
 					log @main_log, search_status
 				end
@@ -89,7 +91,9 @@ task :amazon do
 		puts "\n#{Time.now} | Encountered error during Rake:amazon"
 		puts e
 		puts e.backtrace
-		report_error("#{Time.now} | #{e.class}\n\t#{e.message}\n\t#{e.backtrace}")
+		error = "#{Time.now} | Class: [#{e.class}]\n\tMessage: [#{e.message}]"
+		e.backtrace.each{|i| error << "\n\t#{i}"}
+		report_error(error)
 		# binding.pry
 	ensure
 		@threads.each {|t| t.join(1)}
@@ -107,8 +111,8 @@ end
 
 desc 'Creates a master log file from all of the other logs'
 task :create_log do
-	@master_log = create_master_log
-	log @main_log, "Logfile generated at this location:\n#{@master_log}\n"
+	@all_runs_log = create_master_log
+	log @main_log, "Logfile generated at this location:\n#{@all_runs_log}\n"
 end
 
 desc 'Pusbullet file results'
@@ -135,9 +139,9 @@ task :finish do
 		message << "\nTotal processing time: #{seconds_to_string(Time.now - @start_time)}"
 		puts log @main_log, "\n#{Time.now} | \n#{message}"
 		pushbullet_note_to_all(title, message, @chrome)
-		puts "Opening log file: #{@master_log}"
-		sleep 3
-		open_file(@master_log)
+		# puts "Opening log file: #{@master_log}"
+		# sleep 3
+		# open_file(@master_log)
 		no_dots
 	rescue Exception => e
 		# puts e.message
