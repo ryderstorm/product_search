@@ -165,32 +165,29 @@ def amazon_search(browser, asins, batch_number = 1)
 			ensure
 				log logfile, "#{Time.now} | Pushing product #{product.model} to @amazon_products"
 				@amazon_products.push product
-				log logfile, product.display
+				log logfile, product.all_info
 			end
 		end
 	rescue => e
 		@error = true
 		# no_dots
-		# browser_exist = browser.nil? rescue false
-		# if browser_exist
-		# 	log logfile, "URL of browser at error:"
-		# 	log logfile, browser.url
-		# 	error_file = take_screenshot('ERROR')
-		# 	log logfile, "Screenshot saved as [#{error_file}]"
-		# 	# pushbullet_file_to_all("Screenshot of Automation Error", error_file, '', @chrome)
-		# 	# log logfile, error_report(e, browser.url)
-		# else
-		# 	log logfile, "Browser did not exist at time of error"
-			# binding.pry
-			# puts log logfile, error_report(e)
-		# end
 		report = error_report(e)
-		puts report
-		log logfile, report
+		puts log logfile, report
+		pushbullet_note_to_all("Error occurred in automation!", report, @chrome)
+		browser_exist = !browser.nil? rescue false
+		if browser_exist
+			log logfile, "URL of browser at error:"
+			log logfile, browser.url
+			error_file = take_screenshot('ERROR')
+			log logfile, "Screenshot saved as [#{error_file}]"
+			pushbullet_file_to_all("Screenshot of Automation Error", error_file, '', @chrome)
+			log logfile, error_report(e, browser.url)
+		end
 		log logfile, "Exiting after fail due to error."
-		# binding.pry
+		binding.pry
 	rescue Interrupt
 		log logfile, "User pressed Ctrl+C"
+		binding.pry
 	ensure
 		# binding.pry
 		log logfile, "Closing resources"
