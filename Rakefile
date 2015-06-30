@@ -84,6 +84,7 @@ task :amazon do
 				puts log @main_log, "Counter reached before all searches were completed."
 				break
 			end
+			sleep 1
 		end
 	rescue Interrupt
 		log logfile, "User pressed Ctrl+C"
