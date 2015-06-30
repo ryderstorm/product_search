@@ -12,6 +12,7 @@ def init_variables
 	@run_stamp = tstamp
 	if @computer.include?('digital-ocean') 
 		@amazon_data = File.absolute_path('data/amazon.xlsx')
+		@amazon_data = File.absolute_path('data/amazon_test_big.xlsx')
 		@group_size = 10
 	else
 		@amazon_data = File.absolute_path('data/amazon_test.xlsx')
