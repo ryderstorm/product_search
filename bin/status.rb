@@ -5,7 +5,7 @@ require './libraries/main.rb'
 old_log = ''
 data_groups = 0
 loop do
-	main_logs = Dir.glob("**/temp/main_log*.txt").sort
+	main_logs = Dir.glob("**/results/main_log*.txt").sort
 	current_log = main_logs.last
 	if current_log != old_log
 		puts current_log
