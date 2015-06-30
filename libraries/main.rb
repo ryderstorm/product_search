@@ -13,7 +13,7 @@ def init_variables
 	@success = true
 	@cores = Facter.value('processors')['count']
 	@computer = Socket.gethostname
-	@headless = false
+	@headless = true
 	@headless = true if @computer == 'ryderstorm-amazon_search-1580844'
 	@headless = true if @computer.include?('testing-worker-linux-docker')
 	@headless = true if @computer.include?('digital-ocean')
@@ -114,9 +114,9 @@ def error_report(e)
 	message << "\n\n!!!!!!!!!!!!!!!!!!!!!\n"
 	return message
 	# if url.nil?
-	# 	pushbullet_note_to_all("An error has occurred in the automation!", message)
+	# 	pushbullet_note_to_all("An error has occurred in the automation!", message, @chrome)
 	# else
-	# 	pushbullet_link_to_all("An error has occurred in the automation!", url, message)
+	# 	pushbullet_link_to_all("An error has occurred in the automation!", url, message, @chrome)
 	# end
 end
 
@@ -176,11 +176,34 @@ end
 def create_master_spreadsheet
 	all_data = {}
 	master_wb = RubyXL::Workbook.new
-	master_wb[0].sheet_name = 'Summary'
+	summary_sheet = master_wb[0]
+	summary_sheet.sheet_name = 'Summary'
 	puts "starting column creation"
-	binding.pry
-	puts "finished create_master_spreadsheet"
-rescue Exception => e
+	@amazon_products.first.headers.each_with_index do |h, i|
+		summary_sheet.add_cell(0, i, h)
+	end
+	@amazon_products.each_with_index do |product, i|
+		# binding.pry
+		master_wb.add_worksheet(product.search_term)
+		sheet = master_wb[product.search_term]
+		product.instance_variables.each_with_index do |variable, j|
+			product.headers.each_with_index do |header, k|
+				if header.downcase.gsub(' ', '_') == variable.to_s[1..-1]
+					summary_sheet.add_cell(i+1, k, product.instance_variable_get(variable))
+				end
+			end
+			sheet.add_cell(j, 0, variable.to_s[1..-1].split('_').each{|word| word.capitalize!}.join(' '))
+			sheet.add_cell(j, 1, product.instance_variable_get(variable))
+			sheet.change_column_width(0, 30)
+			sheet.change_column_width(1, 150)
+		end
+	end
+	wb_location = "#{@root_folder}/results/amazon_products_#{@run_stamp}.xlsx"
+	master_wb.write(wb_location)
+	log @main_log, "Created results workbook:\n#{wb_location}"
+	return wb_location
+
+rescue => e
 	@error_info = e
 	puts "Encoutered the following error:"
 	puts e.message
@@ -199,14 +222,17 @@ def update_path
 	else
 		unless ENV['PATH'].include?(chromedriver_location)
 			puts "Current PATH does not include chromedriver:\n#{ENV['PATH']}"
-			# if ENV['PATH'].include?("\\")
-			# else
-				File.open('~/.profile', 'a') { |f| f.puts("Adding path to chromedriver\nPATH=$PATH;#{chromedriver_location}")}
-				# ENV['PATH'] = ENV['PATH'] + ":#{@root_folder}/setup"
-				puts "~/.bashrc has been updated to include chromedriver.\nPlease exit this shell and start a new one before running Rake again."
-				exit
-			# end
-			# puts "Updated PATH:\n#{ENV['PATH']}"
+			unless File.read(File.expand_path('~/.profile')).include?(chromedriver_location)
+				File.open(File.expand_path('~/.profile'), 'a') { |f| f.puts("# Adding path to chromedriver\nPATH=$PATH;#{chromedriver_location}")}
+			end
+			ENV['PATH'] = ENV['PATH'] + ":#{@root_folder}/setup"
+			puts "~/.profile has been updated to include chromedriver and the local path has been updated."
+			# exit
 		end
 	end
 end
+
+def open_file(file)
+	ENV['OS'].nil? ? system("gnome-open #{file}") : system("start #{file}")
+end
+
