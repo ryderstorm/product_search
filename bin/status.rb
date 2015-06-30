@@ -6,6 +6,7 @@ old_log = ''
 data_groups = 0
 loop do
 	main_logs = Dir.glob("**/results/main_log*.txt").sort
+	sleep 1;next if main_logs.empty?
 	current_log = main_logs.last
 	if current_log != old_log
 		puts current_log

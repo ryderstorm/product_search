@@ -20,8 +20,8 @@ puts "Running on [#{@computer}] with [#{@cores}] cores"
 puts "Runstamp = #{@run_stamp}"
 @main_log = @root_folder + "/results/main_log_#{@run_stamp}.txt"
 @error_log = @root_folder + "/results/error_log_#{@run_stamp}.txt"
-@product_log = @root_folder + "/temp/product_log_#{@run_stamp}.txt"
 File.write(@main_log, "#{Time.now} | Creating logfile for run #{@run_stamp}\n")
+@product_log = @root_folder + "/temp/product_log_#{@run_stamp}.txt"
 puts "Main log = #{@main_log}"
 puts "Error log = #{@error_log}"
 update_path # update path to include chromedriver
@@ -37,6 +37,7 @@ task :amazon do
 		log @main_log, "#{Time.now} | Starting Amazon search..."
 		@amazon_products = []
 		@data_groups = read_amazon_data(@group_size)
+		File.write(@product_log, "0|#{@amazon_product_count}")
 		log @main_log, "#{Time.now} | Number of data groups: #{@data_groups.count}\n"
 		if @headless
 			log @main_log, "#{Time.now} | Running headless\n"
@@ -56,7 +57,7 @@ task :amazon do
 				begin
 					log @main_log, "#{Time.now} | Amazon search [#{batch_number}] of [#{@data_groups.count-1}] starting...\n\tCreating browser instance #{batch_number}"
 					client = Selenium::WebDriver::Remote::Http::Default.new
-					client.timeout = 360 # seconds - default is 60
+					client.timeout = 600 # seconds - default is 60
 					@browsers[i] = Watir::Browser.new :chrome, :http_client => client
 					amazon_search(@browsers[i], data, batch_number)
 				rescue => e
