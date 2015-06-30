@@ -64,7 +64,7 @@ end
 def free_core
 	@cores = 4 if @computer == "GSOD-DSTORM"
 	return (Thread.list.count <= 2 ? true : false) if @cores == 1
-	@cores * 2 > Thread.list.count - 1
+	@cores > Thread.list.count - 1
 end
 
 def read_amazon_data(group_size = 25)
@@ -265,16 +265,18 @@ def report_error(note, error)
 	error_message << "\n\t#{note}\n\tClass: #{error.class}\n\tMessage: #{error.message}"
 	error.backtrace.each { |i| error_message << "\n\t#{i}" }
   (Thread.current[:errors] ||= []) << "#{error_message}"
+  @errors << "#{error_message}"
   error_message
 end
 
 def log_errors
 	puts "#{Time.now} | logging errors to file..."
 	counter = 0
-  File.open(@error_log, 'a') do |file|
+	binding.pry
+  File.open(@error_log, 'a') do |f|
     (Thread.current[:errors] ||= []).each do |error|
     	counter += 1
-      file.puts error
+      f.puts error
     end
   end
   puts "#{Time.now} | added #{counter} errors to #{@error_log}"
