@@ -166,6 +166,7 @@ def amazon_search(browser, asins, batch_number = 1)
 				log logfile, "#{Time.now} | Pushing product #{product.model} to @amazon_products"
 				@amazon_products.push product
 				log logfile, product.all_info
+				File.write(@product_log, @amazon_products.count)
 			end
 		end
 	rescue => e
