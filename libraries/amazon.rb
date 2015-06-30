@@ -86,7 +86,7 @@ def amazon_search(browser, asins, batch_number = 1)
 						browser.li(id:'result_0').links.first.click
 						sleep 1
 						browser.div(id:'navFooter').wait_until_present
-						product.item_link
+						product.item_link = browser.url
 						# record the Title, price, features, desc, details
 						# Title
 						log logfile, "Getting name"
@@ -169,7 +169,7 @@ def amazon_search(browser, asins, batch_number = 1)
 			end
 		end
 	rescue => e
-		error = true
+		@error = true
 		# no_dots
 		# browser_exist = browser.nil? rescue false
 		# if browser_exist
@@ -197,9 +197,8 @@ def amazon_search(browser, asins, batch_number = 1)
 		#browser.close rescue nil
 		# headless.destroy if @headless
 		# no_dots
-		@success = !error
-		log logfile, "Amazon search #{batch_number} ended in status: #{!error}"
+		log logfile, "Amazon search #{batch_number} ended in status: #{!@error}"
 
-		return [!error, product]
+		return [!@error, product]
 	# end
 end

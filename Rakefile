@@ -2,7 +2,7 @@ unless File.exist?('secret/secret.txt')
 	puts "Secret.txt doesn't exist and application cannot continue."
 	exit
 end
-
+@all_finished = false
 @root_folder = File.absolute_path(File.dirname(__FILE__))
 Dir.mkdir('results') unless Dir.exist?('results')
 Dir.mkdir('temp') unless Dir.exist?('temp')
@@ -13,7 +13,6 @@ require_relative 'libraries/pushbullet.rb'
 require_relative 'libraries/amazon.rb'
 
 dots
-update_path # update path to include chromedriver
 init_variables
 
 puts "Root folder = #{@root_folder}"
@@ -22,6 +21,7 @@ puts "Runstamp = #{@run_stamp}"
 @main_log = @root_folder + "/temp/main_log_#{@run_stamp}.txt"
 File.write(@main_log, "#{Time.now} | Creating logfile for run #{@run_stamp}\n")
 puts "Main log = #{@main_log}"
+update_path # update path to include chromedriver
 
 #run tasks
 task default: :run_all
@@ -31,7 +31,7 @@ task run_all: %i(amazon create_log create_spreadsheet pushbullet_files finish)
 desc 'Search amazon for the specified skus'
 task :amazon do
 	begin
-		puts "\n#{Time.now} | Starting Amazon search..."
+		log @main_log, "#{Time.now} | Starting Amazon search..."
 		# @amazon_data = @computer.include?('digital-ocean') ? File.absolute_path('data/amazon.xlsx') : File.absolute_path('data/amazon_test.xlsx')
 		@amazon_data = @root_folder + ('/data/amazon_test_big.xlsx')
 		@amazon_products = []
@@ -49,10 +49,10 @@ task :amazon do
 			batch_number = i.to_s.rjust(data_groups.count.to_s.length, '0')
 			sleep 1 while !free_core
 			sleep 2
-			break unless @success
+			break if @error
 			new = Thread.new do
 				begin
-					puts "\n#{Time.now} | Amazon search [#{batch_number}] of [#{data_groups.count-1}] starting...\n\tCreating browser instance #{batch_number}"
+					log @main_log, "\n#{Time.now} | Amazon search [#{batch_number}] of [#{data_groups.count-1}] starting...\n\tCreating browser instance #{batch_number}"
 					@browsers[i] = Watir::Browser.new :chrome
 					amazon_search(@browsers[i], data, batch_number)
 				rescue => e
@@ -60,11 +60,10 @@ task :amazon do
 					puts e
 					puts e.backtrace
 				ensure
-					# puts "\n#{Time.now} | Closing browser instance #{batch_number}"
 					@browsers[i].close rescue nil
-					search_status = "\n#{Time.now} | Amazon search [#{batch_number}] with browser(#{i}) ended with status: #{@success}"
+					search_status = "\n#{Time.now} | Amazon search [#{batch_number}] with browser(#{i}) ended with status: #{!@error}"
 					@completed.push search_status
-					puts search_status
+					log @main_log, search_status
 				end
 			end
 			@threads.push new
@@ -72,11 +71,11 @@ task :amazon do
 		counter = 0
 		loop do
 			if @completed.count == data_groups.count
-				puts "All searches complete!"
+				puts log @main_log, "All searches complete!"
 				break
 			end
 			if counter > 300
-				puts "Counter reached before all searches were completed."
+				puts log @main_log, "Counter reached before all searches were completed."
 				break
 			end
 		end
@@ -97,7 +96,7 @@ end
 desc 'Creates a master log file from all of the other logs'
 task :create_log do
 	@master_log = create_master_log
-	puts "\nLogfile generated at this location:\n#{@master_log}\n"
+	log @main_log, "Logfile generated at this location:\n#{@master_log}\n"
 end
 
 desc 'Pusbullet file results'
@@ -111,25 +110,26 @@ task :pushbullet_files do
 	rescue Exception => e
 		# puts e.message
 		# puts e.backtrace
-		puts "\n======================\nEncountered error during pushbullet, probably has to do with stupid windows pushbullet issues"
+		puts log @main_log, "Encountered error during pushbullet, probably has to do with stupid windows pushbullet issues"
 	end
 end
 
 desc 'Report total time'
 task :finish do
+	@all_finished = true
 	begin
 		title = "Product scraping complete on #{@computer}"
 		message = "Process completed with status of #{@success ? "success" : "failure"}"
 		message << "\nTotal processing time: #{seconds_to_string(Time.now - @start_time)}"
-		puts "\n#{Time.now} | \n#{message}"
+		puts log @main_log, "\n#{Time.now} | \n#{message}"
 		pushbullet_note_to_all(title, message, @chrome)
-		puts "Opening log file: #{@main_log}"
+		puts "Opening log file: #{@master_log}"
 		sleep 3
-		open_file(@main_log)
+		open_file(@master_log)
 		no_dots
 	rescue Exception => e
 		# puts e.message
 		# puts e.backtrace
-		puts "\n======================\nEncountered error during report total time, probably has to do with stupid windows pushbullet issues"
+		puts log @main_log, "Encountered error during report total time, probably has to do with stupid windows pushbullet issues"
 	end
 end

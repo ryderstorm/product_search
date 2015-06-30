@@ -14,6 +14,7 @@ def init_variables
 	@cores = Facter.value('processors')['count']
 	@computer = Socket.gethostname
 	@headless = true
+	@headless = false if @computer == 'GSOD-DSTORM'
 	@headless = true if @computer == 'ryderstorm-amazon_search-1580844'
 	@headless = true if @computer.include?('testing-worker-linux-docker')
 	@headless = true if @computer.include?('digital-ocean')
@@ -24,6 +25,7 @@ class Product
 	attr_accessor :model, :upc, :name, :asin, :search_term, :search_link, :number_of_results, :item_link, :title, :price, :features, :description, :details, :reviews_average, :reviews_link, :reviews_total, :questions_total, :answers_total, :search_screenshot, :info
 
 	def initialize(info)
+		self.instance_variables.each { |i| i = 'no data'}
 		@info = info
 	end
 
@@ -158,7 +160,7 @@ def log(file, message)
 			f.puts "#{Time.now} | #{message}"
 		end
 	end
-	puts message
+	# puts message
 	message
 end
 
@@ -178,7 +180,6 @@ def create_master_spreadsheet
 	master_wb = RubyXL::Workbook.new
 	summary_sheet = master_wb[0]
 	summary_sheet.sheet_name = 'Summary'
-	puts "starting column creation"
 	@amazon_products.first.headers.each_with_index do |h, i|
 		summary_sheet.add_cell(0, i, h)
 	end
@@ -189,12 +190,28 @@ def create_master_spreadsheet
 		product.instance_variables.each_with_index do |variable, j|
 			product.headers.each_with_index do |header, k|
 				if header.downcase.gsub(' ', '_') == variable.to_s[1..-1]
-					summary_sheet.add_cell(i+1, k, product.instance_variable_get(variable))
+					value_to_write = product.instance_variable_get(variable)
+					if value_to_write.to_s[0..3] == 'http'
+						summary_sheet.add_cell(i+1, k, '', "HYPERLINK(\"#{value_to_write}\")")
+						summary_sheet[i+1][k].change_font_color('0000CC')
+					else
+						summary_sheet.add_cell(i+1, k, value_to_write)
+					end
+					sheet[i+1][k].change_horizontal_alignment('left')
+					summary_sheet[i+1][k].change_fill('FF6161') if value_to_write == 'no data'
 				end
 			end
 			sheet.add_cell(j, 0, variable.to_s[1..-1].split('_').each{|word| word.capitalize!}.join(' '))
-			sheet.add_cell(j, 1, product.instance_variable_get(variable))
-			sheet.change_column_width(0, 30)
+			value_to_write = product.instance_variable_get(variable)
+			if value_to_write.to_s[0..3] == 'http'
+				sheet.add_cell(j, 1, '', "HYPERLINK(\"#{value_to_write}\")")
+				sheet[j][1].change_font_color('0000CC')
+			else
+				sheet.add_cell(j, 1, value_to_write)
+			end
+			sheet[j][1].change_horizontal_alignment('left')
+			shee[j][1].change_fill('FF6161') if value_to_write == 'no data'
+			sheet.change_column_width(0, 18)
 			sheet.change_column_width(1, 150)
 		end
 	end
@@ -205,9 +222,9 @@ def create_master_spreadsheet
 
 rescue => e
 	@error_info = e
-	puts "Encoutered the following error:"
-	puts e.message
-	puts e.backtrace
+	puts log @main_log, "Encoutered the following error:"
+	puts log @main_log, e.message
+	puts log @main_log, e.backtrace
 # ensure
 # 	binding.pry
 end
@@ -235,4 +252,3 @@ end
 def open_file(file)
 	ENV['OS'].nil? ? system("gnome-open #{file}") : system("start #{file}")
 end
-
