@@ -77,6 +77,14 @@ task :amazon do
 				break
 			end
 		end
+	rescue Interrupt
+		log logfile, "User pressed Ctrl+C"
+		binding.pry		
+	rescue => e
+		puts "\n#{Time.now} | Encountered error during Rake:amazon"
+		puts e
+		puts e.backtrace
+		binding.pry
 	ensure
 		@threads.each {|t| t.join(1)}
 		@browsers.each { |b| b.close rescue nil}
