@@ -2,6 +2,7 @@ unless File.exist?('secret/secret.txt')
 	puts "Secret.txt doesn't exist and application cannot continue."
 	exit
 end
+@errors = []
 @all_finished = false
 @root_folder = File.absolute_path(File.dirname(__FILE__))
 Dir.mkdir('results') unless Dir.exist?('results')
