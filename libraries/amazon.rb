@@ -28,12 +28,12 @@ def amazon_search(browser, asins, batch_number = 1)
 					#search for the current product
 					product.model, product.upc, product.name, product.asin = item
 					case
+					when !product.model.nil?
+						product.search_term = product.model.to_s
 					when !product.asin.nil?
 						product.search_term = product.asin.to_s
 					when !product.upc.nil?
 						product.search_term = product.upc.to_s
-					when !product.model.nil?
-						product.search_term = product.model.to_s
 					when !product.name.nil?
 						product.search_term = product.name.to_s
 					else

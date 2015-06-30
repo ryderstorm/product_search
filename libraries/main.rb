@@ -13,7 +13,7 @@ def init_variables
 	if @computer.include?('digital-ocean') 
 		@amazon_data = File.absolute_path('data/amazon.xlsx')
 		# @amazon_data = File.absolute_path('data/amazon_test_big.xlsx')
-		@group_size = 15
+		@group_size = 5
 	else
 		@amazon_data = File.absolute_path('data/amazon_test.xlsx')
 		@group_size = 2
