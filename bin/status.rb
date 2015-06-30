@@ -57,9 +57,12 @@ loop do
 
 	# if completed == data_groups
 		
-	puts "Press enter to generate new status report, or type exit and press enter to exit"
-	response = gets.chomp
-	exit if response == 'exit'
+	# puts "Press enter to generate new status report, or type exit and press enter to exit"
+	# response = gets.chomp
+	# exit if response == 'exit'
+	counter = 7
+	puts "New report will generate in "
+	counter.times { print "#{counter}..";sleep 1;counter -= 1}
 end
 # logs = []
 # current_logs = []
