@@ -61,9 +61,7 @@ task :amazon do
 					@browsers[i] = Watir::Browser.new :chrome, :http_client => client
 					amazon_search(@browsers[i], data, batch_number)
 				rescue => e
-					puts "\n#{Time.now} | Encountered error during browser creation in Rake:amazon"
-					puts e
-					puts e.backtrace
+					puts report_error("Encountered error during browser creation in Rake:amazon", e)
 				ensure
 					log @main_log, "#{Time.now} | Closing browser instance [#{i}]..."
 					@browsers[i].close rescue nil
@@ -89,12 +87,7 @@ task :amazon do
 		log logfile, "User pressed Ctrl+C"
 		# binding.pry		
 	rescue => e
-		puts "\n#{Time.now} | Encountered error during Rake:amazon"
-		puts e
-		puts e.backtrace
-		error = "#{Time.now} | Class: [#{e.class}]\n\tMessage: [#{e.message}]"
-		e.backtrace.each{|i| error << "\n\t#{i}"}
-		report_error(error)
+		puts report_error("Encountered error during Rake:amazon", e)
 		# binding.pry
 	ensure
 		@threads.each {|t| t.join(1)}

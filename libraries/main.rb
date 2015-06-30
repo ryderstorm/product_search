@@ -229,10 +229,7 @@ rescue Interrupt
 	log logfile, "User pressed Ctrl+C during workbook creation"
 	binding.pry		
 rescue => e
-	@error_info = e
-	puts log @main_log, "Encoutered the following error:"
-	puts log @main_log, e.message
-	puts log @main_log, e.backtrace
+	puts report_error("Error encountered during workbook generation", e)
 ensure
 	master_wb.write(wb_location)
 	log @main_log, "Completed creation of results workbook:\n#{wb_location}"
@@ -263,8 +260,12 @@ def open_file(file)
 	ENV['OS'].nil? ? system("gnome-open #{file}") : system("start #{file}")
 end
 
-def report_error(error_message)
+def report_error(note, error)
+	error_message = "\n#{Time.now}"
+	error_message << "\n\t#{note}\n\tClass: #{error.class}\n\tMessage: #{error.message}"
+	error.backtrace.each { |i| error_message << "\n\t#{i}" }
   (Thread.current[:errors] ||= []) << "#{error_message}"
+  error_message
 end
 
 def log_errors

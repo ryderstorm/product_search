@@ -171,10 +171,7 @@ def amazon_search(browser, asins, batch_number = 1)
 		end
 	rescue => e
 		@error = true
-		# no_dots
-		report = error_report(e)
-		puts log logfile, report
-		# pushbullet_note_to_all("Error occurred in automation!", report, @chrome)
+		puts report_error("Error occurred during batch [#{batch_number}]", e)
 		browser_exist = !browser.nil? rescue false
 		if browser_exist
 			log logfile, "URL of browser at error:"
@@ -184,8 +181,6 @@ def amazon_search(browser, asins, batch_number = 1)
 			pushbullet_file_to_all("Screenshot of Automation Error", error_file, report, @chrome)
 			log logfile, error_report(e, browser.url)
 		end
-		log logfile, "Exiting after fail due to error."
-		# binding.pry
 	rescue Interrupt
 		log logfile, "User pressed Ctrl+C"
 		# binding.pry
