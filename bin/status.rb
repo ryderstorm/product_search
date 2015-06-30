@@ -51,9 +51,9 @@ loop do
 	unless completed == 0
 		puts "#{successful} / #{(successful.to_f / completed * 100.0).round(2)}% successful so far"
 		puts "#{failed} / #{(failed.to_f / completed * 100.0).round(2)}% failed so far"
-		product_status = File.read(Dir.glob("**/temp/product_log_#{run_stamp}.txt").first).split('|')
-		puts "#{(product_status.first.to_i / product_status.last.to_f * 100).round(2)}% | #{product_status.first} of #{product_status.last} total products processed so far"
 	end
+	product_status = File.read(Dir.glob("**/temp/product_log_#{run_stamp}.txt").first).split('|')
+	puts "#{(product_status.first.to_i / product_status.last.to_f * 100).round(2)}% | #{product_status.first} of #{product_status.last} total products processed so far"
 
 	# if completed == data_groups
 		
