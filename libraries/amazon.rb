@@ -139,7 +139,7 @@ def amazon_search(browser, asins, batch_number = 1)
 
 						# Reviews
 						log logfile, "Getting reviews"
-						if browser.div(id:'averageCustomerReviews_feature_div').text == 'Be the first to review this item'
+						if browser.text.include?('Be the first to review this item')
 							product.reviews_average = "n/a"
 							product.reviews_total = "0"
 							product.reviews_link = "There are no reviews for this product yet"
