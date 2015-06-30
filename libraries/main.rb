@@ -35,10 +35,10 @@ class Product
 		@info = info
 	end
 
-	def display
+	def all_info
 		all_data = {}
 		header = "Information for #{@info}:"
-		puts header
+		# puts header
 		all_data.store 'Header', header
 		self.instance_variables.each do |v|
 			current_header = ''
@@ -49,7 +49,7 @@ class Product
 				end
 			end
 			value = self.instance_variable_get(v)
-			puts "\t#{current_header}: #{value}"
+			# puts "\t#{current_header}: #{value}"
 			all_data.store header, value
 		end
 		return all_data
@@ -63,7 +63,7 @@ end
 def free_core
 	@cores = 4 if @computer == "GSOD-DSTORM"
 	return (Thread.list.count <= 2 ? true : false) if @cores == 1
-	@cores > Thread.list.count - 1
+	@cores * 2 > Thread.list.count - 1
 end
 
 def read_amazon_data(group_size = 25)
