@@ -36,8 +36,8 @@ task :amazon do
 	begin
 		log @main_log, "#{Time.now} | Starting Amazon search..."
 		@amazon_products = []
-		data_groups = read_amazon_data(@group_size)
-		log @main_log, "#{Time.now} | Number of data groups: #{data_groups.count}\n"
+		@data_groups = read_amazon_data(@group_size)
+		log @main_log, "#{Time.now} | Number of data groups: #{@data_groups.count}\n"
 		if @headless
 			log @main_log, "#{Time.now} | Running headless\n"
 			headless = Headless.new
@@ -45,16 +45,16 @@ task :amazon do
 		end
 		@threads = []
 		@completed = []
-		@browsers = Array.new(data_groups.count)
+		@browsers = Array.new(@data_groups.count)
 
-		data_groups.each_with_index do |data, i|
-			batch_number = i.to_s.rjust(data_groups.count.to_s.length, '0')
+		@data_groups.each_with_index do |data, i|
+			batch_number = i.to_s.rjust(@data_groups.count.to_s.length, '0')
 			sleep 1 while !free_core
 			sleep 2
 			break if @error
 			new = Thread.new do
 				begin
-					log @main_log, "#{Time.now} | Amazon search [#{batch_number}] of [#{data_groups.count-1}] starting...\n\tCreating browser instance #{batch_number}"
+					log @main_log, "#{Time.now} | Amazon search [#{batch_number}] of [#{@data_groups.count-1}] starting...\n\tCreating browser instance #{batch_number}"
 					client = Selenium::WebDriver::Remote::Http::Default.new
 					client.timeout = 360 # seconds - default is 60
 					@browsers[i] = Watir::Browser.new :chrome, :http_client => client
@@ -75,7 +75,7 @@ task :amazon do
 		end
 		counter = 0
 		loop do
-			if @completed.count == data_groups.count
+			if @completed.count == @data_groups.count
 				puts log @main_log, "All searches complete!"
 				break
 			end

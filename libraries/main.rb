@@ -71,6 +71,7 @@ def read_amazon_data(group_size = 25)
 	asins = RubyXL::Parser.parse(@amazon_data).first.extract_data
 	asins.delete_if { |a| a.to_s == "[nil, nil, nil, nil]" }
 	asins.delete_at(0)
+	@amazon_product_count = asins.count
 	groups = []
 	while asins.count > 0
 		groups.push asins.slice!(0, group_size.to_i)
@@ -173,13 +174,13 @@ end
 
 def create_master_log
 	logs = Dir.glob(@root_folder + "/temp/**/*runlog*#{@run_stamp}*")
-	master_log = "#{@root_folder}/results/master_log_#{@run_stamp}.txt"
+	all_runs_log = "#{@root_folder}/results/all_runs_log_#{@run_stamp}.txt"
 	logs.sort.each do |log|
-		File.open(master_log, "a") do |f|
+		File.open(all_runs_log, "a") do |f|
 			f.puts File.read(log)
 		end
 	end
-	File.absolute_path(master_log)
+	File.absolute_path(all_runs_log)
 end
 
 def create_master_spreadsheet
@@ -193,7 +194,7 @@ def create_master_spreadsheet
 		summary_sheet.add_cell(0, i, h)
 	end
 	@amazon_products.each_with_index do |product, i|
-		puts log @main_log, "#{Time.now} | Processing product [#{i+1}] of [#{@amazon_products.count}]: #{product}"
+		puts log @main_log, "#{Time.now} | Processing product [#{i+1}] of [#{@amazon_products.count}]: #{product.search_term}"
 		master_wb.add_worksheet(product.search_term)
 		sheet = master_wb[product.search_term]
 		product.instance_variables.each_with_index do |variable, j|
@@ -224,9 +225,6 @@ def create_master_spreadsheet
 			sheet.change_column_width(1, 150)
 		end
 	end
-	master_wb.write(wb_location)
-	log @main_log, "Completed creation of results workbook:\n#{wb_location}"
-	return wb_location
 rescue Interrupt
 	log logfile, "User pressed Ctrl+C during workbook creation"
 	binding.pry		
@@ -235,6 +233,10 @@ rescue => e
 	puts log @main_log, "Encoutered the following error:"
 	puts log @main_log, e.message
 	puts log @main_log, e.backtrace
+ensure
+	master_wb.write(wb_location)
+	log @main_log, "Completed creation of results workbook:\n#{wb_location}"
+	return wb_location
 end
 
 def update_path
@@ -266,9 +268,13 @@ def report_error(error_message)
 end
 
 def log_errors
+	puts "#{Time.now} | logging errors to file..."
+	counter = 0
   File.open(@error_log, 'a') do |file|
     (Thread.current[:errors] ||= []).each do |error|
+    	counter += 1
       file.puts error
     end
   end
+  puts "#{Time.now} | added #{counter} errors to #{@error_log}"
 end
