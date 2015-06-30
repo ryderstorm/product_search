@@ -39,7 +39,7 @@ def amazon_search(browser, asins, batch_number = 1)
 					else
 						log logfile, "Can't search when all info is nil!"	
 						log logfile, item
-						pushbullet_note_to_all("Encountered nil item in automation!", "Item ##{i} is nil!#{item.to_s}")
+						pushbullet_note_to_all("Encountered nil item in automation!", "Item ##{i} is nil!#{item.to_s}", @chrome)
 						next
 					end
 					log logfile, "processing product [#{product.search_term} | #{product.name}] - #{i + 1} of #{asins.count}"
@@ -177,7 +177,7 @@ def amazon_search(browser, asins, batch_number = 1)
 		# 	log logfile, browser.url
 		# 	error_file = take_screenshot('ERROR')
 		# 	log logfile, "Screenshot saved as [#{error_file}]"
-		# 	# pushbullet_file_to_all("Screenshot of Automation Error", error_file, '')
+		# 	# pushbullet_file_to_all("Screenshot of Automation Error", error_file, '', @chrome)
 		# 	# log logfile, error_report(e, browser.url)
 		# else
 		# 	log logfile, "Browser did not exist at time of error"
