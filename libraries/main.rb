@@ -7,12 +7,18 @@ require 'open-uri'
 require 'facter'
 
 def init_variables
+	@computer = Socket.gethostname
 	@start_time = Time.now
 	@run_stamp = tstamp
-	@group_size = 2
+	if @computer.include?('digital-ocean') 
+		@amazon_data = File.absolute_path('data/amazon.xlsx')
+		@group_size = 10
+	else
+		@amazon_data = File.absolute_path('data/amazon_test.xlsx')
+		@group_size = 2
+	end
 	@success = true
 	@cores = Facter.value('processors')['count']
-	@computer = Socket.gethostname
 	@headless = true
 	@headless = false if @computer == 'GSOD-DSTORM'
 	@headless = true if @computer == 'ryderstorm-amazon_search-1580844'
