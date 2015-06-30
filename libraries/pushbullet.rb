@@ -19,3 +19,6 @@ end
 def pushbullet_link_to_all(title, link, message,  receivers=nil)
   pb_client.push_link(receiver:receivers, identifier: '<IDENTIFIER>', params:{title: title, url: link, body: message})
 end
+
+# unless ARGV[0].nil?
+# 	pushbullet_file_to_all
