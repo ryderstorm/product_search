@@ -223,7 +223,7 @@ def update_path
 		unless ENV['PATH'].include?(chromedriver_location)
 			puts "Current PATH does not include chromedriver:\n#{ENV['PATH']}"
 			unless File.read(File.expand_path('~/.profile')).include?(chromedriver_location)
-				File.open(File.expand_path('~/.profile'), 'a') { |f| f.puts("# Adding path to chromedriver\nPATH=$PATH;#{chromedriver_location}")}
+				File.open(File.expand_path('~/.profile'), 'a') { |f| f.puts("# Adding path to chromedriver\nPATH=$PATH:#{chromedriver_location}")}
 			end
 			ENV['PATH'] = ENV['PATH'] + ":#{@root_folder}/setup"
 			puts "~/.profile has been updated to include chromedriver and the local path has been updated."
