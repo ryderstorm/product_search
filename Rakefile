@@ -40,8 +40,8 @@ task :start_logs do
 		port = "$PORT"
 		remote_link = "https://amazon-search-ryderstorm.c9.io/?_c9_id=livepreview20&_c9_host=https://ide.c9.io"
 	else
-		ip = "8100"
-		port = "0.0.0.0"
+		ip = "0.0.0.0"
+		port = "8100"
 		remote_link = "http://#{@remote_ip}:#{port}"
 	end
 	Thread.new{ system("ruby bin/log_viewer.rb #{@run_stamp} -o #{ip} -p #{port}")}
