@@ -10,20 +10,13 @@ create a div for each window
 =end
 
 require 'sinatra'
-require "sinatra/reloader"
 require 'haml'
 require 'sass'
 require 'require_all'
 require 'tilt/haml'
-# puts "Port: #{$PORT}"
-# puts "IP: #{$IP}"
-# set :port, $PORT
-# set :bind, $IP
 $run_stamp = ARGV[0]
-# $run_stamp = '20150709182647'
 $root_folder = File.expand_path(File.dirname(__FILE__))[0..-5]
-puts "Log file server has started with the following parameters:\nRun stamp: #{$run_stamp}\nRoot folder: #{$root_folder}"#"\nURL: #{request.base_url}"
-
+puts "Log file server has started with the following parameters:\nRun stamp: #{$run_stamp}\nRoot folder: #{$root_folder}"
 get '/' do
 	haml :index
 	# get_logs

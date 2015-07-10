@@ -35,7 +35,11 @@ task run_all: %i(start_logs amazon create_log create_spreadsheet pushbullet_file
 
 desc 'Creates webserver for displaying log files'
 task :start_logs do
-	Thread.new{ system("ruby bin/log_viewer.rb #{@run_stamp} -o $IP -p $PORT")}
+	if Socket.gethostname == "ryderstorm-amazon_search-1580844"
+		Thread.new{ system("ruby bin/log_viewer.rb #{@run_stamp} -o $IP -p $PORT")}
+	else
+		Thread.new{ system("ruby bin/log_viewer.rb #{@run_stamp} -o 0.0.0.0 -p 8100")}
+	end
 end
 desc 'Search amazon for the specified skus'
 task :amazon do
