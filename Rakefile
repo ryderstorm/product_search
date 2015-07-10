@@ -36,11 +36,18 @@ task run_all: %i(start_logs amazon create_log create_spreadsheet pushbullet_file
 desc 'Creates webserver for displaying log files'
 task :start_logs do
 	if Socket.gethostname == "ryderstorm-amazon_search-1580844"
-		Thread.new{ system("ruby bin/log_viewer.rb #{@run_stamp} -o $IP -p $PORT")}
+		ip = "$IP"
+		port = "$PORT"
+		remote_link = "https://amazon-search-ryderstorm.c9.io/?_c9_id=livepreview20&_c9_host=https://ide.c9.io"
 	else
-		Thread.new{ system("ruby bin/log_viewer.rb #{@run_stamp} -o 0.0.0.0 -p 8100")}
+		ip = "8100"
+		port = "0.0.0.0"
+		remote_link = "http://#{@remote_ip}:#{port}"
 	end
+	Thread.new{ system("ruby bin/log_viewer.rb #{@run_stamp} -o #{ip} -p #{port}")}
+	pushbullet_link_to_all("Log viewer running", remote_link, "")
 end
+
 desc 'Search amazon for the specified skus'
 task :amazon do
 	begin
@@ -96,7 +103,7 @@ task :amazon do
 			sleep 1
 		end
 	rescue Interrupt
-		log logfile, "User pressed Ctrl+C"
+		puts log @main_log, "\nUser pressed Ctrl+C"
 		# binding.pry
 	rescue => e
 		puts report_error("Encountered error during Rake:amazon", e)
@@ -158,7 +165,5 @@ end
 
 at_exit do
 	log_errors
-	$all_done = true
 	binding.pry
-	@log_viewer.kill
 end
