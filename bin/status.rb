@@ -34,8 +34,9 @@ begin
 		logs.each {|log| in_progress.push log unless File.read(log).include?("Closing resources") }
 		in_progress.sort.each do |log|
 			puts "\n#{File.basename(log)}"
-			contents = `tail -n 5 #{File.absolute_path(log)}`
-			contents.split("\n").each{ |c| puts "\t#{c}"}
+			# contents = `tail -n 5 #{File.absolute_path(log)}`
+			contents = File.read(File.absolute_path(log)).split("\n").last(10)
+			contents.each{ |c| puts "\t#{c}"}
 		end
 
 		logs.each do |log|
