@@ -13,10 +13,10 @@ require 'sinatra'
 require 'haml'
 require 'sass'
 require 'tilt/haml'
-disable :logging
 $root_folder = File.expand_path(File.dirname(__FILE__))[0..-5]
 require "#{$root_folder}/libraries/main.rb"
 puts "Log file server has started with root folder: #{$root_folder}"
+set :logging, true
 get '/' do
 	haml :index
 	# get_logs
