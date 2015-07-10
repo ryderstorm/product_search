@@ -24,20 +24,20 @@ def amazon_search(browser, asins, batch_number = 1)
 					product = Product.new(item)
 					searchbox = browser.text_field(id:'twotabsearchtextbox')
 					browser.goto 'http://www.amazon.com' unless searchbox.present?
-					
+
 					#search for the current product
 					product.model, product.upc, product.name, product.asin = item
 					case
-					when !product.model.nil?
-						product.search_term = product.model.to_s
 					when !product.asin.nil?
 						product.search_term = product.asin.to_s
+					when !product.model.nil?
+						product.search_term = product.model.to_s
 					when !product.upc.nil?
 						product.search_term = product.upc.to_s
 					when !product.name.nil?
 						product.search_term = product.name.to_s
 					else
-						log logfile, "Can't search when all info is nil!"	
+						log logfile, "Can't search when all info is nil!"
 						log logfile, item
 						pushbullet_note_to_all("Encountered nil item in automation!", "Item ##{i} is nil!#{item.to_s}", @chrome)
 						next
@@ -50,7 +50,7 @@ def amazon_search(browser, asins, batch_number = 1)
 					# image = take_screenshot("#{product.search_term}_SEARCH_RESULTS")
 
 					# Results
-					case 
+					case
 					when browser.h1(id:'noResultsTitle').present?
 						# move on if no results were found
 						result_counts.push "#{i+1}. | #{product.search_term.center(20)} | #{product.name} | NO results FOUND"
