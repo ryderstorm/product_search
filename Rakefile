@@ -170,5 +170,5 @@ end
 at_exit do
 	puts "#{Time.now} | Performing at_exit stuff"
 	log_errors
-	binding.pry
+	# binding.pry
 end
