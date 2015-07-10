@@ -44,6 +44,7 @@ task :start_logs do
 		port = "8100"
 		remote_link = "http://#{@remote_ip}:#{port}"
 	end
+	puts "#{Time.now} | Starting log server at #{remote_link}"
 	Thread.new{ system("ruby bin/log_viewer.rb #{@run_stamp} -o #{ip} -p #{port}")}
 	pushbullet_link_to_all("Log viewer running", remote_link, "")
 end

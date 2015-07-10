@@ -61,8 +61,7 @@ def get_logs
 	logs.each{ |log| stamps.push(File.basename(log).split("_")[2])}
 	run_stamp = stamps.uniq.sort.last[0..-5]
 	status.push "Using run_stamp [#{run_stamp}]"
-	# puts run_stamp
-	logs.delete_if{|log| !File.basename(log).include?(run_stamp)}
+	logs.delete_if{|log| !File.basename(log).include?(run_stamp) or File.basename(log).include?('product_log')}
 	in_progress = []
 	logs.each {|log| in_progress.push log unless File.read(log).include?("Closing resources") }
 	in_progress.sort.each do |log|
