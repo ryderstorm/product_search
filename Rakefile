@@ -103,7 +103,7 @@ task :amazon do
 			sleep 1
 		end
 	rescue Interrupt
-		puts log @main_log, "\nUser pressed Ctrl+C"
+		puts log @main_log, "\n#{Time.now} | User pressed Ctrl+C"
 		# binding.pry
 	rescue => e
 		puts report_error("Encountered error during Rake:amazon", e)

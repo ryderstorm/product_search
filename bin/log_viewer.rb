@@ -60,6 +60,7 @@ def get_logs
 	logs = Dir.glob($root_folder + "/temp/**/*.txt")
 	logs.each{ |log| stamps.push(File.basename(log).split("_")[2])}
 	run_stamp = stamps.uniq.sort.last[0..-5]
+	status.push "Using run_stamp [#{run_stamp}]"
 	# puts run_stamp
 	logs.delete_if{|log| !File.basename(log).include?(run_stamp)}
 	in_progress = []
