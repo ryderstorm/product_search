@@ -46,10 +46,15 @@ end
 
 def get_logs
 	status = []
+	main_log_content = []
 	page_content = []
 	main_logs = Dir.glob($root_folder + "/results/**/*#{$run_stamp}.txt").sort
 	current_log = main_logs.last
 	contents = File.read(current_log).split("\n")
+	main_log_content.push ""
+	main_log_content.push "=========================="
+	main_log_content.push "Main log | #{File.basename(current_log)}"
+	contents.each { |c| main_log_content.push c }
 	time = contents[0]
 	@start_time = Time.parse(time)
 	data_groups = contents[2].split("Number of data groups: ").last
@@ -93,6 +98,6 @@ def get_logs
 	if product_status.first == product_status.last
 		status.push "Current run  with runstamp #{run_stamp} has completed\nPress enter to generate new status report, or type exit and press enter to exit".green
 	end
-	all_content = status + page_content
+	all_content = status + main_log_content + page_content
 	return all_content.join("<br>")
 end
