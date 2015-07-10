@@ -66,7 +66,9 @@ def get_logs
 	in_progress = []
 	logs.each {|log| in_progress.push log unless File.read(log).include?("Closing resources") }
 	in_progress.sort.each do |log|
-		page_content.push "\n#{File.basename(log)}"
+		page_content.push " "
+		page_content.push "=========================="
+		page_content.push "#{File.basename(log)}"
 		contents = File.read(File.absolute_path(log)).split("\n").last(10)
 		contents.each{ |c| page_content.push "\t#{c}"}
 	end
