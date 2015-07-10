@@ -1,3 +1,5 @@
+require 'awesome_print'
+require 'colorize'
 require 'watir-webdriver'
 require 'headless'
 require 'rubyXL'
@@ -10,7 +12,7 @@ def init_variables
 	@computer = Socket.gethostname
 	@start_time = Time.now
 	@run_stamp = tstamp
-	if @computer.include?('digital-ocean') 
+	if @computer.include?('digital-ocean')
 		@amazon_data = File.absolute_path('data/amazon.xlsx')
 		# @amazon_data = File.absolute_path('data/amazon_test_big.xlsx')
 		@group_size = 5
@@ -227,7 +229,7 @@ def create_master_spreadsheet
 	end
 rescue Interrupt
 	log logfile, "User pressed Ctrl+C during workbook creation"
-	binding.pry		
+	binding.pry
 rescue => e
 	puts report_error("Error encountered during workbook generation", e)
 ensure
@@ -257,6 +259,10 @@ def update_path
 end
 
 def open_file(file)
+	if Socket.gethostname == "ryderstorm-amazon_search-1580844"
+		puts "Can't open files on C9, yo!"
+		return
+	end
 	ENV['OS'].nil? ? system("gnome-open #{file}") : system("start #{file}")
 end
 
@@ -264,17 +270,17 @@ def report_error(note, error)
 	error_message = "\n#{Time.now}"
 	error_message << "\n\t#{note}\n\tClass: #{error.class}\n\tMessage: #{error.message}"
 	error.backtrace.each { |i| error_message << "\n\t#{i}" }
-  (Thread.current[:errors] ||= []) << "#{error_message}"
-  @errors << "#{error_message}"
+  # (Thread.current[:errors] ||= []).push "#{error_message}"
+  @errors.push "#{error_message}"
   error_message
 end
 
 def log_errors
 	puts "#{Time.now} | logging errors to file..."
 	counter = 0
-	binding.pry
+	# binding.pry
   File.open(@error_log, 'a') do |f|
-    (Thread.current[:errors] ||= []).each do |error|
+    @errors.each do |error|
     	counter += 1
       f.puts error
     end
