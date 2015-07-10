@@ -187,6 +187,10 @@ def create_master_log
 end
 
 def create_master_spreadsheet
+	if @amazon_products.empty?
+		puts "No products found! Can't create workbook."
+		return
+	end
 	wb_location = "#{@root_folder}/results/amazon_products_#{@run_stamp}.xlsx"
 	puts log @main_log, "#{Time.now} | Starting creation of results workbook\n\t#{wb_location}"
 	all_data = {}
