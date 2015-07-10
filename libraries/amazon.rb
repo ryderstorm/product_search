@@ -20,7 +20,6 @@ def amazon_search(browser, asins, batch_number = 1)
 			begin
 				Timeout::timeout(30) do
 					search_start = Time.now
-					log logfile, "Application runtime: #{seconds_to_string(Time.now - @start_time)}"
 					product = Product.new(item)
 					searchbox = browser.text_field(id:'twotabsearchtextbox')
 					browser.goto 'http://www.amazon.com' unless searchbox.present?
