@@ -52,7 +52,7 @@ end
 desc 'Search amazon for the specified skus'
 task :amazon do
 	begin
-		log @main_log, "#{Time.now} | Starting Amazon search..."
+		puts log @main_log, "#{Time.now} | Starting Amazon search..."
 		@amazon_products = []
 		@data_groups = read_amazon_data(@group_size)
 		File.write(@product_log, "0|#{@amazon_product_count}")
@@ -118,19 +118,21 @@ end
 
 desc 'Creates the finalized spreadsheet from all the other spreadsheets'
 task :create_spreadsheet do
+	puts "#{Time.now} | Opening workbook..."
 	workbook = create_master_spreadsheet
-	puts "Opening workbook..."
 	open_file(workbook)
 end
 
 desc 'Creates a master log file from all of the other logs'
 task :create_log do
+	puts "#{Time.now} | Creating master logs"
 	@all_runs_log = create_master_log
 	log @main_log, "Logfile generated at this location:\n#{@all_runs_log}\n"
 end
 
 desc 'Pusbullet file results'
 task :pushbullet_files do
+	puts "#{Time.now} | Sending files via pushbullet"
 	begin
 		Dir.glob('results/*').each do |file|
 			if File.basename(file).include?(@run_stamp)
@@ -146,6 +148,7 @@ end
 
 desc 'Report total time'
 task :finish do
+	puts "#{Time.now} | Finishing up"
 	@all_finished = true
 	begin
 		title = "Product scraping complete on #{@computer}"
@@ -165,6 +168,7 @@ task :finish do
 end
 
 at_exit do
+	puts "#{Time.now} | Performing at_exit stuff"
 	log_errors
 	binding.pry
 end
