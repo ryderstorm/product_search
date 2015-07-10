@@ -2,6 +2,7 @@ unless File.exist?('secret/secret.txt')
 	puts "Secret.txt doesn't exist and application cannot continue."
 	exit
 end
+$all_done = false
 @errors = []
 @all_finished = false
 @root_folder = File.absolute_path(File.dirname(__FILE__))
@@ -30,8 +31,12 @@ update_path # update path to include chromedriver
 #run tasks
 task default: :run_all
 
-task run_all: %i(amazon create_log create_spreadsheet pushbullet_files finish)
+task run_all: %i(start_logs amazon create_log create_spreadsheet pushbullet_files finish)
 
+desc 'Creates webserver for displaying log files'
+task :start_logs do
+	Thread.new{ system("ruby bin/log_viewer.rb #{@run_stamp} -o $IP -p $PORT")}
+end
 desc 'Search amazon for the specified skus'
 task :amazon do
 	begin
@@ -56,10 +61,11 @@ task :amazon do
 			break if @error
 			new = Thread.new do
 				begin
-					log @main_log, "#{Time.now} | Amazon search [#{batch_number}] of [#{@data_groups.count-1}] starting...\n\tCreating browser instance #{batch_number}"
+					log @main_log, "#{Time.now} | Amazon search [#{batch_number}] of [#{@data_groups.count-1}] starting..."
+					log @main_log, "#{Time.now} | Creating browser instance #{batch_number}"
 					client = Selenium::WebDriver::Remote::Http::Default.new
-					client.timeout = 600 # seconds - default is 60
-					@browsers[i] = Watir::Browser.new :chrome, :http_client => client
+					client.timeout = 180 # seconds – default is 60
+					@browsers[i] = Watir::Browser.new :firefox, :http_client => client
 					amazon_search(@browsers[i], data, batch_number)
 				rescue => e
 					puts report_error("Encountered error during browser creation in Rake:amazon", e)
@@ -87,7 +93,7 @@ task :amazon do
 		end
 	rescue Interrupt
 		log logfile, "User pressed Ctrl+C"
-		# binding.pry		
+		# binding.pry
 	rescue => e
 		puts report_error("Encountered error during Rake:amazon", e)
 		# binding.pry
@@ -146,4 +152,9 @@ task :finish do
 	end
 end
 
-at_exit { log_errors }
+at_exit do
+	log_errors
+	$all_done = true
+	binding.pry
+	@log_viewer.kill
+end

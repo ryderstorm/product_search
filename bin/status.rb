@@ -1,68 +1,75 @@
 require 'pry'
 require 'awesome_print'
+require 'colorize'
 require './libraries/main.rb'
 
-old_log = ''
-data_groups = 0
-loop do
-	main_logs = Dir.glob("**/results/main_log*.txt").sort
-	sleep 1;next if main_logs.empty?
-	current_log = main_logs.last
-	if current_log != old_log
-		puts current_log
-		contents = File.read(current_log).split("\n")
-		ap contents
-		time = contents[0]
-		puts time
-		@start_time = Time.parse(time)
-		puts @start_time
-		data_groups = contents[2].split("Number of data groups: ").last
-		old_log = current_log
-	end
+begin
+	old_log = ''
+	data_groups = 0
+	loop do
+		main_logs = Dir.glob("**/results/main_log*.txt").sort
+		sleep 1;next if main_logs.empty?
+		current_log = main_logs.last
+		if current_log != old_log
+			puts current_log
+			contents = File.read(current_log).split("\n")
+			ap contents
+			time = contents[0]
+			puts time
+			@start_time = Time.parse(time)
+			puts @start_time
+			data_groups = contents[2].split("Number of data groups: ").last
+			old_log = current_log
+		end
 
-	completed = 0
-	successful = 0
-	failed = 0
-	stamps = []
-	all_logs = Dir.glob("**/temp/**/*runlog*")
-	all_logs.each{ |log| stamps.push(File.basename(log).split("_")[2])}
-	run_stamp = stamps.uniq.sort.last
-	logs = Dir.glob("**/temp/**/*runlog*#{run_stamp}*")
-	in_progress = []
-	logs.each {|log| in_progress.push log unless File.read(log).include?("Closing resources") }
-	in_progress.sort.each do |log|
-		puts "\n#{File.basename(log)}"
-		contents = `tail -n 5 #{File.absolute_path(log)}`
-		contents.split("\n").each{ |c| puts "\t#{c}"}
-	end
+		completed = 0
+		successful = 0
+		failed = 0
+		stamps = []
+		all_logs = Dir.glob("**/temp/**/*runlog*")
+		all_logs.each{ |log| stamps.push(File.basename(log).split("_")[2])}
+		run_stamp = stamps.uniq.sort.last
+		logs = Dir.glob("**/temp/**/*runlog*#{run_stamp}*")
+		in_progress = []
+		logs.each {|log| in_progress.push log unless File.read(log).include?("Closing resources") }
+		in_progress.sort.each do |log|
+			puts "\n#{File.basename(log)}"
+			contents = `tail -n 5 #{File.absolute_path(log)}`
+			contents.split("\n").each{ |c| puts "\t#{c}"}
+		end
 
-	logs.each do |log|
-		contents = File.read(log)
-		if contents.include?("Closing resources")
-			completed += 1 
-			successful += 1 if contents.split.last.include?("true")
-			failed += 1 if contents.split.last.include?("false")
+		logs.each do |log|
+			contents = File.read(log)
+			if contents.include?("Closing resources")
+				completed += 1
+				successful += 1 if contents.split.last.include?("true")
+				failed += 1 if contents.split.last.include?("false")
+			end
+		end
+		puts "\n==============================\n"
+		puts "Test has been running for #{seconds_to_string(Time.now - @start_time)}"
+		puts "There are #{logs.count} logs available of #{data_groups} total runs"
+		puts "#{completed} / #{(completed.to_f / data_groups.to_i * 100.0).round(2)}% have completed"
+		unless completed == 0
+			puts "#{successful} / #{(successful.to_f / completed * 100.0).round(2)}% successful so far"
+			puts "#{failed} / #{(failed.to_f / completed * 100.0).round(2)}% failed so far"
+		end
+		product_status = File.read(Dir.glob("**/temp/product_log_#{run_stamp}.txt").first).split('|')
+		puts "#{(product_status.first.to_i / product_status.last.to_f * 100).round(2)}% | #{product_status.first} of #{product_status.last} total products processed so far"
+
+		if product_status.first == product_status.last
+			puts "Current run  with runstamp #{run_stamp} has completed\nPress enter to generate new status report, or type exit and press enter to exit".green
+			user_response = gets.chomp
+			exit if user_response == 'exit'
+		else
+			counter = 5
+			puts "New report will generate in "
+			counter.times { print "#{counter}..";sleep 1;counter -= 1}
 		end
 	end
-	puts "\n==============================\n"
-	puts "Test has been running for #{seconds_to_string(Time.now - @start_time)}"
-	puts "There are #{logs.count} logs available of #{data_groups} total runs"
-	puts "#{completed} / #{(completed.to_f / data_groups.to_i * 100.0).round(2)}% have completed"
-	unless completed == 0
-		puts "#{successful} / #{(successful.to_f / completed * 100.0).round(2)}% successful so far"
-		puts "#{failed} / #{(failed.to_f / completed * 100.0).round(2)}% failed so far"
-	end
-	product_status = File.read(Dir.glob("**/temp/product_log_#{run_stamp}.txt").first).split('|')
-	puts "#{(product_status.first.to_i / product_status.last.to_f * 100).round(2)}% | #{product_status.first} of #{product_status.last} total products processed so far"
-
-	# if completed == data_groups
-		
-	# puts "Press enter to generate new status report, or type exit and press enter to exit"
-	# response = gets.chomp
-	# exit if response == 'exit'
-	counter = 7
-	puts "New report will generate in "
-	counter.times { print "#{counter}..";sleep 1;counter -= 1}
+rescue Interrupt
+	puts "\nExiting gracefully"
+	exit
 end
 # logs = []
 # current_logs = []

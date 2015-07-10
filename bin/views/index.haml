@@ -1,11 +1,5 @@
 #content
+	// <meta http-equiv="refresh" content="5" >
 	%h1 Log Viewer
 	%hr
-	- puts "$root_folder from index.haml = #{$root_folder}"
-	- Dir.chdir($root_folder)
-	- puts "Changed to: #{Dir.pwd}"
-	- logs = Dir.glob("**/*#{$run_stamp}.txt")
-	- puts "Logs:"
-	- puts logs
-	- logs.each do |l|
-		%p= l
+	%p= get_logs
