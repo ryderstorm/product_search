@@ -12,7 +12,6 @@ create a div for each window
 require 'sinatra'
 require 'haml'
 require 'sass'
-require 'require_all'
 require 'tilt/haml'
 $run_stamp = ARGV[0]
 $root_folder = File.expand_path(File.dirname(__FILE__))[0..-5]
