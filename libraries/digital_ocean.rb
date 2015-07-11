@@ -52,9 +52,9 @@ begin
 			if counter > 50 and counter % 2 == 0
 				break if Digitalocean::Droplet.find(id).droplet.status == 'active'
 			end
-			if counter == 180
-				puts "Droplet creation taking longer than 3 minutes, please investigate".colorize(:red)
-				binding.pry
+			if counter == 300
+				puts "Droplet creation taking longer than 5 minutes, please investigate".colorize(:red)
+				# binding.pry
 				return create_droplet
 			end
 			sleep 0.5
@@ -62,7 +62,8 @@ begin
 			print "."
 			puts "\nWaited #{counter} seconds so far. Droplet status is #{Digitalocean::Droplet.find(id).droplet.status.blue}\n" if counter % 10 == 0
 		end
-		puts "Success! Droplet created in #{counter} seconds.\nStatus is now #{Digitalocean::Droplet.find(id).droplet.status.colorize(:yellow)}"
+		puts "\nSuccess!".green
+		puts "Droplet created in #{counter} seconds.\nStatus is now #{Digitalocean::Droplet.find(id).droplet.status.colorize(:yellow)}"
 		return Digitalocean::Droplet.find(id).droplet
 	end
 
@@ -105,9 +106,16 @@ begin
 	def destroy_all_droplets
 	  puts "No droplets to destroy!" if Digitalocean::Droplet.all.droplets.count == 0
 		Digitalocean::Droplet.all.droplets.each { |d| destroy_droplet(d) }
-		if Digitalocean::Droplet.all.droplets.count != 0
-			puts "Not all droplets were deleted, please investigate!"
+		5.times do
+  		if Digitalocean::Droplet.all.droplets.count == 0
+  		  puts "All droplets succesffully destroyed."
+  		  return
+  		else
+  		  sleep 1
+  		end
 		end
+		get_droplets
+		puts "Not all droplets were deleted, please investigate! Droplet count: #{Digitalocean::Droplet.all.droplets.count}"
 	end
 
 rescue Interrupt
