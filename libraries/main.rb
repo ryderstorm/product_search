@@ -22,7 +22,8 @@ def init_variables
 	end
 	@success = true
 	@cores = Facter.value('processors')['count']
-	@remote_ip = open('http://whatismyip.akamai.com').read.strip
+	# @remote_ip = open('http://whatismyip.akamai.com/').read.strip
+	@remote_ip = open('http://icanhazip.com/').read.strip
 	@headless = true
 	@headless = false if @computer == 'GSOD-DSTORM'
 	@headless = true if @computer == 'ryderstorm-amazon_search-1580844'
