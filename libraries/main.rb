@@ -88,7 +88,6 @@ end
 
 def dots
 	@dots = Thread.new {loop {print ".";sleep 0.3333}}
-	@dots
 end
 
 def no_dots
