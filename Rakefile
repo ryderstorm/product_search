@@ -29,9 +29,30 @@ puts "Error log = #{@error_log}"
 update_path # update path to include chromedriver
 
 #run tasks
-task default: :run_all
+task default: :notify
+task local: %i(start_logs amazon create_log create_spreadsheet pushbullet_files finish)
 
-task run_all: %i(start_logs amazon create_log create_spreadsheet pushbullet_files finish)
+desc 'Notify user of available tasks'
+task :notify do
+	puts "\n======================================================================================================".red
+	puts "You are running Rake without specifying a task. Please rerun Rake and specify one of the following:"
+	puts "local".yellow + " | run the search program on the local machine"
+	puts "do_medium".yellow + " | run the search program on a medium size Digital Ocean machine"
+	puts "do_large".yellow + " | run the search program on a large size Digital Ocean machine"
+	puts "======================================================================================================".red
+end
+
+desc 'Create a medium Digital Ocean droplet and run the search on it'
+task :do_medium do
+	puts "task do_medium not yet implemented!"
+	# @new_droplet = create_medium_droplet
+end
+
+desc 'Create a large Digital Ocean droplet and run the search on it'
+task :do_large do
+	puts "task do_large not yet implemented!"
+	# @new_droplet = create_medium_droplet
+end
 
 desc 'Creates webserver for displaying log files'
 task :start_logs do
