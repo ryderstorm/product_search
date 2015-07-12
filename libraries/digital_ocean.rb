@@ -17,20 +17,19 @@ begin
 		Digitalocean.client_id  = @secrets[:do_client_id]
 		Digitalocean.api_key    = @secrets[:do_api_key]
 		number_of_droplets = Digitalocean::Droplet.all.droplets.count
-		if number_of_droplets == 0
+    if number_of_droplets == 0
 			puts "\n#{spacer}\nThere are no droplets on your account.\n#{spacer}\n".yellow
 		else
-			puts "\n#{spacer}\nThe following droplets exist on your account:".light_blue
+		  puts spacer.light_blue
 		  get_droplets
 			puts "\nDroplets can be accessed via ".light_blue + "@droplets".red.on_yellow
-
-			puts "\nAvailable methods are:".light_blue
-			puts "get_droplets".yellow
-			puts "destroy_all_droplets".yellow
-			puts "droplet_status(droplet)".yellow
-			puts "create_medium_droplet".yellow
-			puts spacer.light_blue
-		end
+    end
+		puts "\nAvailable methods are:".light_blue
+		puts "get_droplets".yellow
+		puts "destroy_all_droplets".yellow
+		puts "droplet_status(droplet)".yellow
+		puts "create_medium_droplet".yellow
+		puts spacer.light_blue
 	end
 
 	def droplet_status(droplet)
@@ -72,16 +71,21 @@ begin
 		end
 		puts "\nSuccess!".green
 		puts "Droplet created in #{counter} seconds.\nStatus is now #{Digitalocean::Droplet.find(id).droplet.status.yellow}"
+		get_droplets
 		return Digitalocean::Droplet.find(id).droplet
 	end
 
 	def get_droplets
 	  @droplets = []
+    if Digitalocean::Droplet.all.droplets.count == 0
+  	  puts "\nNo droplets found!".yellow 
+  	  return
+    end
+    puts "There are ".light_blue + Digitalocean::Droplet.all.droplets.count.to_s.yellow + " droplets on your account".light_blue
 		Digitalocean::Droplet.all.droplets.each do |d|
 			puts droplet_status(d).green
 			@droplets.push d
 		end
-	  puts "\nNo droplets found!".yellow if @droplets.empty?
 	end
 
 	def destroy_droplet(droplet)
@@ -90,9 +94,9 @@ begin
 		Digitalocean::Droplet.destroy(droplet.id)
 		counter = 0
 		loop do
-		  if Digitalocean::Droplet.find(droplet.id).droplet.status != 'archive'
-		    sleep 1
+		  if Digitalocean::Droplet.find(droplet.id).droplet.status == 'archive'
 		    puts "Droplet destroyed successfully. Status is now [#{Digitalocean::Droplet.find(droplet.id).droplet.status}]"
+		    no_dots
 		    return
 		  end
 		  sleep 1
