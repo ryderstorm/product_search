@@ -9,6 +9,7 @@ require 'open-uri'
 require 'facter'
 
 def init_variables
+	@dots = ''
 	@computer = Socket.gethostname
 	@start_time = Time.now
 	@run_stamp = tstamp

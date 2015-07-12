@@ -2,7 +2,7 @@ require 'awesome_print'
 require 'pry'
 require 'pry-byebug'
 require 'colorize'
-require_relative 'main.rb'
+# require_relative 'main.rb'
 
 require 'dotenv'
 Dotenv.load
@@ -90,7 +90,7 @@ begin
 		loop do
 		  if Digitalocean::Droplet.find(droplet.id).droplet.status != 'archive'
 		    sleep 1
-		    puts "Droplet destroyed successfully"
+		    puts "Droplet destroyed successfully. Status is now [#{Digitalocean::Droplet.find(droplet.id).droplet.status}]"
 		    return
 		  end
 		  sleep 1
@@ -106,7 +106,8 @@ begin
 	def destroy_all_droplets
 	  puts "No droplets to destroy!" if Digitalocean::Droplet.all.droplets.count == 0
 		Digitalocean::Droplet.all.droplets.each { |d| destroy_droplet(d) }
-		5.times do
+		10.times do
+		  puts "."
   		if Digitalocean::Droplet.all.droplets.count == 0
   		  puts "All droplets succesffully destroyed."
   		  return
