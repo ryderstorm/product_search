@@ -12,21 +12,29 @@ require 'digitalocean'
 begin
 
 	def init_droplets
+	  spacer = '============================================================'
 		init_variables if @secrets.nil?
 		Digitalocean.client_id  = @secrets[:do_client_id]
 		Digitalocean.api_key    = @secrets[:do_api_key]
 		number_of_droplets = Digitalocean::Droplet.all.droplets.count
 		if number_of_droplets == 0
-			puts "\n========================================\nThere are no droplets on your account.\n========================================\n".colorize(:green)
+			puts "\n#{spacer}\nThere are no droplets on your account.\n#{spacer}\n".yellow
 		else
-			puts "\n========================================\nThe following droplets exist on your account:\n========================================\n".colorize(:light_blue)
+			puts "\n#{spacer}\nThe following droplets exist on your account:".light_blue
 		  get_droplets
-			puts "\nThey have been stored in #{"@droplets".colorize(:light_blue)}\nAvailable options are:\n#{"get_droplets".colorize(:yellow)}\n#{"destroy_all_droplets".colorize(:yellow)}\n#{"droplet_status(droplet)".colorize(:yellow)}\n#{"create_medium_droplet".colorize(:yellow)}"
+			puts "\nDroplets can be accessed via ".light_blue + "@droplets".red.on_yellow
+
+			puts "\nAvailable methods are:".light_blue
+			puts "get_droplets".yellow
+			puts "destroy_all_droplets".yellow
+			puts "droplet_status(droplet)".yellow
+			puts "create_medium_droplet".yellow
+			puts spacer.light_blue
 		end
 	end
 
 	def droplet_status(droplet)
-		"#{droplet.name.to_s.ljust(40)} | #{droplet.status.to_s.center(8).colorize(:red)} | $#{hourly_cost(droplet.size_id)} | #{droplet.id.to_s.ljust(8)} | #{droplet.ip_address.to_s.ljust(16)}"
+		"#{droplet.name.to_s.ljust(40)} | #{droplet.status.to_s.center(8).red} | $#{hourly_cost(droplet.size_id)} | #{droplet.id.to_s.ljust(8)} | #{droplet.ip_address.to_s.ljust(16)}"
 	end
 
 	def hourly_cost(size_id)
@@ -53,7 +61,7 @@ begin
 				break if Digitalocean::Droplet.find(id).droplet.status == 'active'
 			end
 			if counter == 300
-				puts "Droplet creation taking longer than 5 minutes, please investigate".colorize(:red)
+				puts "Droplet creation taking longer than 5 minutes, please investigate".red
 				# binding.pry
 				return create_droplet
 			end
@@ -63,23 +71,17 @@ begin
 			puts "\nWaited #{counter} seconds so far. Droplet status is #{Digitalocean::Droplet.find(id).droplet.status.blue}\n" if counter % 10 == 0
 		end
 		puts "\nSuccess!".green
-		puts "Droplet created in #{counter} seconds.\nStatus is now #{Digitalocean::Droplet.find(id).droplet.status.colorize(:yellow)}"
+		puts "Droplet created in #{counter} seconds.\nStatus is now #{Digitalocean::Droplet.find(id).droplet.status.yellow}"
 		return Digitalocean::Droplet.find(id).droplet
 	end
 
 	def get_droplets
-	  puts "Clearing @droplets..."
-		@droplets = []
+	  @droplets = []
 		Digitalocean::Droplet.all.droplets.each do |d|
-			puts droplet_status(d).colorize(:blue)
+			puts droplet_status(d).green
 			@droplets.push d
 		end
-	  if @droplets.empty?
-	    puts "No droplets found!".yellow
-	  else
-	    puts "Droplets refreshed and " + "@droplets".red.on_black + " updated!\n"
-	    puts @droplets
-	  end
+	  puts "\nNo droplets found!".yellow if @droplets.empty?
 	end
 
 	def destroy_droplet(droplet)
@@ -120,13 +122,13 @@ begin
 	end
 
 rescue Interrupt
-	puts "Interrupted by user, starting pry session...".colorize(:yellow)
+	puts "Interrupted by user, starting pry session...".yellow
 	binding.pry
 rescue => e
 	puts e.class
 	puts e.message
 	puts e.backtrace
-	puts "Encountered error shown above, starting pry session".colorize(:red)
+	puts "Encountered error shown above, starting pry session".red
 	binding.pry
 ensure
 	puts "all done"
