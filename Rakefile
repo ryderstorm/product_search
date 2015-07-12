@@ -1,45 +1,50 @@
+require 'colorize'
 unless File.exist?('secret/secret.txt')
-	puts "Secret.txt doesn't exist and application cannot continue."
+	puts "Secret.txt doesn't exist and application cannot continue.".red.on_yellow
 	exit
 end
-$all_done = false
-@errors = []
-@all_finished = false
-@root_folder = File.absolute_path(File.dirname(__FILE__))
-Dir.mkdir('results') unless Dir.exist?('results')
-Dir.mkdir('temp') unless Dir.exist?('temp')
-
-require_relative 'libraries/main.rb'
-# require_relative 'libraries/digital_ocean.rb'
-require_relative 'libraries/pushbullet.rb'
-require_relative 'libraries/amazon.rb'
-
-dots
-init_variables
-
-puts "Root folder = #{@root_folder}"
-puts "Running on [#{@computer}] with [#{@cores}] cores"
-puts "Runstamp = #{@run_stamp}"
-@main_log = @root_folder + "/results/main_log_#{@run_stamp}.txt"
-@error_log = @root_folder + "/results/error_log_#{@run_stamp}.txt"
-File.write(@main_log, "#{Time.now} | Creating logfile for run #{@run_stamp}\n")
-@product_log = @root_folder + "/temp/product_log_#{@run_stamp}.txt"
-puts "Main log = #{@main_log}"
-puts "Error log = #{@error_log}"
-update_path # update path to include chromedriver
 
 #run tasks
 task default: :notify
-task local: %i(start_logs amazon create_log create_spreadsheet pushbullet_files finish)
+task local: %i(initialize start_logs amazon create_log create_spreadsheet pushbullet_files finish)
 
 desc 'Notify user of available tasks'
 task :notify do
 	puts "\n======================================================================================================".red
 	puts "You are running Rake without specifying a task. Please rerun Rake and specify one of the following:"
-	puts "local".yellow + " | run the search program on the local machine"
-	puts "do_medium".yellow + " | run the search program on a medium size Digital Ocean machine"
-	puts "do_large".yellow + " | run the search program on a large size Digital Ocean machine"
+	puts "local".ljust(10).yellow + " | run the search program on the local machine"
+	puts "do_medium".ljust(10).yellow + " | run the search program on a medium size Digital Ocean machine"
+	puts "do_large".ljust(10).yellow + " | run the search program on a large size Digital Ocean machine"
 	puts "======================================================================================================".red
+end
+
+desc 'Initialze and report startup settings'
+task :initialize do
+	puts "Initializing..."
+	require_relative 'libraries/main.rb'
+	require_relative 'libraries/digital_ocean.rb'
+	require_relative 'libraries/pushbullet.rb'
+	require_relative 'libraries/amazon.rb'
+	require_relative 'libraries/net_ssh.rb'
+	dots
+	init_variables
+	
+	$all_done = false
+	@errors = []
+	@all_finished = false
+	@root_folder = File.absolute_path(File.dirname(__FILE__))
+	Dir.mkdir('results') unless Dir.exist?('results')
+	Dir.mkdir('temp') unless Dir.exist?('temp')
+	puts "Root folder = #{@root_folder}"
+	puts "Running on [#{@computer}] with [#{@cores}] cores"
+	puts "Runstamp = #{@run_stamp}"
+	@main_log = @root_folder + "/results/main_log_#{@run_stamp}.txt"
+	@error_log = @root_folder + "/results/error_log_#{@run_stamp}.txt"
+	File.write(@main_log, "#{Time.now} | Creating logfile for run #{@run_stamp}\n")
+	@product_log = @root_folder + "/temp/product_log_#{@run_stamp}.txt"
+	puts "Main log = #{@main_log}"
+	puts "Error log = #{@error_log}"
+	update_path # update path to include chromedriver
 end
 
 desc 'Create a medium Digital Ocean droplet and run the search on it'
@@ -190,6 +195,6 @@ end
 
 at_exit do
 	puts "#{Time.now} | Performing at_exit stuff"
-	log_errors
+	log_errors unless @errors.nil?
 	# binding.pry
 end
