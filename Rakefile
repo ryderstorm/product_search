@@ -70,7 +70,7 @@ task :start_logs do
 		port = "8100"
 		remote_link = "http://#{@remote_ip}:#{port}"
 	end
-	puts "#{Time.now} | Starting log server at #{remote_link}"
+	puts "#{Time.now.to_s.yellow} | Starting log server at #{remote_link}"
 	Thread.new{ system("ruby bin/log_viewer.rb #{@run_stamp} -o #{ip} -p #{port}")}
 	pushbullet_link_to_all("Log viewer running", remote_link, "")
 end
@@ -78,7 +78,7 @@ end
 desc 'Search amazon for the specified skus'
 task :amazon do
 	begin
-		puts log @main_log, "#{Time.now} | Starting Amazon search..."
+		puts log @main_log, "#{Time.now.to_s.yellow} | Starting Amazon search..."
 		@amazon_products = []
 		@data_groups = read_amazon_data(@group_size)
 		File.write(@product_log, "0|#{@amazon_product_count}")
@@ -120,20 +120,20 @@ task :amazon do
 		counter = 0
 		loop do
 			if @completed.count == @data_groups.count
-				puts log @main_log, "All searches complete!"
+				puts(log @main_log, "All searches complete!").green
 				break
 			end
 			if counter > 300
-				puts log @main_log, "Counter reached before all searches were completed."
+				puts(log @main_log, "Counter reached before all searches were completed.").red
 				break
 			end
 			sleep 1
 		end
 	rescue Interrupt
-		puts log @main_log, "\n#{Time.now} | User pressed Ctrl+C"
+		puts(log @main_log, "\n#{Time.now} | User pressed Ctrl+C").yellow
 		# binding.pry
 	rescue => e
-		puts report_error("Encountered error during Rake:amazon", e)
+		puts(report_error("Encountered error during Rake:amazon", e)).red
 		# binding.pry
 	ensure
 		@threads.each {|t| t.join(1)}
@@ -144,21 +144,21 @@ end
 
 desc 'Creates the finalized spreadsheet from all the other spreadsheets'
 task :create_spreadsheet do
-	puts "#{Time.now} | Opening workbook..."
+	puts "#{Time.now.to_s.yellow} | Opening workbook..."
 	workbook = create_master_spreadsheet
 	open_file(workbook)
 end
 
 desc 'Creates a master log file from all of the other logs'
 task :create_log do
-	puts "#{Time.now} | Creating master logs"
+	puts "#{Time.now.to_s.yellow} | Creating master logs"
 	@all_runs_log = create_master_log
 	log @main_log, "Logfile generated at this location:\n#{@all_runs_log}\n"
 end
 
 desc 'Pusbullet file results'
 task :pushbullet_files do
-	puts "#{Time.now} | Sending files via pushbullet"
+	puts "#{Time.now.to_s.yellow} | Sending files via pushbullet"
 	begin
 		Dir.glob('results/*').each do |file|
 			if File.basename(file).include?(@run_stamp)
@@ -174,7 +174,7 @@ end
 
 desc 'Report total time'
 task :finish do
-	puts "#{Time.now} | Finishing up"
+	puts "#{Time.now.to_s.yellow} | Finishing up"
 	@all_finished = true
 	begin
 		title = "Product scraping complete on #{@computer}"
@@ -194,7 +194,7 @@ task :finish do
 end
 
 at_exit do
-	puts "#{Time.now} | Performing at_exit stuff"
+	puts "#{Time.now.to_s.yellow} | Performing at_exit stuff"
 	log_errors unless @errors.nil?
 	# binding.pry
 end
