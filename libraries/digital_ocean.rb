@@ -96,7 +96,7 @@ begin
 	end
 
 	def destroy_droplet(droplet)
-	  puts "Destroying droplet #{droplet.name.yellow}"
+	  puts "\nDestroying droplet #{droplet.name.yellow}"
 	  dots
 		Digitalocean::Droplet.destroy(droplet.id)
 		counter = 0
