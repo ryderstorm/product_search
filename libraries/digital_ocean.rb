@@ -50,7 +50,7 @@ begin
 		when 'large'
 		  size_id = 69
 		end
-		name = "Crue-marketing-search-#{size}-#{Time.now.strftime("%Y%m%d-%H%M%S")}"
+		name = "Crue-marketing-search-#{size}-#{Time.now.utc.getlocal(-14400).strftime("%Y%m%d-%H%M%S")}"
 		puts "Creating droplet [" + name.yellow + "]"
 		image_id = 12704267
 		region_id = 8
@@ -74,10 +74,10 @@ begin
 			sleep 0.5
 			counter += 0.5
 			print "."
-			puts "\nWaited #{counter} seconds so far. Droplet status is #{Digitalocean::Droplet.find(id).droplet.status.blue}\n" if counter % 10 == 0
+			puts "\nWaited #{counter} seconds so far. Droplet status is #{Digitalocean::Droplet.find(id).droplet.status.yellow}\n" if counter % 10 == 0
 		end
 		puts "\nSuccess!".green
-		puts "Droplet created in #{counter} seconds.\nStatus is now #{Digitalocean::Droplet.find(id).droplet.status.yellow}"
+		puts "Droplet created in #{counter} seconds.\nStatus is now #{Digitalocean::Droplet.find(id).droplet.status.green}"
 		get_droplets
 		return Digitalocean::Droplet.find(id).droplet
 	end
@@ -96,13 +96,13 @@ begin
 	end
 
 	def destroy_droplet(droplet)
-	  puts "Destroying droplet #{droplet.name}"
+	  puts "Destroying droplet #{droplet.name.yellow}"
 	  dots
 		Digitalocean::Droplet.destroy(droplet.id)
 		counter = 0
 		loop do
 		  if Digitalocean::Droplet.find(droplet.id).droplet.status == 'archive'
-		    puts "Droplet destroyed successfully. Status is now [#{Digitalocean::Droplet.find(droplet.id).droplet.status}]"
+		    puts "Droplet destroyed successfully. Status is now [#{Digitalocean::Droplet.find(droplet.id).droplet.status.green}]"
 		    no_dots
 		    return
 		  end
@@ -110,7 +110,7 @@ begin
 		  counter += 1
 		  if counter > 10
 		    no_dots
-		    puts "It is taking longer than 10 seconds to destroy droplet #{droplet.name}, please investigate!"
+		    puts "It is taking longer than 10 seconds to destroy droplet #{droplet.name.red}, please investigate!"
 		    return
 		  end
 		end
