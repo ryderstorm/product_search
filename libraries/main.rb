@@ -13,17 +13,12 @@ def init_variables
 	@computer = Socket.gethostname
 	@start_time = Time.now
 	@run_stamp = tstamp
-	if @computer.include?('digital-ocean')
-		@amazon_data = File.absolute_path('data/amazon.xlsx')
-		# @amazon_data = File.absolute_path('data/amazon_test_big.xlsx')
-		@group_size = 5
-	else
-		@amazon_data = File.absolute_path('data/amazon_test.xlsx')
-		@group_size = 2
-	end
-	@success = true
+	@amazon_data = File.absolute_path('data/amazon.xlsx')
+	# @amazon_data = File.absolute_path('data/amazon_test_big.xlsx')
+	@amazon_data = File.absolute_path('data/amazon_test.xlsx')
+	@group_size = 5
 	@cores = Facter.value('processors')['count']
-	# @remote_ip = open('http://whatismyip.akamai.com/').read.strip
+	# @remote_ip = open('http://whatismyip.akamai.com/').read.strip # was working but stopped, keeping as reference
 	@remote_ip = open('http://icanhazip.com/').read.strip
 	@headless = true
 	@headless = false if @computer == 'GSOD-DSTORM'
@@ -31,6 +26,17 @@ def init_variables
 	@headless = true if @computer.include?('testing-worker-linux-docker')
 	@headless = true if @computer.include?('digital-ocean')
 	@secrets = parse_secrets(File.absolute_path('secret/secret.txt'))
+	@errors = []
+	@main_log = @root_folder + "/results/main_log_#{@run_stamp}.txt"
+	@error_log = @root_folder + "/results/error_log_#{@run_stamp}.txt"
+	File.write(@main_log, "#{Time.now} | Creating logfile for run #{@run_stamp}\n")
+	@product_log = @root_folder + "/temp/product_log_#{@run_stamp}.txt"
+	puts "Root folder = ".blue + @root_folder.yellow
+	puts "Runstamp = ".blue + @run_stamp.yellow
+	puts "Main log = ".blue + @main_log.yellow
+	puts "Error log = ".blue + @error_log.yellow
+	puts "Running on [".blue + @computer.yellow + "] with [".blue + @cores.to_s.yellow + "] cores.".blue
+	update_path # update path to include chromedriver	
 end
 
 class Product
@@ -282,14 +288,20 @@ def report_error(note, error)
 end
 
 def log_errors
-	puts "#{Time.now} | logging errors to file..."
-	counter = 0
-	# binding.pry
-  File.open(@error_log, 'a') do |f|
-    @errors.each do |error|
-    	counter += 1
-      f.puts error
-    end
-  end
-  puts "#{Time.now} | added #{counter} errors to #{@error_log}"
+	puts "#{Time.now} | Logging #{@errors.count.to_s.red} errors to file..."
+	File.open(@error_log, 'a'){ |f| @errors.each{ |error| f.puts error }}
+end
+
+def run_remote_search(size = 'small')
+	puts "task do_medium not yet implemented!"
+	new_droplet = create_droplet(size)
+	ssh_output = ssh_rake(new_droplet.ip_address)
+	binding.pry
+	loop do
+		status = open("#{new_droplet.ip_address}:8100").read.strip
+		break if status.include?("Current run  with runstamp #{@run_stamp} has completed")
+	end
+	ensure
+	ssh_shutdown(new_droplet.ip_address)
+	destroy_droplet(new_droplet)
 end

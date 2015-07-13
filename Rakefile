@@ -26,37 +26,26 @@ task :initialize do
 	require_relative 'libraries/pushbullet.rb'
 	require_relative 'libraries/amazon.rb'
 	require_relative 'libraries/net_ssh.rb'
-	dots
-	init_variables
-	
-	$all_done = false
-	@errors = []
-	@all_finished = false
 	@root_folder = File.absolute_path(File.dirname(__FILE__))
 	Dir.mkdir('results') unless Dir.exist?('results')
 	Dir.mkdir('temp') unless Dir.exist?('temp')
-	puts "Root folder = #{@root_folder}"
-	puts "Running on [#{@computer}] with [#{@cores}] cores"
-	puts "Runstamp = #{@run_stamp}"
-	@main_log = @root_folder + "/results/main_log_#{@run_stamp}.txt"
-	@error_log = @root_folder + "/results/error_log_#{@run_stamp}.txt"
-	File.write(@main_log, "#{Time.now} | Creating logfile for run #{@run_stamp}\n")
-	@product_log = @root_folder + "/temp/product_log_#{@run_stamp}.txt"
-	puts "Main log = #{@main_log}"
-	puts "Error log = #{@error_log}"
-	update_path # update path to include chromedriver
+	init_variables
+	dots
+end
+
+desc 'Create a small Digital Ocean droplet and run the search on it'
+task :do_medium do
+	run_remote_search('small')
 end
 
 desc 'Create a medium Digital Ocean droplet and run the search on it'
 task :do_medium do
-	puts "task do_medium not yet implemented!"
-	# @new_droplet = create_medium_droplet
+	run_remote_search('medium')
 end
 
 desc 'Create a large Digital Ocean droplet and run the search on it'
 task :do_large do
-	puts "task do_large not yet implemented!"
-	# @new_droplet = create_medium_droplet
+	run_remote_search('large')
 end
 
 desc 'Creates webserver for displaying log files'
@@ -175,10 +164,9 @@ end
 desc 'Report total time'
 task :finish do
 	puts "#{Time.now.to_s.yellow} | Finishing up"
-	@all_finished = true
 	begin
 		title = "Product scraping complete on #{@computer}"
-		message = "Process completed with status of #{@success ? "success" : "failure"}"
+		message << @errors.empty? ? "Process completed with status no errors!".green : "Process completed but contained errors!".red
 		message << "\nTotal processing time: #{seconds_to_string(Time.now - @start_time)}"
 		puts log @main_log, "\n#{Time.now} | \n#{message}"
 		pushbullet_note_to_all(title, message, @chrome)
