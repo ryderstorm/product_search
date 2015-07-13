@@ -5,6 +5,7 @@ unless File.exist?('secret/secret.txt')
 end
 
 @root_folder = File.absolute_path(File.dirname(__FILE__))
+require_relative 'libraries/main.rb'
 
 task default: :notify
 task local: %i(initialize start_logs amazon create_log create_spreadsheet pushbullet_files finish)
@@ -22,7 +23,6 @@ end
 desc 'Initialze and report startup settings'
 task :initialize do
 	puts "Initializing..."
-	require_relative 'libraries/main.rb'
 	require_relative 'libraries/digital_ocean.rb'
 	require_relative 'libraries/pushbullet.rb'
 	require_relative 'libraries/amazon.rb'
@@ -75,7 +75,7 @@ task :start_logs do
 		port = "8100"
 		remote_link = "http://#{@remote_ip}:#{port}"
 	end
-	puts "#{Time.now.to_s.yellow} | Starting log server at #{remote_link}"
+	puts log "Starting log server at [#{remote_link.blue}]"
 	Thread.new{ system("ruby bin/log_viewer.rb #{@run_stamp} -o #{ip} -p #{port}")}
 	pushbullet_link_to_all("Log viewer running", remote_link, "")
 end
@@ -83,13 +83,13 @@ end
 desc 'Search amazon for the specified skus'
 task :amazon do
 	begin
-		puts log @main_log, "#{Time.now.to_s.yellow} | Starting Amazon search..."
+		puts log "Starting Amazon search..."
 		@amazon_products = []
 		@data_groups = read_amazon_data(@group_size)
 		File.write(@product_log, "0|#{@amazon_product_count}")
-		log @main_log, "#{Time.now} | Number of data groups: #{@data_groups.count}\n"
+		log "Number of data groups: #{@data_groups.count}\n"
 		if @headless
-			log @main_log, "#{Time.now} | Running headless\n"
+			log "Running headless\n"
 			headless = Headless.new
 			headless.start
 		end
@@ -104,8 +104,8 @@ task :amazon do
 			break if @error
 			new = Thread.new do
 				begin
-					log @main_log, "#{Time.now} | Amazon search [#{batch_number}] of [#{@data_groups.count-1}] starting..."
-					log @main_log, "#{Time.now} | Creating browser instance #{batch_number}"
+					log "Amazon search [#{batch_number}] of [#{@data_groups.count-1}] starting..."
+					log "Creating browser instance #{batch_number}"
 					client = Selenium::WebDriver::Remote::Http::Default.new
 					client.timeout = 180 # seconds – default is 60
 					@browsers[i] = Watir::Browser.new :firefox, :http_client => client
@@ -113,7 +113,7 @@ task :amazon do
 				rescue => e
 					puts report_error("Encountered error during browser creation in Rake:amazon", e)
 				ensure
-					log @main_log, "#{Time.now} | Closing browser instance [#{i}]..."
+					log "Closing browser instance [#{i}]..."
 					@browsers[i].close rescue nil
 					search_status = "#{Time.now} | Amazon search [#{batch_number}] with browser(#{i}) ended with status: #{!@error}"
 					@completed.push search_status
@@ -125,7 +125,7 @@ task :amazon do
 		counter = 0
 		loop do
 			if @completed.count == @data_groups.count
-				puts(log @main_log, "All searches complete!").green
+				puts "\n#{log("All searches complete!".green)}"
 				break
 			end
 			if counter > 300
@@ -149,21 +149,21 @@ end
 
 desc 'Creates the finalized spreadsheet from all the other spreadsheets'
 task :create_spreadsheet do
-	puts "#{Time.now.to_s.yellow} | Opening workbook..."
+	puts "#{local_time} | Opening workbook..."
 	workbook = create_master_spreadsheet
 	open_file(workbook)
 end
 
 desc 'Creates a master log file from all of the other logs'
 task :create_log do
-	puts "#{Time.now.to_s.yellow} | Creating master logs"
+	puts "#{local_time} | Creating master logs"
 	@all_runs_log = create_master_log
-	log @main_log, "Logfile generated at this location:\n#{@all_runs_log}\n"
+	log "Logfile generated at this location:\n#{@all_runs_log}"
 end
 
 desc 'Pusbullet file results'
 task :pushbullet_files do
-	puts "#{Time.now.to_s.yellow} | Sending files via pushbullet"
+	puts "#{local_time} | Sending files via pushbullet"
 	begin
 		Dir.glob('results/*').each do |file|
 			if File.basename(file).include?(@run_stamp)
@@ -179,7 +179,7 @@ end
 
 desc 'Report total time'
 task :finish do
-	puts "#{Time.now.to_s.yellow} | Finishing up"
+	puts "\n#{local_time} | Finishing up"
 	begin
 		title = "Product scraping complete on #{@computer}"
 		message << @errors.empty? ? "Process completed with status no errors!".green : "Process completed but contained errors!".red
@@ -198,7 +198,11 @@ task :finish do
 end
 
 at_exit do
-	puts "#{Time.now.to_s.yellow} | Performing at_exit stuff"
-	log_errors unless @errors.nil?
-	# binding.pry
+	puts "#{local_time} | Performing at_exit stuff"
+	log_errors unless @errors.nil? || @errors.empty?
+	# if @computer == 'ryderstorm-amazon_search-1580844'
+		# puts "Pausing for log investigation".red.on_yellow
+		# binding.pry
+		# `curl "https://amazon-search-ryderstorm.c9.io/terminate?_c9_id=livepreview20&_c9_host=https://ide.c9.io"`
+	# end
 end
