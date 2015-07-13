@@ -14,11 +14,11 @@ def ssh_command(ip, command)
   output
 end
 
-def ssh_rake(ip)
+def ssh_rake(ip, data_set = 'all')
   output = ''
+  command = "cd amazon_search/ && git checkout adding_netssh && git pull && data_set_#{data_set} && rake local"
   Net::SSH.start(ip, 'root', :paranoid => false) do |ssh|
-    # output = ssh.exec!('cd amazon_search/ && git checkout master && git pull && rake local')
-    output = ssh.exec!('cd amazon_search/ && git checkout adding_netssh && git pull && rake local')
+    output = ssh.exec!(command)
   end
   output
 end

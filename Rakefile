@@ -41,6 +41,10 @@ task :data_set_25 do
 	set_test_data(@root_folder + '/data/amazon_25_products.xlsx')
 end
 
+task :data_set_250 do
+	set_test_data(@root_folder + '/data/amazon_250_products.xlsx')
+end
+
 task :data_set_all do
 	set_test_data(@root_folder + '/data/amazon_all_data.xlsx')
 end
