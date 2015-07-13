@@ -102,32 +102,38 @@ begin
 		counter = 0
 		loop do
 		  if Digitalocean::Droplet.find(droplet.id).droplet.status == 'archive'
-		    puts "Droplet destroyed successfully. Status is now [#{Digitalocean::Droplet.find(droplet.id).droplet.status.green}]"
+		    puts "\nDroplet destroyed successfully. Status is now [#{Digitalocean::Droplet.find(droplet.id).droplet.status.green}]"
 		    no_dots
 		    return
 		  end
 		  sleep 1
 		  counter += 1
-		  if counter > 10
+		  if counter > 30
 		    no_dots
 		    puts "It is taking longer than 10 seconds to destroy droplet #{droplet.name.red}, please investigate!"
+		    no_dots
 		    return
 		  end
 		end
 	end
 
 	def destroy_all_droplets
-	  puts "No droplets to destroy!" if Digitalocean::Droplet.all.droplets.count == 0
+	  if Digitalocean::Droplet.all.droplets.count == 0
+	    puts "No droplets to destroy!"
+	    return
+	  end
+	  dots
 		Digitalocean::Droplet.all.droplets.each { |d| destroy_droplet(d) }
 		10.times do
-		  puts "."
+		  dots
   		if Digitalocean::Droplet.all.droplets.count == 0
+  		  no_dots
   		  puts "All droplets succesffully destroyed."
   		  return
-  		else
-  		  sleep 1
   		end
+  		sleep 1
 		end
+  	no_dots
 		get_droplets
 		puts "Not all droplets were deleted, please investigate! Droplet count: #{Digitalocean::Droplet.all.droplets.count}"
 	end
