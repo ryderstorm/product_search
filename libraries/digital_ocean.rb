@@ -28,7 +28,7 @@ begin
 		puts "get_droplets".yellow
 		puts "destroy_all_droplets".yellow
 		puts "droplet_status(droplet)".yellow
-		puts "create_medium_droplet".yellow
+		puts "create_droplet(size)".yellow
 		puts spacer.light_blue
 	end
 
@@ -41,11 +41,18 @@ begin
 		"no matching hourly cost found for size_id: #{size_id}"
 	end
 
-	def create_medium_droplet
-		name = "Crue-marketing-search-#{Time.now.strftime("%Y%m%d-%H%M%S")}"
+	def create_droplet(size = 'small')
+		case size
+		when 'small'
+		  size_id = 63
+		when 'medium'
+		  size_id = 65
+		when 'large'
+		  size_id = 69
+		end
+		name = "Crue-marketing-search-#{size}-#{Time.now.strftime("%Y%m%d-%H%M%S")}"
 		puts "Creating droplet [" + name.yellow + "]"
 		image_id = 12704267
-		size_id = 65
 		region_id = 8
 		ssh_key_id = 971823
 		ssh_key_ids = []
@@ -78,7 +85,7 @@ begin
 	def get_droplets
 	  @droplets = []
     if Digitalocean::Droplet.all.droplets.count == 0
-  	  puts "\nNo droplets found!".yellow 
+  	  puts "\nNo droplets found!".yellow
   	  return
     end
     puts "There are ".light_blue + Digitalocean::Droplet.all.droplets.count.to_s.yellow + " droplets on your account".light_blue
