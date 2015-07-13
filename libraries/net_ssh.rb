@@ -16,7 +16,7 @@ end
 
 def ssh_rake(ip, data_set = 'all')
   output = ''
-  command = "cd amazon_search/ && git checkout adding_netssh && git pull && data_set_#{data_set} && rake local"
+  command = "cd ~/amazon_search/ && git pull && git checkout adding_netssh && git pull && rake data_set_#{data_set} local"
   Net::SSH.start(ip, 'root', :paranoid => false) do |ssh|
     output = ssh.exec!(command)
   end
