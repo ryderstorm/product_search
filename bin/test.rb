@@ -1,4 +1,4 @@
-wtfrequire_relative '../libraries/main.rb'
+require_relative '../libraries/main.rb'
 require_relative '../libraries/digital_ocean.rb'
 require_relative '../libraries/amazon.rb'
 require_relative '../libraries/net_ssh.rb'
