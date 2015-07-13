@@ -13,7 +13,7 @@ def init_variables
 		@root_folder = File.expand_path(File.dirname(__FILE__)).sub('/libraries', '')
 		puts "Setting @root_folder from within init_variables to: ".yellow + @root_folder.red
 	end
-	@dots = ''
+	# @dots = nil
 	@computer = Socket.gethostname
 	@start_time = Time.now.utc.getlocal(-14400)
 	@run_stamp = tstamp
@@ -97,13 +97,13 @@ def tstamp
 end
 
 def dots
-	puts ""
-	@dots = Thread.new {loop {print ".";sleep 0.3333}}
+	@dots = Thread.new {loop {print ".";sleep 0.3333}} if @dots.nil?
 end
 
 def no_dots
 	unless @dots.nil?
 		Thread.kill(@dots)
+		@dots = nil
 		puts ""
 	end
 end
@@ -313,4 +313,5 @@ end
 def set_test_data(file_for_testing)
 	Dir.glob(@root_folder + '/data/active/*.*').each{ |f| File.delete(f) }
 	FileUtils.cp(file_for_testing, @root_folder + '/data/active')
+	puts "Set data file to be [#{file_for_testing.yellow}]"
 end
