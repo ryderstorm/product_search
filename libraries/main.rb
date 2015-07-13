@@ -9,12 +9,15 @@ require 'open-uri'
 require 'facter'
 
 def init_variables
+	if @root_folder.nil?
+		@root_folder = File.expand_path(File.dirname(__FILE__)).sub('/libraries', '')
+		puts "Setting @root_folder from within init_variables to: ".yellow + @root_folder.red
+	end
 	@dots = ''
 	@computer = Socket.gethostname
-	@start_time = Time.now
+	@start_time = Time.now.utc.getlocal(-14400)
 	@run_stamp = tstamp
 	@amazon_data = File.absolute_path(Dir.glob(@root_folder + '/data/active/amazon*').first)
-	binding.pry
 	@group_size = 5
 	@cores = Facter.value('processors')['count']
 	# @remote_ip = open('http://whatismyip.akamai.com/').read.strip # was working but stopped, keeping as reference
@@ -28,7 +31,6 @@ def init_variables
 	@errors = []
 	@main_log = @root_folder + "/results/main_log_#{@run_stamp}.txt"
 	@error_log = @root_folder + "/results/error_log_#{@run_stamp}.txt"
-	File.write(@main_log, "#{Time.now} | Creating logfile for run #{@run_stamp}\n")
 	@product_log = @root_folder + "/temp/product_log_#{@run_stamp}.txt"
 	puts "Root folder = ".blue + @root_folder.yellow
 	puts "Runstamp = ".blue + @run_stamp.yellow
@@ -91,10 +93,11 @@ def read_amazon_data(group_size = 25)
 end
 
 def tstamp
-	Time.now.strftime("%Y%m%d%H%M%S").to_s
+	Time.now.utc.getlocal(-14400).strftime("%Y%m%d%H%M%S").to_s
 end
 
 def dots
+	puts ""
 	@dots = Thread.new {loop {print ".";sleep 0.3333}}
 end
 
@@ -176,15 +179,12 @@ def local_time
 end
 
 def log(file = @main_log, message)
-	String.disable_colorization true
 	File.open(file, "a") do |f|
 		unless message[0] == "\t"
 			message = "#{local_time} | #{message}"
 		end
+		f.puts message.uncolorize
 	end
-	f.puts message
-	# puts message
-	String.disable_colorization false
 	message
 end
 
@@ -205,8 +205,7 @@ def create_master_spreadsheet
 		return
 	end
 	wb_location = "#{@root_folder}/results/amazon_products_#{@run_stamp}.xlsx"
-	puts log @main_log, "#{Time.now} | Starting creation of results workbook\n\t#{wb_location}"
-	all_data = {}
+	puts log "Starting creation of results workbook\n\t#{wb_location.blue}"
 	master_wb = RubyXL::Workbook.new
 	summary_sheet = master_wb[0]
 	summary_sheet.sheet_name = 'Summary'
@@ -214,7 +213,7 @@ def create_master_spreadsheet
 		summary_sheet.add_cell(0, i, h)
 	end
 	@amazon_products.each_with_index do |product, i|
-		puts log @main_log, "#{Time.now} | Processing product [#{i+1}] of [#{@amazon_products.count}]: #{product.search_term}"
+		puts log "Processing product [#{i+1}] of [#{@amazon_products.count}]: #{product.search_term}"
 		master_wb.add_worksheet(product.search_term)
 		sheet = master_wb[product.search_term]
 		product.instance_variables.each_with_index do |variable, j|
@@ -278,7 +277,7 @@ end
 
 def open_file(file)
 	if Socket.gethostname == "ryderstorm-amazon_search-1580844"
-		puts "Can't open files on C9, yo!"
+		puts "Can't open files on C9!".red
 		return
 	end
 	ENV['OS'].nil? ? system("gnome-open #{file}") : system("start #{file}")
@@ -294,14 +293,13 @@ def report_error(note, error)
 end
 
 def log_errors
-	puts "#{Time.now} | Logging #{@errors.count.to_s.red} errors to file..."
-	File.open(@error_log, 'a'){ |f| @errors.each{ |error| f.puts error }}
+	puts "#{local_time} | Logging #{@errors.count.to_s.red} errors to [#{@error_log.red}]"
+	@errors.each{ |error| log(@error_log, error)}
 end
 
-def run_remote_search(size = 'small')
-	puts "task do_medium not yet implemented!"
+def run_remote_search(size = 'small', data_set = 'test')
 	new_droplet = create_droplet(size)
-	ssh_output = ssh_rake(new_droplet.ip_address)
+	ssh_output = ssh_rake(new_droplet.ip_address, data_set)
 	binding.pry
 	loop do
 		status = open("#{new_droplet.ip_address}:8100").read.strip
