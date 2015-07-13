@@ -13,9 +13,8 @@ def init_variables
 	@computer = Socket.gethostname
 	@start_time = Time.now
 	@run_stamp = tstamp
-	@amazon_data = File.absolute_path('data/amazon.xlsx')
-	# @amazon_data = File.absolute_path('data/amazon_test_big.xlsx')
-	@amazon_data = File.absolute_path('data/amazon_test.xlsx')
+	@amazon_data = File.absolute_path(Dir.glob(@root_folder + '/data/active/amazon*').first)
+	binding.pry
 	@group_size = 5
 	@cores = Facter.value('processors')['count']
 	# @remote_ip = open('http://whatismyip.akamai.com/').read.strip # was working but stopped, keeping as reference
@@ -36,7 +35,7 @@ def init_variables
 	puts "Main log = ".blue + @main_log.yellow
 	puts "Error log = ".blue + @error_log.yellow
 	puts "Running on [".blue + @computer.yellow + "] with [".blue + @cores.to_s.yellow + "] cores.".blue
-	update_path # update path to include chromedriver	
+	update_path # update path to include chromedriver
 end
 
 class Product
@@ -79,6 +78,7 @@ def free_core
 end
 
 def read_amazon_data(group_size = 25)
+	log "Test data pulled from: " + @amazon_data
 	asins = RubyXL::Parser.parse(@amazon_data).first.extract_data
 	asins.delete_if { |a| a.to_s == "[nil, nil, nil, nil]" }
 	asins.delete_at(0)
@@ -170,15 +170,21 @@ def parse_secrets(secrets_location)
 	secrets
 end
 
-def log(file, message)
+def local_time
+	# returns the time in Greensboro NC
+	Time.now.utc.getlocal(-14400).strftime("%Y-%m-%d %H:%M:%S").yellow
+end
+
+def log(file = @main_log, message)
+	String.disable_colorization true
 	File.open(file, "a") do |f|
-		if message[0] == "\t"
-				f.puts message
-		else
-			f.puts "#{Time.now} | #{message}"
+		unless message[0] == "\t"
+			message = "#{local_time} | #{message}"
 		end
 	end
+	f.puts message
 	# puts message
+	String.disable_colorization false
 	message
 end
 
@@ -304,4 +310,9 @@ def run_remote_search(size = 'small')
 	ensure
 	ssh_shutdown(new_droplet.ip_address)
 	destroy_droplet(new_droplet)
+end
+
+def set_test_data(file_for_testing)
+	Dir.glob(@root_folder + '/data/active/*.*').each{ |f| File.delete(f) }
+	FileUtils.cp(file_for_testing, @root_folder + '/data/active')
 end
