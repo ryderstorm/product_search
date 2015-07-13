@@ -4,7 +4,8 @@ unless File.exist?('secret/secret.txt')
 	exit
 end
 
-#run tasks
+@root_folder = File.absolute_path(File.dirname(__FILE__))
+
 task default: :notify
 task local: %i(initialize start_logs amazon create_log create_spreadsheet pushbullet_files finish)
 
@@ -26,11 +27,22 @@ task :initialize do
 	require_relative 'libraries/pushbullet.rb'
 	require_relative 'libraries/amazon.rb'
 	require_relative 'libraries/net_ssh.rb'
-	@root_folder = File.absolute_path(File.dirname(__FILE__))
 	Dir.mkdir('results') unless Dir.exist?('results')
 	Dir.mkdir('temp') unless Dir.exist?('temp')
 	init_variables
 	dots
+end
+
+task :data_set_test do
+	set_test_data(@root_folder + '/data/amazon_test.xlsx')
+end
+
+task :data_set_25 do
+	set_test_data(@root_folder + '/data/amazon_25_products.xlsx')
+end
+
+task :data_set_all do
+	set_test_data(@root_folder + '/data/amazon_all_data.xlsx')
 end
 
 desc 'Create a small Digital Ocean droplet and run the search on it'
