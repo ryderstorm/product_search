@@ -7,9 +7,13 @@ begin
 	puts File.expand_path(File.dirname(__FILE__))[0..-5]
 	start = Time.now
 	init_droplets
-	new_droplet = create_droplet('small') if @droplets.empty?
-	sleep 3
-	puts ssh_output = ssh_rake(@droplets.first.ip_address, '250')
+	if @droplets.empty?
+		new_droplet = create_droplet('small')
+		ip = new_droplet.ip_address
+	else
+		ip = @droplets.first.ip_address
+	end
+	puts ssh_output = ssh_rake(ip, 'test')
 	# @droplet = create_droplet("medium")
 	# ip = @droplet.ip_address
 	# ip = @droplets.first.ip_address
