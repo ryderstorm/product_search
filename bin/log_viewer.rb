@@ -62,7 +62,7 @@ def get_logs
 	if main_log_content.to_s.include? "Product scraping complete"
 		status.push "Current run completed at #{main_log_content[-2].split(" | ").first}"
 	else
-		status.push "Test has been running for #{Time.parse(local_time.uncolorize) - start_time}"
+		status.push "Test has been running for #{seconds_to_string(Time.parse(local_time.uncolorize) - start_time)}"
 	end
 	status.push "There are #{logs.count} logs available of #{data_groups} total runs"
 	status.push "#{completed} / #{(completed.to_f / data_groups.to_i * 100.0).round(2)}% have completed"
