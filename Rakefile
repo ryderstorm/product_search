@@ -76,7 +76,7 @@ task :start_logs do
 		remote_link = "http://#{@remote_ip}:#{port}"
 	end
 	puts log "Starting log server at [#{remote_link.blue}]"
-	Thread.new{ system("ruby bin/log_viewer.rb #{@run_stamp} -o #{ip} -p #{port}")}
+	@webserver = Thread.new{ system("ruby bin/log_viewer.rb #{@run_stamp} -o #{ip} -p #{port}")}
 	pushbullet_link_to_all("Log viewer running", remote_link, "")
 end
 
@@ -102,9 +102,11 @@ task :amazon do
 			loop do
 				ready_to_go = free_core
 				puts "\n#{local_time} | Freecore = #{ready_to_go ? ready_to_go.to_s.green : ready_to_go.to_s.light_red} | #{@threads.count.to_s.light_blue} / #{@cores.to_s.green}"
+				ap @threads
 				if ready_to_go
 					break
 				else
+					@threads.delete_if { |t| !t.alive? }
 					sleep 2
 				end
 			end
@@ -129,6 +131,7 @@ task :amazon do
 				end
 			end
 			@threads.push new
+			# @threads.delete_if { |t| !t.alive? }
 		end
 		loop do
 			if @completed.count == @data_groups.count
@@ -191,8 +194,9 @@ task :finish do
 		title = "Product scraping complete on #{@computer}"
 		message = @errors.empty? || @errors.nil? ? "Process completed with no errors!".green : "Process completed but contained errors!".light_red
 		message << "\nTotal processing time: #{seconds_to_string(Time.parse(local_time.uncolorize) - @start_time)}"
-		puts log message
 		pushbullet_note_to_all(title, message)
+		puts log title
+		puts log message
 		# puts "Opening log file: #{@master_log}"
 		# sleep 3
 		# open_file(@master_log)
@@ -206,10 +210,11 @@ end
 
 at_exit do
 	puts "#{local_time} | Performing at_exit stuff"
+	@webserver.kill
 	log_errors unless @errors.nil? || @errors.empty?
 	# if @computer == 'ryderstorm-amazon_search-1580844'
 		# puts "Pausing for log investigation".light_red
-		# binding.pry
+		binding.pry
 		# `curl "https://amazon-search-ryderstorm.c9.io/terminate?_c9_id=livepreview20&_c9_host=https://ide.c9.io"`
 	# end
 end
