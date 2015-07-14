@@ -117,7 +117,7 @@ task :amazon do
 					@browsers[i].close rescue nil
 					search_status = "#{Time.now} | Amazon search [#{batch_number}] with browser(#{i}) ended with status: #{!@error}"
 					@completed.push search_status
-					log @main_log, search_status
+					log search_status
 				end
 			end
 			@threads.push new
@@ -129,7 +129,7 @@ task :amazon do
 				break
 			end
 			if counter > 300
-				puts(log @main_log, "Counter reached before all searches were completed.").red
+				puts log "Counter reached before all searches were completed.".red
 				break
 			end
 			sleep 1
@@ -138,7 +138,7 @@ task :amazon do
 		puts log "User pressed Ctrl+C".yellow
 		# binding.pry
 	rescue => e
-		puts report_error("Encountered error during Rake:amazon", e).red
+		puts report_error("Encountered error during Rake:amazon", e)
 		# binding.pry
 	ensure
 		@threads.each {|t| t.join(1)}
@@ -173,7 +173,7 @@ task :pushbullet_files do
 	rescue Exception => e
 		# puts e.message
 		# puts e.backtrace
-		puts log @main_log, "Encountered error during pushbullet, probably has to do with stupid windows pushbullet issues"
+		puts log "Encountered error during pushbullet, probably has to do with stupid windows pushbullet issues"
 	end
 end
 
@@ -182,18 +182,18 @@ task :finish do
 	puts "\n#{local_time} | Finishing up"
 	begin
 		title = "Product scraping complete on #{@computer}"
-		message << @errors.empty? ? "Process completed with status no errors!".green : "Process completed but contained errors!".red
-		message << "\nTotal processing time: #{seconds_to_string(Time.now - @start_time)}"
-		puts log @main_log, "\n#{Time.now} | \n#{message}"
-		pushbullet_note_to_all(title, message, @chrome)
+		message = @errors.empty? || @errors.nil? ? "Process completed with status no errors!".green : "Process completed but contained errors!".red
+		message << "\nTotal processing time: #{seconds_to_string(Time.parse(local_time.uncolorize) - @start_time)}"
+		puts log message
+		pushbullet_note_to_all(title, message)
 		# puts "Opening log file: #{@master_log}"
 		# sleep 3
 		# open_file(@master_log)
 		no_dots
-	rescue Exception => e
-		# puts e.message
-		# puts e.backtrace
-		puts log @main_log, "Encountered error during report total time, probably has to do with stupid windows pushbullet issues"
+	rescue => e
+		puts error_report(e)
+		binding.pry
+		# puts log "Encountered error during report total time, probably has to do with stupid windows pushbullet issues"
 	end
 end
 
