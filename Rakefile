@@ -100,10 +100,11 @@ task :amazon do
 		@data_groups.each_with_index do |data, i|
 			batch_number = i.to_s.rjust(@data_groups.count.to_s.length, '0')
 			loop do
-				ready_to_go = free_core
-				puts "\n#{local_time} | Freecore = #{ready_to_go ? ready_to_go.to_s.green : ready_to_go.to_s.light_red} | #{@threads.count.to_s.light_blue} / #{@cores.to_s.green}"
-				ap @threads
-				if ready_to_go
+				# ready_to_go = free_core
+				# puts "\n#{local_time} | Freecore = #{ready_to_go ? ready_to_go.to_s.green : ready_to_go.to_s.light_red} | #{@threads.count.to_s.light_blue} / #{@cores.to_s.green}"
+				# ap @threads
+				# if ready_to_go
+				if free_core
 					break
 				else
 					@threads.delete_if { |t| !t.alive? }
