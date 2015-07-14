@@ -101,11 +101,11 @@ task :amazon do
 			batch_number = i.to_s.rjust(@data_groups.count.to_s.length, '0')
 			loop do
 				ready_to_go = free_core
-				puts "\n#{local_time} | Freecore = #{ready_to_go.to_s.light_red} | #{@threads.count.to_s.light_blue} / #{@cores.to_s.green}"
+				puts "\n#{local_time} | Freecore = #{ready_to_go ? ready_to_go.to_s.green : ready_to_go.to_s.light_red} | #{@threads.count.to_s.light_blue} / #{@cores.to_s.green}"
 				if ready_to_go
 					break
 				else
-					sleep 1
+					sleep 2
 				end
 			end
 			sleep 2
@@ -144,7 +144,7 @@ task :amazon do
 		end
 	rescue Interrupt
 		puts log "User pressed Ctrl+C".yellow
-		# binding.pry
+		binding.pry
 	rescue => e
 		puts report_error("Encountered error during Rake:amazon", e)
 		# binding.pry
@@ -190,7 +190,7 @@ task :finish do
 	puts "\n#{local_time} | Finishing up"
 	begin
 		title = "Product scraping complete on #{@computer}"
-		message = @errors.empty? || @errors.nil? ? "Process completed with status no errors!".green : "Process completed but contained errors!".light_red
+		message = @errors.empty? || @errors.nil? ? "Process completed with no errors!".green : "Process completed but contained errors!".light_red
 		message << "\nTotal processing time: #{seconds_to_string(Time.parse(local_time.uncolorize) - @start_time)}"
 		puts log message
 		pushbullet_note_to_all(title, message)
