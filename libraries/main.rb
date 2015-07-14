@@ -15,7 +15,7 @@ def init_variables
 	end
 	# @dots = nil
 	@computer = Socket.gethostname
-	@start_time = Time.now.utc.getlocal(-14400)
+	@start_time = Time.parse(local_time.uncolorize)
 	@run_stamp = tstamp
 	@amazon_data = File.absolute_path(Dir.glob(@root_folder + '/data/active/amazon*').first)
 	@group_size = 5
@@ -122,25 +122,6 @@ def save_image(name, src)
 		f.write open(src).read
 	end
 	File.absolute_path(complete_name)
-end
-
-def error_report(e)
-	message = ""
-	message << "\n!!!!!!!!!!!!!!!!!!!!!\nAn error occurred!\n!!!!!!!!!!!!!!!!!!!!!\n"
-	message << "\nCurrent computer: #{@computer}"
-	message << "\nCurrent time: #{Time.now}"
-	message << "\nTime since application start: #{seconds_to_string(Time.now - @start_time)}"
-	# message << "\nURL at time of error:\n#{url}" unless url.nil?
-	message << "\nError message contents:"
-	message << "\n#{e.message}"
-	e.backtrace.each { |trace| message << "\n\t#{trace}" }
-	message << "\n\n!!!!!!!!!!!!!!!!!!!!!\n"
-	return message
-	# if url.nil?
-	# 	pushbullet_note_to_all("An error has occurred in the automation!", message, @chrome)
-	# else
-	# 	pushbullet_link_to_all("An error has occurred in the automation!", url, message, @chrome)
-	# end
 end
 
 def pluralize(number)
@@ -283,12 +264,16 @@ def open_file(file)
 	ENV['OS'].nil? ? system("gnome-open #{file}") : system("start #{file}")
 end
 
-def report_error(note, error)
-	error_message = "\n#{Time.now}"
-	error_message << "\n\t#{note}\n\tClass: #{error.class}\n\tMessage: #{error.message}"
-	error.backtrace.each { |i| error_message << "\n\t#{i}" }
-  # (Thread.current[:errors] ||= []).push "#{error_message}"
-  @errors.push "#{error_message}"
+def report_error(error, note = ' ')
+	error_message = "=======================================================\n".light_red
+	error_message << note.light_blue
+	error_message << "\nTime: ".ljust(12).yellow + local_time.green
+	error_message << "\nComputer: ".ljust(12).yellow + @computer.green unless @computer.nil?
+	error_message << "\nClass: ".ljust(12).yellow + error.class.to_s.light_red
+	error_message << "\nMessage: ".ljust(12).yellow + error.message.light_red
+	error_message << "\nBacktrace: ".ljust(12).yellow
+	error.backtrace.each { |i| error_message << "\n           #{i.light_red}" }
+  @errors.push "#{error_message}" unless @errors.nil?
   error_message
 end
 
