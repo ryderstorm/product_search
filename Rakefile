@@ -133,6 +133,7 @@ task :amazon do
 			@threads.push new
 			# @threads.delete_if { |t| !t.alive? }
 		end
+		puts log "All browser instances have been created".light_blue
 		loop do
 			if @completed.count == @data_groups.count
 				puts "\n#{log("All searches complete!".green)}"
@@ -210,7 +211,6 @@ end
 
 at_exit do
 	puts "#{local_time} | Performing at_exit stuff"
-	@webserver.kill
 	log_errors unless @errors.nil? || @errors.empty?
 	# if @computer == 'ryderstorm-amazon_search-1580844'
 		# puts "Pausing for log investigation".light_red
