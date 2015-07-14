@@ -181,7 +181,7 @@ def create_master_log
 end
 
 def create_master_spreadsheet
-	if @amazon_products.empty?
+	if @amazon_products.empty? or @amazon_products.nil?
 		puts "No products found! Can't create workbook."
 		return
 	end
@@ -231,9 +231,11 @@ rescue Interrupt
 rescue => e
 	puts report_error("Error encountered during workbook generation", e)
 ensure
-	master_wb.write(wb_location)
-	log @main_log, "Completed creation of results workbook:\n#{wb_location}"
-	return wb_location
+	unless @amazon_products.empty?
+		master_wb.write(wb_location)
+		log "Completed creation of results workbook:\n#{wb_location}"
+		return wb_location
+	end
 end
 
 def update_path
@@ -266,7 +268,7 @@ end
 
 def report_error(error, note = ' ')
 	error_message = "=======================================================\n".light_red
-	error_message << note.light_blue
+	error_message << note.light_blue unless note.nil?
 	error_message << "\nTime: ".ljust(12).yellow + local_time.green
 	error_message << "\nComputer: ".ljust(12).yellow + @computer.green unless @computer.nil?
 	error_message << "\nClass: ".ljust(12).yellow + error.class.to_s.light_red
