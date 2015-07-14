@@ -123,21 +123,20 @@ task :amazon do
 				ensure
 					log "Closing browser instance [#{i}]..."
 					@browsers[i].close rescue nil
-					search_status = "#{Time.now} | Amazon search [#{batch_number}] with browser(#{i}) ended with status: #{!@error}"
+					search_status = "Amazon search [#{batch_number}] with browser(#{i}) ended with status: #{!@error}"
 					@completed.push search_status
 					log search_status
 				end
 			end
 			@threads.push new
 		end
-		counter = 0
 		loop do
 			if @completed.count == @data_groups.count
 				puts "\n#{log("All searches complete!".green)}"
 				break
 			end
-			if counter > 300
-				puts log "Counter reached before all searches were completed.".light_red
+			if Time.parse(local_time.uncolorize) - @start_time > 3000
+				puts log "Search has been running for over 50 minutes and will now be closed.".light_red
 				break
 			end
 			sleep 1
