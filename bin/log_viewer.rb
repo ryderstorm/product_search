@@ -59,10 +59,11 @@ def get_logs
 		end
 	end
 	status.push "=============================="
-	current_time = Time.parse(local_time.uncolorize)
-	diff = seconds_to_string(current_time - start_time)
-	# puts "current_time: #{current_time.to_s.blue}\nstart_time: #{start_time.to_s.green}\ndiff: #{diff.light_red}"
-	status.push "Test has been running for #{diff}"
+	if main_log_content.to_s.include? "Product scraping complete"
+		status.push "Current run completed at #{main_log_content[-2].split(" | ").first}"
+	else
+		status.push "Test has been running for #{Time.parse(local_time.uncolorize) - start_time}"
+	end
 	status.push "There are #{logs.count} logs available of #{data_groups} total runs"
 	status.push "#{completed} / #{(completed.to_f / data_groups.to_i * 100.0).round(2)}% have completed"
 	unless completed == 0
@@ -72,9 +73,6 @@ def get_logs
 	product_status = File.read($root_folder + "/temp/product_log_#{run_stamp}.txt").split('|')
 	status.push "#{(product_status.first.to_i / product_status.last.to_f * 100).round(2)}% | #{product_status.first} of #{product_status.last} total products processed so far"
 
-	if main_log_content.to_s.include? "Product scraping complete"
-		status.push "Current run with runstamp #{run_stamp} completed at #{main_log_content[-2].split(" | ").first}"
-	end
 	all_content = status + main_log_content + page_content
 	return all_content.join("<br>")
 end
