@@ -75,15 +75,18 @@ task :start_logs do
 		port = "8100"
 		remote_link = "http://#{@remote_ip}:#{port}"
 	end
-	puts log "Starting log server at [#{remote_link.blue}]"
-	@webserver = Thread.new{ system("ruby bin/log_viewer.rb #{@run_stamp} -o #{ip} -p #{port}")}
+	weblog = "temp/webserver_log_#{@run_stamp}.txt"
+	puts log "Starting log server..."
+	@webserver = Thread.new{ system("ruby bin/log_viewer.rb #{@run_stamp} -o #{ip} -p #{port} >> #{File.absolute_path(weblog)} 2>&1 &")}
+	puts log "Log server running at: #{remote_link.blue}"
+	puts log "Log server logs at: #{File.absolute_path(weblog).blue}"
 	pushbullet_link_to_all("Log viewer running", remote_link, "")
 end
 
 desc 'Search amazon for the specified skus'
 task :amazon do
 	begin
-		puts log "Starting Amazon search..."
+		puts "\n" + log("Starting Amazon search...")
 		@amazon_products = []
 		@data_groups = read_amazon_data(@group_size)
 		File.write(@product_log, "0|#{@amazon_product_count}")
@@ -134,14 +137,14 @@ task :amazon do
 			@threads.push new
 			# @threads.delete_if { |t| !t.alive? }
 		end
-		puts log "All browser instances have been created".light_blue
+		puts "\n" + log("All browser instances have been created".light_blue)
 		loop do
 			if @completed.count == @data_groups.count
-				puts "\n#{log("All searches complete!".green)}"
+				puts "\n" + log("All searches complete!".green)
 				break
 			end
 			if Time.parse(local_time.uncolorize) - @start_time > 3000
-				puts log "Search has been running for over 50 minutes and will now be closed.".light_red
+				puts log("Search has been running for over 50 minutes and will now be closed.".light_red)
 				break
 			end
 			sleep 1
