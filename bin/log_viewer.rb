@@ -23,7 +23,7 @@ def get_logs
 	status = []
 	main_log_content = []
 	page_content = []
-	main_logs = Dir.glob($root_folder + "/results/**/*#{$run_stamp}.txt").sort
+	main_logs = Dir.glob($root_folder + "/**/main_log_#{$run_stamp}.txt").sort
 	current_log = main_logs.last
 	contents = File.read(current_log).split("\n")
 	start_time = Time.parse(contents[0])#.utc.getlocal(-14400)
@@ -31,16 +31,16 @@ def get_logs
 	main_log_content.push "=========================="
 	main_log_content.push "Main log | #{File.basename(current_log)}"
 	contents.each { |c| main_log_content.push c }
-	data_groups = contents[3].split("Number of data groups: ").last
+	data_groups = contents[5].split("data groups: ").last
 	completed = 0
 	successful = 0
 	failed = 0
 	stamps = []
-	logs = Dir.glob($root_folder + "/temp/**/*.txt")
+	logs = Dir.glob($root_folder + "/**/*runlog_#{run_stamp}.txt")
 	logs.each{ |log| stamps.push(File.basename(log).split("_")[2])}
 	run_stamp = stamps.uniq.sort.last[0..-5]
 	status.push "Using run_stamp [#{run_stamp}]"
-	logs.delete_if{|log| !File.basename(log).include?(run_stamp) or File.basename(log).include?('product_log')}
+	# logs.delete_if do |log| File.basename(log).include?('product_log') or File.basename(log).include?('webserver')}
 	in_progress = []
 	logs.each {|log| in_progress.push log unless File.read(log).include?("Closing resources") }
 	in_progress.sort.each do |log|

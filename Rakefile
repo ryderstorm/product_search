@@ -77,7 +77,7 @@ task :start_logs do
 		remote_link = "http://#{@remote_ip}:#{port}"
 	end
 	weblog = "temp/webserver_log_#{@run_stamp}.txt"
-	puts log "Starting log server..."
+	puts "\n" + log("Starting log server...")
 	@webserver = Thread.new{ system("ruby bin/log_viewer.rb #{@run_stamp} -o #{ip} -p #{port} >> #{File.absolute_path(weblog)} 2>&1 &")}
 	puts log "Log server running at: #{remote_link.blue}"
 	puts log "Log server logs at: #{File.absolute_path(weblog).blue}"
