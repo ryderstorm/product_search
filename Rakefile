@@ -191,7 +191,7 @@ task :finish do
 		# open_file(@master_log)
 		no_dots
 	rescue => e
-		puts error_report(e)
+		puts report_error(e, "Error encountered during :finish task")
 		binding.pry
 		# puts log "Encountered error during report total time, probably has to do with stupid windows pushbullet issues"
 	end

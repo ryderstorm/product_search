@@ -170,16 +170,16 @@ def amazon_search(browser, asins, batch_number = 1)
 		end
 	rescue => e
 		@error = true
-		puts report_error("Error occurred during batch [#{batch_number}]", e)
-		browser_exist = !browser.nil? rescue false
-		if browser_exist
-			log logfile, "URL of browser at error:"
-			log logfile, browser.url
-			error_file = take_screenshot('ERROR')
-			log logfile, "Screenshot saved as [#{error_file}]"
-			pushbullet_file_to_all("Screenshot of Automation Error", error_file, report, @chrome)
-			log logfile, error_report(e, browser.url)
-		end
+		puts report_error(e, "Error occurred during batch [#{batch_number}]")
+		# browser_exist = !browser.nil? rescue false
+		# if browser_exist
+		# 	log logfile, "URL of browser at error:"
+		# 	log logfile, browser.url
+		# 	error_file = take_screenshot('ERROR')
+		# 	log logfile, "Screenshot saved as [#{error_file}]"
+		# 	pushbullet_file_to_all("Screenshot of Automation Error", error_file, report, @chrome)
+		# 	log logfile, report_error(e, browser.url)
+		# end
 	rescue Interrupt
 		log logfile, "User pressed Ctrl+C"
 		# binding.pry

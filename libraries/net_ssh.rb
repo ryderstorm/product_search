@@ -6,6 +6,8 @@ def ssh_shutdown(ip)
   Net::SSH.start(ip, 'root', :paranoid => false) do |ssh|
     ssh.exec!(command) rescue nil
   end
+  rescue => e
+  puts report_error(e, "Error encountered during ssh_shutdown")
 end
 
 def ssh_command(ip, command)
@@ -15,6 +17,8 @@ def ssh_command(ip, command)
     output = ssh.exec!(command)
   end
   output
+  rescue => e
+  puts report_error(e, "Error encountered during ssh_command")
 end
 
 def ssh_rake(ip, data_set = 'all')
@@ -25,4 +29,6 @@ def ssh_rake(ip, data_set = 'all')
     output = ssh.exec!(command)
   end
   output
+  rescue => e
+  puts report_error(e, "Error encountered during ssh_rake")
 end
