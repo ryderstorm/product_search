@@ -22,7 +22,7 @@ begin
 		else
 		  puts spacer.light_blue
 		  get_droplets
-			puts "\nDroplets can be accessed via ".light_blue + "@droplets".red.on_yellow
+			puts "\nDroplets can be accessed via ".light_blue + "@droplets".light_red
     end
 		puts "\nAvailable methods are:".light_blue
 		puts "get_droplets".yellow
@@ -33,7 +33,7 @@ begin
 	end
 
 	def droplet_status(droplet)
-		"#{droplet.name.to_s.ljust(40)} | #{droplet.status.to_s.center(8).red} | $#{hourly_cost(droplet.size_id)} | #{droplet.id.to_s.ljust(8)} | #{droplet.ip_address.to_s.ljust(16)}"
+		"#{droplet.name.to_s.ljust(40)} | #{droplet.status.to_s.center(8).light_red} | $#{hourly_cost(droplet.size_id)} | #{droplet.id.to_s.ljust(8)} | #{droplet.ip_address.to_s.ljust(16)}"
 	end
 
 	def hourly_cost(size_id)
@@ -67,7 +67,7 @@ begin
 				break if Digitalocean::Droplet.find(id).droplet.status == 'active'
 			end
 			if counter == 300
-				puts "Droplet creation taking longer than 5 minutes, please investigate".red
+				puts "Droplet creation taking longer than 5 minutes, please investigate".light_red
 				# binding.pry
 				return create_droplet
 			end
@@ -110,7 +110,7 @@ begin
 		  counter += 1
 		  if counter > 30
 		    no_dots
-		    puts "It is taking longer than 10 seconds to destroy droplet #{droplet.name.red}, please investigate!"
+		    puts "It is taking longer than 10 seconds to destroy droplet #{droplet.name.light_red}, please investigate!"
 		    no_dots
 		    return
 		  end
@@ -145,7 +145,7 @@ rescue => e
 	puts e.class
 	puts e.message
 	puts e.backtrace
-	puts "Encountered error shown above, starting pry session".red
+	puts "Encountered error shown above, starting pry session".light_red
 	binding.pry
 ensure
 	puts "all done"

@@ -4,14 +4,14 @@ require 'sass'
 require 'tilt/haml'
 $root_folder = File.expand_path(File.dirname(__FILE__))[0..-5]
 require "#{$root_folder}/libraries/main.rb"
-puts "\n#{local_time} | Log file server has started with root folder: #{$root_folder.red}"
+puts "\n#{local_time} | Log file server has started with root folder: #{$root_folder.light_red}"
 set :logging, false
 get '/' do
 	haml :index
 end
 
 get '/terminate' do
-	puts "Shutting down Sinatra via /terminate route...".red
+	puts "Shutting down Sinatra via /terminate route...".light_red
 	Sinatra::Application.quit!
 end
 
@@ -61,7 +61,7 @@ def get_logs
 	status.push "=============================="
 	current_time = Time.parse(local_time.uncolorize)
 	diff = seconds_to_string(current_time - start_time)
-	# puts "current_time: #{current_time.to_s.blue}\nstart_time: #{start_time.to_s.green}\ndiff: #{diff.red}"
+	# puts "current_time: #{current_time.to_s.blue}\nstart_time: #{start_time.to_s.green}\ndiff: #{diff.light_red}"
 	status.push "Test has been running for #{diff}"
 	status.push "There are #{logs.count} logs available of #{data_groups} total runs"
 	status.push "#{completed} / #{(completed.to_f / data_groups.to_i * 100.0).round(2)}% have completed"

@@ -11,7 +11,7 @@ require 'facter'
 def init_variables
 	if @root_folder.nil?
 		@root_folder = File.expand_path(File.dirname(__FILE__)).sub('/libraries', '')
-		puts "Setting @root_folder from within init_variables to: ".yellow + @root_folder.red
+		puts "Setting @root_folder from within init_variables to: ".yellow + @root_folder.light_red
 	end
 	# @dots = nil
 	@computer = Socket.gethostname
@@ -258,7 +258,7 @@ end
 
 def open_file(file)
 	if Socket.gethostname == "ryderstorm-amazon_search-1580844"
-		puts "Can't open files on C9!".red
+		puts "Can't open files on C9!".light_red
 		return
 	end
 	ENV['OS'].nil? ? system("gnome-open #{file}") : system("start #{file}")
@@ -278,7 +278,7 @@ def report_error(error, note = ' ')
 end
 
 def log_errors
-	puts "#{local_time} | Logging #{@errors.count.to_s.red} errors to [#{@error_log.red}]"
+	puts "#{local_time} | Logging #{@errors.count.to_s.light_red} errors to [#{@error_log.light_red}]"
 	@errors.each{ |error| log(@error_log, error)}
 end
 

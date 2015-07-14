@@ -1,6 +1,6 @@
 require 'colorize'
 unless File.exist?('secret/secret.txt')
-	puts "Secret.txt doesn't exist and application cannot continue.".red.on_yellow
+	puts "Secret.txt doesn't exist and application cannot continue.".light_red
 	exit
 end
 
@@ -12,12 +12,12 @@ task local: %i(initialize start_logs amazon create_log create_spreadsheet pushbu
 
 desc 'Notify user of available tasks'
 task :notify do
-	puts "\n======================================================================================================".red
+	puts "\n======================================================================================================".light_red
 	puts "You are running Rake without specifying a task. Please rerun Rake and specify one of the following:"
 	puts "local".ljust(10).yellow + " | run the search program on the local machine"
 	puts "do_medium".ljust(10).yellow + " | run the search program on a medium size Digital Ocean machine"
 	puts "do_large".ljust(10).yellow + " | run the search program on a large size Digital Ocean machine"
-	puts "======================================================================================================".red
+	puts "======================================================================================================".light_red
 end
 
 desc 'Initialze and report startup settings'
@@ -129,7 +129,7 @@ task :amazon do
 				break
 			end
 			if counter > 300
-				puts log "Counter reached before all searches were completed.".red
+				puts log "Counter reached before all searches were completed.".light_red
 				break
 			end
 			sleep 1
@@ -182,7 +182,7 @@ task :finish do
 	puts "\n#{local_time} | Finishing up"
 	begin
 		title = "Product scraping complete on #{@computer}"
-		message = @errors.empty? || @errors.nil? ? "Process completed with status no errors!".green : "Process completed but contained errors!".red
+		message = @errors.empty? || @errors.nil? ? "Process completed with status no errors!".green : "Process completed but contained errors!".light_red
 		message << "\nTotal processing time: #{seconds_to_string(Time.parse(local_time.uncolorize) - @start_time)}"
 		puts log message
 		pushbullet_note_to_all(title, message)
@@ -201,7 +201,7 @@ at_exit do
 	puts "#{local_time} | Performing at_exit stuff"
 	log_errors unless @errors.nil? || @errors.empty?
 	# if @computer == 'ryderstorm-amazon_search-1580844'
-		# puts "Pausing for log investigation".red.on_yellow
+		# puts "Pausing for log investigation".light_red
 		# binding.pry
 		# `curl "https://amazon-search-ryderstorm.c9.io/terminate?_c9_id=livepreview20&_c9_host=https://ide.c9.io"`
 	# end
