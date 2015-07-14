@@ -3,5 +3,4 @@ temp/*
 secret/
 results/*
 Gemfile.lock
-data/active/*
-
+data/*ACTIVE_DATA*

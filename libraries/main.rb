@@ -17,7 +17,7 @@ def init_variables
 	@computer = Socket.gethostname
 	@start_time = Time.parse(local_time.uncolorize)
 	@run_stamp = tstamp
-	@amazon_data = File.absolute_path(Dir.glob(@root_folder + '/data/active/amazon*').first)
+	@amazon_data = File.absolute_path(Dir.glob(@root_folder + '/data/*ACTIVE_DATA*').first)
 	@group_size = 5
 	@cores = Facter.value('processors')['count']
 	# @remote_ip = open('http://whatismyip.akamai.com/').read.strip # was working but stopped, keeping as reference
@@ -298,7 +298,8 @@ def run_remote_search(size = 'small', data_set = 'test')
 end
 
 def set_test_data(file_for_testing)
-	Dir.glob(@root_folder + '/data/active/*.*').each{ |f| File.delete(f) }
-	FileUtils.cp(file_for_testing, @root_folder + '/data/active')
-	puts "Set data file to be [#{file_for_testing.yellow}]"
+	Dir.glob(@root_folder + '/data/*ACTIVE_DATA*').each { |f| File.delete(f) }
+	new_file = File.absolute_path(file_for_testing).sub('.xlsx', 'ACTIVE_DATA.xlsx')
+	FileUtils.cp(file_for_testing, new_file)
+	puts "Set data file to be [#{new_file.yellow}]"
 end
