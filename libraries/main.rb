@@ -75,8 +75,8 @@ end
 
 def free_core
 	@cores = 4 if @computer == "GSOD-DSTORM"
-	return (Thread.list.count <= 2 ? true : false) if @cores == 1
-	@cores > Thread.list.count - 1
+	return (@threads.count <= 2 ? true : false) if @cores <= 2
+	@cores > @threads.count - 1
 end
 
 def read_amazon_data(group_size = 25)

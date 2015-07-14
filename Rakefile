@@ -99,7 +99,15 @@ task :amazon do
 
 		@data_groups.each_with_index do |data, i|
 			batch_number = i.to_s.rjust(@data_groups.count.to_s.length, '0')
-			sleep 1 while !free_core
+			loop do
+				ready_to_go = free_core
+				puts "\n#{local_time} | Freecore = #{ready_to_go.to_s.light_red} | #{@threads.count.to_s.light_blue} / #{@cores.to_s.green}"
+				if ready_to_go
+					break
+				else
+					sleep 1
+				end
+			end
 			sleep 2
 			break if @error
 			new = Thread.new do
