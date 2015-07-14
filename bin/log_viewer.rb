@@ -72,8 +72,8 @@ def get_logs
 	product_status = File.read($root_folder + "/temp/product_log_#{run_stamp}.txt").split('|')
 	status.push "#{(product_status.first.to_i / product_status.last.to_f * 100).round(2)}% | #{product_status.first} of #{product_status.last} total products processed so far"
 
-	if product_status.first == product_status.last
-		status.push "Current run  with runstamp #{run_stamp} has completed\nPress enter to generate new status report, or type exit and press enter to exit"
+	if main_log_content.to_s.include? "Product scraping complete"
+		status.push "Current run with runstamp #{run_stamp} completed at #{main_log_content[-2].split(" | ").first}"
 	end
 	all_content = status + main_log_content + page_content
 	return all_content.join("<br>")
