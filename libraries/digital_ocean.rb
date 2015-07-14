@@ -52,7 +52,7 @@ begin
 		end
 		name = "Crue-marketing-search-#{size}-#{Time.now.utc.getlocal(-14400).strftime("%Y%m%d-%H%M%S")}"
 		puts "Creating droplet [" + name.yellow + "]"
-		image_id = 12704267
+		image_id = 12751255
 		region_id = 8
 		ssh_key_id = 971823
 		ssh_key_ids = []
