@@ -32,11 +32,11 @@ def init_variables
 	@main_log = @root_folder + "/results/main_log_#{@run_stamp}.txt"
 	@error_log = @root_folder + "/results/error_log_#{@run_stamp}.txt"
 	@product_log = @root_folder + "/temp/product_log_#{@run_stamp}.txt"
-	puts "Root folder = ".blue + @root_folder.yellow
-	puts "Runstamp = ".blue + @run_stamp.yellow
-	puts "Main log = ".blue + @main_log.yellow
-	puts "Error log = ".blue + @error_log.yellow
-	puts "Running on [".blue + @computer.yellow + "] with [".blue + @cores.to_s.yellow + "] cores.".blue
+	puts "Root folder = ".light_blue + @root_folder.yellow
+	puts "Runstamp = ".light_blue + @run_stamp.yellow
+	puts "Main log = ".light_blue + @main_log.yellow
+	puts "Error log = ".light_blue + @error_log.yellow
+	puts "Running on [".light_blue + @computer.yellow + "] with [".light_blue + @cores.to_s.yellow + "] cores.".light_blue
 	update_path # update path to include chromedriver
 end
 
@@ -186,7 +186,7 @@ def create_master_spreadsheet
 		return
 	end
 	wb_location = "#{@root_folder}/results/amazon_products_#{@run_stamp}.xlsx"
-	puts log "Starting creation of results workbook\n\t#{wb_location.blue}"
+	puts log "Starting creation of results workbook\n\t#{wb_location.light_blue}"
 	master_wb = RubyXL::Workbook.new
 	summary_sheet = master_wb[0]
 	summary_sheet.sheet_name = 'Summary'
