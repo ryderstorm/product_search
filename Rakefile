@@ -8,7 +8,8 @@ end
 require_relative 'libraries/main.rb'
 
 task default: :notify
-task local: %i(initialize start_logs amazon create_log create_spreadsheet pushbullet_files finish)
+# task local: %i(initialize start_logs amazon create_log create_spreadsheet pushbullet_files finish)
+task local: %i(initialize start_logs amazon create_log create_spreadsheet finish)
 
 desc 'Notify user of available tasks'
 task :notify do
