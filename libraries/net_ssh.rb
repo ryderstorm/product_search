@@ -37,10 +37,9 @@ def ssh_rake(ip, data_set = 'all')
           $stderr.print data
         end
 
-        ch.on_close { puts "done!" }
+        ch.on_close { puts "#{local_time} | Command execution on [#{ip.yellow}] is complete." }
       end
     end
-    channel.wait
   end
   rescue => e
   puts report_error(e, "Error encountered during ssh_rake")
