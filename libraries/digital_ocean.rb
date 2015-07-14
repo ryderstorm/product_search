@@ -44,7 +44,7 @@ begin
 	def create_droplet(size = 'small')
 		case size
 		when 'small'
-		  size_id = 63
+		  size_id = 62
 		when 'medium'
 		  size_id = 65
 		when 'large'
