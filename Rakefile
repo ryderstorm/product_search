@@ -147,7 +147,7 @@ task :amazon do
 		end
 	rescue Interrupt
 		puts log "User pressed Ctrl+C".yellow
-		binding.pry
+		# binding.pry
 	rescue => e
 		puts report_error("Encountered error during Rake:amazon", e)
 		# binding.pry
@@ -204,7 +204,7 @@ task :finish do
 		no_dots
 	rescue => e
 		puts report_error(e, "Error encountered during :finish task")
-		binding.pry
+		# binding.pry
 		# puts log "Encountered error during report total time, probably has to do with stupid windows pushbullet issues"
 	end
 end
@@ -214,7 +214,7 @@ at_exit do
 	log_errors unless @errors.nil? || @errors.empty?
 	# if @computer == 'ryderstorm-amazon_search-1580844'
 		# puts "Pausing for log investigation".light_red
-		binding.pry
+		# binding.pry
 		# `curl "https://amazon-search-ryderstorm.c9.io/terminate?_c9_id=livepreview20&_c9_host=https://ide.c9.io"`
 	# end
 end
