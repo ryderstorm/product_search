@@ -271,8 +271,8 @@ def report_error(error, note = ' ')
 	error_message << "\nComputer: ".ljust(12).yellow + @computer.green unless @computer.nil?
 	error_message << "\nClass: ".ljust(12).yellow + error.class.to_s.light_red
 	error_message << "\nMessage: ".ljust(12).yellow + error.message.light_red
-	error_message << "\nBacktrace: ".ljust(12).yellow
-	error.backtrace.each { |i| error_message << "\n           #{i.light_red}" }
+	error_message << "\nBacktrace: ".ljust(12).yellow + error.backtrace.first.light_red
+	error.backtrace[1..-1].each { |i| error_message << "\n           #{i.light_red}" }
   @errors.push "#{error_message}" unless @errors.nil?
   error_message
 end
