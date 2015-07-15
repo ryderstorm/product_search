@@ -285,15 +285,27 @@ def log_errors
 end
 
 def run_remote_search(size = 'small', data_set = 'test')
-	new_droplet = create_droplet(size)
-	ssh_output = ssh_rake(new_droplet.ip_address, data_set)
-	binding.pry
-	loop do
-		status = open("#{new_droplet.ip_address}:8100").read.strip
-		break if status.include?("Current run  with runstamp #{@run_stamp} has completed")
+	exit_loop = Thread.new do
+		loop do
+			if Time.parse(local_time.uncolorize) - @start_time > 3000
+				puts log "Search has been running for over 50 minutes and will now be forcibly closed.".light_red
+				return
+			end
+			puts "sleeping 10 seconds in exit_loop"
+			sleep 10
+		end
 	end
+	init_droplets
+	new_droplet = create_droplet(size)
+	ssh_rake(new_droplet.ip_address, data_set)
+	binding.pry
+	puts "all finished"
+	rescue => e
+		report_error(e, "Error encountered during run_remote_search")
 	ensure
+	exit_loop.join(1)
 	ssh_shutdown(new_droplet.ip_address)
+	sleep 3
 	destroy_droplet(new_droplet)
 end
 
