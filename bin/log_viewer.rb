@@ -2,7 +2,7 @@ require 'sinatra'
 require 'haml'
 require 'sass'
 require 'tilt/haml'
-$root_folder = File.expand_path(File.dirname(__FILE__))[0..-5]
+$root_folder = File.expand_path(Dir.glob('/**/amazon_search').first)
 require "#{$root_folder}/libraries/main.rb"
 puts "\n#{local_time} | Log file server has started with root folder: #{$root_folder.light_red}"
 set :logging, false
@@ -23,23 +23,22 @@ def get_logs
 	status = []
 	main_log_content = []
 	page_content = []
-	main_logs = Dir.glob($root_folder + "/**/main_log_#{$run_stamp}.txt").sort
-	current_log = main_logs.last
-	contents = File.read(current_log).split("\n")
+	stamps = []
+	logs = Dir.glob("/**/amazon_search/results/main_log*.txt")
+	logs.each{ |log| stamps.push(File.basename(log).split("_")[2])}
+	run_stamp = stamps.uniq.sort.last[0..-5]
+	status.push "Using run_stamp [#{run_stamp}]"
+	main_log = Dir.glob("/**/amazon_search/results/main_log_#{run_stamp}.txt").first
+	contents = File.read(main_log).split("\n")
 	start_time = Time.parse(contents[0])#.utc.getlocal(-14400)
 	main_log_content.push ""
 	main_log_content.push "=========================="
-	main_log_content.push "Main log | #{File.basename(current_log)}"
+	main_log_content.push "Main log | #{File.basename(main_log)}"
 	contents.each { |c| main_log_content.push c }
 	data_groups = contents[5].split("data groups: ").last
 	completed = 0
 	successful = 0
 	failed = 0
-	stamps = []
-	logs = Dir.glob($root_folder + "/**/*runlog_#{run_stamp}.txt")
-	logs.each{ |log| stamps.push(File.basename(log).split("_")[2])}
-	run_stamp = stamps.uniq.sort.last[0..-5]
-	status.push "Using run_stamp [#{run_stamp}]"
 	# logs.delete_if do |log| File.basename(log).include?('product_log') or File.basename(log).include?('webserver')}
 	in_progress = []
 	logs.each {|log| in_progress.push log unless File.read(log).include?("Closing resources") }
