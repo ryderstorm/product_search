@@ -2,33 +2,21 @@ require 'sinatra'
 require 'haml'
 require 'sass'
 require 'tilt/haml'
-$root_folder = File.expand_path(Dir.glob('/**/amazon_search').first)
+folder = ENV["C9_HOSTNAME"].nil? ? 'amazon_search' : 'workspace'
+$root_folder = File.expand_path(Dir.glob("/**/#{folder}").first)
 require "#{$root_folder}/libraries/main.rb"
 puts "\n#{local_time} | Log file server has started with root folder: #{$root_folder.light_red}"
-set :logging, false
-get '/' do
-	haml :index
-end
-
-get '/terminate' do
-	puts "Shutting down Sinatra via /terminate route...".light_red
-	Sinatra::Application.quit!
-end
-
-get '/info' do
-	"#{request.base_url}<br>#{request.fullpath}<br>#{request.host}"
-end
-
+# binding.pry
 def get_logs
 	status = []
 	main_log_content = []
 	page_content = []
 	stamps = []
-	logs = Dir.glob("/**/amazon_search/results/main_log*.txt")
+	logs = Dir.glob($root_folder + "/results/main_log*.txt")
 	logs.each{ |log| stamps.push(File.basename(log).split("_")[2])}
 	run_stamp = stamps.uniq.sort.last[0..-5]
 	status.push "Using run_stamp [#{run_stamp}]"
-	main_log = Dir.glob("/**/amazon_search/results/main_log_#{run_stamp}.txt").first
+	main_log = Dir.glob($root_folder + "/results/main_log_#{run_stamp}.txt").first
 	contents = File.read(main_log).split("\n")
 	start_time = Time.parse(contents[0])#.utc.getlocal(-14400)
 	main_log_content.push ""
@@ -40,22 +28,24 @@ def get_logs
 	successful = 0
 	failed = 0
 	# logs.delete_if do |log| File.basename(log).include?('product_log') or File.basename(log).include?('webserver')}
+	logs = Dir.glob($root_folder + "/temp/**/*runlog*#{run_stamp}*.txt")
 	in_progress = []
-	logs.each {|log| in_progress.push log unless File.read(log).include?("Closing resources") }
-	in_progress.sort.each do |log|
-		page_content.push " "
-		page_content.push "=========================="
-		page_content.push "#{File.basename(log)}"
-		contents = File.read(File.absolute_path(log)).split("\n").last(10)
-		contents.each{ |c| page_content.push "\t#{c}"}
-	end
 	logs.each do |log|
 		contents = File.read(log)
 		if contents.include?("Closing resources")
 			completed += 1
 			successful += 1 if contents.split.last.include?("true")
 			failed += 1 if contents.split.last.include?("false")
+		else
+			in_progress.push log
 		end
+	end
+	in_progress.sort.each do |log|
+		page_content.push " "
+		page_content.push "=========================="
+		page_content.push "#{File.basename(log)}"
+		contents = File.read(File.absolute_path(log)).split("\n").last(10)
+		contents.each{ |c| page_content.push "\t#{c}"}
 	end
 	status.push "=============================="
 	if main_log_content.to_s.include? "Product scraping complete"
@@ -74,4 +64,18 @@ def get_logs
 
 	all_content = status + main_log_content + page_content
 	return all_content.join("<br>")
+end
+
+set :logging, false
+get '/' do
+	haml :index
+end
+
+get '/terminate' do
+	puts "Shutting down Sinatra via /terminate route...".light_red
+	Sinatra::Application.quit!
+end
+
+get '/info' do
+	"#{request.base_url}<br>#{request.fullpath}<br>#{request.host}"
 end
