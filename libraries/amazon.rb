@@ -18,7 +18,7 @@ def amazon_search(browser, asins, batch_number = 1)
 
 		asins.each_with_index do |item, i|
 			begin
-				Timeout::timeout(30) do
+				Timeout::timeout(60) do
 					search_start = Time.now
 					product = Product.new(item)
 					searchbox = browser.text_field(id:'twotabsearchtextbox')
