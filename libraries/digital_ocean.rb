@@ -118,12 +118,14 @@ begin
 	end
 
 	def destroy_all_droplets
-	  if Digitalocean::Droplet.all.droplets.count == 0
+	  droplet_count = Digitalocean::Droplet.all.droplets.count
+	  if droplet_count == 0
 	    puts "No droplets to destroy!"
 	    return
 	  end
 	  dots
-		Digitalocean::Droplet.all.droplets.each { |d| destroy_droplet(d) }
+	  puts "There are #{droplet_count.to_s.yellow} droplets on your account"
+		Digitalocean::Droplet.all.droplets.each_with_index { |d, i| puts "#{i + 1} of #{droplet_count}";destroy_droplet(d) }
 		10.times do
 		  dots
   		if Digitalocean::Droplet.all.droplets.count == 0
