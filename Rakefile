@@ -16,6 +16,7 @@ task :notify do
 	puts "\n======================================================================================================".light_red
 	puts "You are running Rake without specifying a task. Please rerun Rake and specify one of the following:"
 	puts "local".ljust(10).yellow + " | run the search program on the local machine"
+	puts "do_small".ljust(10).yellow + " | run the search program on a small size Digital Ocean machine"
 	puts "do_medium".ljust(10).yellow + " | run the search program on a medium size Digital Ocean machine"
 	puts "do_large".ljust(10).yellow + " | run the search program on a large size Digital Ocean machine"
 	puts "======================================================================================================".light_red
@@ -52,17 +53,17 @@ end
 
 desc 'Create a small Digital Ocean droplet and run the search on it'
 task :do_medium do
-	run_remote_search('small')
+	run_remote_search('small', 'all')
 end
 
 desc 'Create a medium Digital Ocean droplet and run the search on it'
 task :do_medium do
-	run_remote_search('medium')
+	run_remote_search('medium', 'all')
 end
 
 desc 'Create a large Digital Ocean droplet and run the search on it'
 task :do_large do
-	run_remote_search('large')
+	run_remote_search('large', 'all')
 end
 
 desc 'Creates webserver for displaying log files'
