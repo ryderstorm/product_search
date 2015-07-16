@@ -298,9 +298,9 @@ def run_remote_search(size = 'small', data_set = 'test')
 	init_droplets
 	# new_droplet = create_droplet(size)
 	new_droplet = @droplets.first
-	sleep 5
+	sleep 10
 	ssh_reboot(new_droplet.ip_address)
-	sleep 5
+	sleep 10
 	rake_result = ssh_rake(new_droplet.ip_address, data_set)
 	rescue => e
 		report_error(e, "Error encountered during run_remote_search")
