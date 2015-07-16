@@ -169,7 +169,6 @@ def amazon_search(browser, asins, batch_number = 1)
 		end
 	rescue => e
 		success = "failure"
-		@error = true
 		puts report_error(e, "Error occurred during batch [#{batch_number}]")
 		# browser_exist = !browser.nil? rescue false
 		# if browser_exist
