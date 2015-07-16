@@ -239,18 +239,20 @@ begin
 				get_droplets
 				puts "============================================".yellow
 				puts "Your session used remote droplet [#{@remote_droplet.name.light_blue}]" unless @remote_droplet.nil?
-				puts "Do you want to destroy all droplets?".cyan
-				puts "Enter " + "Y".green + " for yes, " + "P".light_blue + " to pause and start a pry session, anything else for no"
+				puts "Do you want to destroy this droplet?".cyan
+				puts "Enter " + "Y".green + " for yes, " + "P".light_blue + " to pause and start a pry session, " + "All".light_red + " to delete all droplets, and anything else for no"
 				puts "============================================".yellow
 				user_choice = STDIN.gets.chomp.downcase
 				case user_choice
 				when  'y'
-					destroy_all_droplets
-					puts "Resources cleared - exiting"
+					destroy_droplet(@remote_droplet)
 				when 'p'
 					puts "Starting pry session"
 					binding.pry
 					puts "Pry session ended - closing up shop"
+				when 'all'
+					puts "Destroying all #{Digitalocean::Droplet.all.droplets.count.to_s.light_red} droplets"
+					destroy_all_droplets
 				else
 					puts "The following droplets will remain active:"
 					get_droplets
