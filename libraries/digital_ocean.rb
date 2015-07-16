@@ -95,9 +95,29 @@ begin
 		end
 	end
 
-	def destroy_droplet(droplet)
-	  puts "\nDestroying droplet #{droplet.name.yellow}"
+	def destroy_droplet(droplet = nil)
+	  if droplet.nil?
+	    get_droplets
+	    puts "Which droplet do you want to destroy?"
+	    @droplets.each_with_index { |d, i| puts "#{(i+1)}. #{d.name}"}
+	    5.times do
+  	    selection = gets.chomp.to_i
+        if selection.is_a? Numeric and (1..@droplets.count).include?(selection)
+	        droplet = @droplets[selection - 1]
+	        break
+        else
+  	      puts "#{selection.to_s.light_red} is not a valid option, please choose again"
+        end
+  	  end
+  	  if droplet.nil?
+  	    puts "You really suck at choosing numbers"
+  	    return false
+  	  end
+	  end
 	  dots
+	  puts "\nShutting down droplet #{droplet.name.yellow} via ssh"
+	  ssh_shutdown(droplet.ip_address)
+	  puts "\nDestroying droplet #{droplet.name.yellow}"
 		Digitalocean::Droplet.destroy(droplet.id)
 		counter = 0
 		loop do
@@ -115,6 +135,8 @@ begin
 		    return
 		  end
 		end
+	rescue => e
+	  puts report_error(e, "Error encountered during destroy_droplet")
 	end
 
 	def destroy_all_droplets
