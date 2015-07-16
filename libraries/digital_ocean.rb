@@ -173,6 +173,6 @@ rescue => e
 	puts e.backtrace
 	puts "Encountered error shown above, starting pry session".light_red
 	binding.pry
-ensure
-	puts "all done"
+# ensure
+# 	puts "all done"
 end
