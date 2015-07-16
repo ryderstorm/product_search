@@ -22,7 +22,7 @@ def ssh_command(ip, command)
 end
 
 def ssh_rake(ip, data_set = 'all')
-  command = "cd ~/amazon_search/ && git clean -f && git pull && git checkout master -f && git pull && bundle install && rake data_set_#{data_set} local"
+  command = "cd ~/amazon_search/ && git clean -f && git pull && git checkout master && git pull && bundle install && rake data_set_#{data_set} local"
   puts "#{local_time.yellow} | Sending the following command to [#{ip.light_blue}]: \n\t" + command.light_yellow
   Net::SSH.start(ip, 'root', :paranoid => false, :timeout => 60) do |ssh|
     channel = ssh.open_channel do |ch|
