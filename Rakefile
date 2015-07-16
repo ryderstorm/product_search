@@ -1,4 +1,5 @@
 require 'colorize'
+$local_computer = false
 unless File.exist?('secret/secret.txt')
 	puts "Secret.txt doesn't exist and application cannot continue.".light_red
 	exit
@@ -9,6 +10,7 @@ require_relative 'libraries/main.rb'
 begin
 	task default: :notify
 	# task local: %i(initialize start_logs amazon create_log create_spreadsheet pushbullet_files finish)
+	desc "Run the search program locally"
 	task local: %i(initialize start_logs amazon create_log create_spreadsheet finish)
 
 	desc 'Notify user of available tasks'
@@ -51,22 +53,32 @@ begin
 		set_test_data(@root_folder + '/data/amazon_all_data.xlsx')
 	end
 
-	desc 'Create a small Digital Ocean droplet and run the search on it'
+	desc 'Create a small Digital Ocean droplet and run the search on it with test data'
+	task :do_test do
+		$local_computer = true
+		Rake::Task["initialize"].invoke
+		@remote_droplet = run_remote_search('small', 'test')
+	end
+
+	desc 'Create a small Digital Ocean droplet and run the search on it with all data'
 	task :do_small do
+		$local_computer = true
 		Rake::Task["initialize"].invoke
-		run_remote_search('small', 'all')
+		@remote_droplet = run_remote_search('small', 'all')
 	end
 
-	desc 'Create a medium Digital Ocean droplet and run the search on it'
+	desc 'Create a medium Digital Ocean droplet and run the search on it with all data'
 	task :do_medium do
+		$local_computer = true
 		Rake::Task["initialize"].invoke
-		run_remote_search('medium', 'all')
+		@remote_droplet = run_remote_search('medium', 'all')
 	end
 
-	desc 'Create a large Digital Ocean droplet and run the search on it'
+	desc 'Create a large Digital Ocean droplet and run the search on it with all data'
 	task :do_large do
+		$local_computer = true
 		Rake::Task["initialize"].invoke
-		run_remote_search('large', 'all')
+		@remote_droplet = run_remote_search('large', 'all')
 	end
 
 	desc 'Creates webserver for displaying log files'
@@ -220,6 +232,30 @@ begin
 
 	at_exit do
 		puts "#{local_time} | Performing at_exit stuff"
+		if $local_computer == true
+			unless Digitalocean::Droplet.all.droplets.count == 0
+				no_dots
+				get_droplets
+				puts "============================================".yellow
+				puts "Your session used remote droplet [#{@remote_droplet.name.light_blue}]" unless @remote_droplet.nil?
+				puts "Do you want to destroy all droplets?".yellow
+				puts "Enter " + "Y".green + " for yes, " + "P".light_blue + " to pause and start a pry session, anything else for no"
+				puts "============================================".yellow
+				user_choice = gets.chomp.downcase
+				case user_choice
+				when  'y'
+					destroy_all_droplets
+					puts "Resources cleared - exiting"
+				when 'p'
+					puts "Starting pry session"
+					binding.pry
+					puts "Pry session ended - closing up shop"
+				else
+					puts "The following droplets will remain active:"
+					get_droplets
+				end
+			end
+		end
 		log_errors unless @errors.nil? || @errors.empty?
 		# if @computer == 'ryderstorm-amazon_search-1580844'
 			# puts "Pausing for log investigation".light_red
@@ -228,5 +264,5 @@ begin
 		# end
 	end
 rescue => e
- puts report_error(e)
+	puts report_error(e)
 end
