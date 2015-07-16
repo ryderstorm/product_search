@@ -10,6 +10,16 @@ def ssh_shutdown(ip)
   puts report_error(e, "Error encountered during ssh_shutdown")
 end
 
+def ssh_reboot(ip)
+  command = 'reboot now -h'
+  puts "#{local_time.yellow} | Sending the following command to [#{ip.yellow}]: \n" + command.yellow
+  Net::SSH.start(ip, 'root', :paranoid => false, :timeout => 60) do |ssh|
+    ssh.exec!(command) rescue nil
+  end
+  rescue => e
+  puts report_error(e, "Error encountered during ssh_shutdown")
+end
+
 def ssh_command(ip, command)
   output = ''
   puts "#{local_time.yellow} | Sending the following command to [#{ip.yellow}]: \n" + command.yellow
