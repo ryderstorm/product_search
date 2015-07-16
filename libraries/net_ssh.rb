@@ -2,8 +2,8 @@ require 'net/ssh'
 require 'colorize'
 def ssh_shutdown(ip)
   command = 'shutdown now -h'
-  puts "Sending the following command to [#{ip.yellow}]: \n" + command.yellow
-  Net::SSH.start(ip, 'root', :paranoid => false, :timeout => 30) do |ssh|
+  puts "#{local_time.yellow} | Sending the following command to [#{ip.yellow}]: \n" + command.yellow
+  Net::SSH.start(ip, 'root', :paranoid => false, :timeout => 60) do |ssh|
     ssh.exec!(command) rescue nil
   end
   rescue => e
@@ -12,8 +12,8 @@ end
 
 def ssh_command(ip, command)
   output = ''
-  puts "Sending the following command to [#{ip.yellow}]: \n" + command.yellow
-  Net::SSH.start(ip, 'root', :paranoid => false, :timeout => 30) do |ssh|
+  puts "#{local_time.yellow} | Sending the following command to [#{ip.yellow}]: \n" + command.yellow
+  Net::SSH.start(ip, 'root', :paranoid => false, :timeout => 60) do |ssh|
     output = ssh.exec!(command)
   end
   output
@@ -23,8 +23,8 @@ end
 
 def ssh_rake(ip, data_set = 'all')
   command = "cd ~/amazon_search/ && git clean -f && git pull && git checkout master -f && git pull && bundle install && rake data_set_#{data_set} local"
-  puts "Sending the following command to [#{ip.yellow}]: \n" + command.yellow
-  Net::SSH.start(ip, 'root', :paranoid => false, :timeout => 30) do |ssh|
+  puts "#{local_time.yellow} | Sending the following command to [#{ip.light_blue}]: \n\t" + command.light_yellow
+  Net::SSH.start(ip, 'root', :paranoid => false, :timeout => 60) do |ssh|
     channel = ssh.open_channel do |ch|
       ch.exec command do |ch, success|
         raise "could not execute command" unless success
