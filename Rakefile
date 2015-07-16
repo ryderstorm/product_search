@@ -140,7 +140,7 @@ begin
 						log "Creating browser instance #{batch_number}"
 						client = Selenium::WebDriver::Remote::Http::Default.new
 						client.timeout = 180 # seconds – default is 60
-						@browsers[i] = Watir::Browser.new :firefox, :http_client => client
+						@browsers[i] = Watir::Browser.new :chrome, :http_client => client
 						search_result = amazon_search(@browsers[i], data, batch_number)
 					rescue => e
 						puts report_error("Encountered error during browser creation in Rake:amazon", e)
