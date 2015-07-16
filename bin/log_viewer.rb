@@ -27,15 +27,15 @@ def get_logs
 	completed = 0
 	successful = 0
 	failed = 0
-	# logs.delete_if do |log| File.basename(log).include?('product_log') or File.basename(log).include?('webserver')}
+	all_logs = Dir.glob($root_folder + "/**/*#{run_stamp}*.txt")
 	logs = Dir.glob($root_folder + "/temp/**/*runlog*#{run_stamp}*.txt")
 	in_progress = []
 	logs.each do |log|
 		contents = File.read(log)
 		if contents.include?("Closing resources")
 			completed += 1
-			successful += 1 if contents.split.last.include?("true")
-			failed += 1 if contents.split.last.include?("false")
+			successful += 1 if contents.split.last.include?("successful")
+			failed += 1 if contents.split.last.include?("failure")
 		else
 			in_progress.push log
 		end
