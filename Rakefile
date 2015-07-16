@@ -18,9 +18,10 @@ begin
 		puts "\n======================================================================================================".light_red
 		puts "You are running Rake without specifying a task. Please rerun Rake and specify one of the following:"
 		puts "local".ljust(10).yellow + " | run the search program on the local machine"
-		puts "do_small".ljust(10).yellow + " | run the search program on a small size Digital Ocean machine"
-		puts "do_medium".ljust(10).yellow + " | run the search program on a medium size Digital Ocean machine"
-		puts "do_large".ljust(10).yellow + " | run the search program on a large size Digital Ocean machine"
+		puts "do_test".ljust(10).yellow + " | run the search program on a small size Digital Ocean machine with test data"
+		puts "do_small".ljust(10).yellow + " | run the search program on a small size Digital Ocean machine with all data"
+		puts "do_medium".ljust(10).yellow + " | run the search program on a medium size Digital Ocean machine with all data"
+		puts "do_large".ljust(10).yellow + " | run the search program on a large size Digital Ocean machine with all data"
 		puts "======================================================================================================".light_red
 	end
 
