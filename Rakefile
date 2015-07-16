@@ -133,7 +133,7 @@ begin
 					end
 				end
 				sleep 2
-				break if @error
+				# break if @error
 				new = Thread.new do
 					begin
 						log "Amazon search [#{batch_number}] of [#{@data_groups.count-1}] starting..."
@@ -156,16 +156,20 @@ begin
 				# @threads.delete_if { |t| !t.alive? }
 			end
 			puts "\n" + log("All browser instances have been created".light_blue)
-			loop do
+			puts local_time + " | Starting monitor loop in Rake :amazon".light_cyan
+			success = true
+			counter = 0
+			300.times do |i|
+				counter += 1
+				puts "\n" + log("monitor loop iteration ".light_cyan + i.to_s.light_red + " | completed: " + @completed.count.to_s.green + " | total: " + @data_groups.count.to_s.light_red)
 				if @completed.count == @data_groups.count
 					puts "\n" + log("All searches complete!".green)
 					break
 				end
-				if Time.parse(local_time.uncolorize) - @start_time > 3000
-					puts log("Search has been running for over 50 minutes and will now be closed.".light_red)
-					break
-				end
-				sleep 1
+				sleep 10
+			end
+			if counter == 300
+				puts log("Search has been running for over 50 minutes and will now be closed.".light_red)
 			end
 		rescue Interrupt
 			puts log "User pressed Ctrl+C".yellow
