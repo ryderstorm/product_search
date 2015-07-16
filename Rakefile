@@ -239,10 +239,10 @@ begin
 				get_droplets
 				puts "============================================".yellow
 				puts "Your session used remote droplet [#{@remote_droplet.name.light_blue}]" unless @remote_droplet.nil?
-				puts "Do you want to destroy all droplets?".yellow
+				puts "Do you want to destroy all droplets?".cyan
 				puts "Enter " + "Y".green + " for yes, " + "P".light_blue + " to pause and start a pry session, anything else for no"
 				puts "============================================".yellow
-				user_choice = gets.chomp.downcase
+				user_choice = STDIN.gets.chomp.downcase
 				case user_choice
 				when  'y'
 					destroy_all_droplets
