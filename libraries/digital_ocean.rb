@@ -33,7 +33,9 @@ begin
 	end
 
 	def droplet_status(droplet)
-		"#{droplet.name.to_s.light_green.ljust(40)} | #{droplet.status.to_s.center(8).light_red} | " + "$" + hourly_cost(droplet.size_id).to_s.light_cyan + " | #{droplet.id.to_s.light_yellow.ljust(8)} | #{droplet.ip_address.to_s.light_blue.ljust(16)} | #{ seconds_to_string(Time.parse(droplet.created_at).utc.getlocal(-14400) - Time.parse(local_time)).light_magenta}"
+	  uptime = Time.parse(droplet.created_at).utc.getlocal(-14400) - Time.parse(local_time)
+		"#{droplet.name.to_s.light_green.ljust(40)} | #{droplet.status.to_s.center(8).light_red} | " + "$" + hourly_cost(droplet.size_id).to_s.light_cyan + " | #{droplet.id.to_s.light_yellow.ljust(8)} | #{droplet.ip_address.to_s.light_blue.ljust(16)} | #{ seconds_to_string(uptime).light_magenta}"
+		puts "\tThis droplet has been running for more than 55 minutes!! Consider shutting it down to avoid additional charge.".light_yellow.on_red if uptime > 3300
 	end
 
 	def hourly_cost(size_id)
