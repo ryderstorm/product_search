@@ -270,11 +270,11 @@ end
 def report_error(error, note = ' ')
 	error_message = "=======================================================\n".light_red
 	error_message << note.light_blue unless note.nil?
-	error_message << "\nTime: ".ljust(12).yellow + local_time.green
-	error_message << "\nComputer: ".ljust(12).yellow + @computer.green unless @computer.nil?
-	error_message << "\nClass: ".ljust(12).yellow + error.class.to_s.light_red
-	error_message << "\nMessage: ".ljust(12).yellow + error.message.light_red
-	error_message << "\nBacktrace: ".ljust(12).yellow + error.backtrace.first.light_red
+	error_message << "\nTime: ".ljust(12).cyan + local_time.green
+	error_message << "\nComputer: ".ljust(12).cyan + @computer.green unless @computer.nil?
+	error_message << "\nClass: ".ljust(12).cyan + error.class.to_s.light_red
+	error_message << "\nMessage: ".ljust(12).cyan + error.message.light_red
+	error_message << "\nBacktrace: ".ljust(12).cyan + error.backtrace.first.light_red
 	error.backtrace[1..-1].each { |i| error_message << "\n           #{i.light_red}" }
   @errors.push "#{error_message}" unless @errors.nil?
   error_message
@@ -297,15 +297,14 @@ def run_remote_search(size = 'small', data_set = 'test')
 	end
 	init_droplets
 	new_droplet = create_droplet(size)
-	ssh_rake(new_droplet.ip_address, data_set)
-	puts "all finished"
+	sleep 5
+	rake_result = ssh_rake(new_droplet.ip_address, data_set)
 	rescue => e
 		report_error(e, "Error encountered during run_remote_search")
 	ensure
 	exit_loop.kill
 	exit_loop.join(1)
 	sleep 3
-	puts "run_remote_search complete"
 	return new_droplet
 end
 
