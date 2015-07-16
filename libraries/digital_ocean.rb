@@ -101,7 +101,7 @@ begin
 	    puts "Which droplet do you want to destroy?"
 	    @droplets.each_with_index { |d, i| puts "#{(i+1)}. #{d.name}"}
 	    5.times do
-  	    selection = gets.chomp.to_i
+  	    selection = STDIN.gets.chomp.to_i
         if selection.is_a? Numeric and (1..@droplets.count).include?(selection)
 	        droplet = @droplets[selection - 1]
 	        break
@@ -115,8 +115,10 @@ begin
   	  end
 	  end
 	  dots
-	  puts "\nShutting down droplet #{droplet.name.yellow} via ssh"
-	  ssh_shutdown(droplet.ip_address)
+	  unless droplet.status == 'off'
+  	  puts "\nShutting down droplet #{droplet.name.yellow} via ssh"
+	    ssh_shutdown(droplet.ip_address)
+	  end
 	  puts "\nDestroying droplet #{droplet.name.yellow}"
 		Digitalocean::Droplet.destroy(droplet.id)
 		counter = 0
