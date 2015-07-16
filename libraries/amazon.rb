@@ -1,12 +1,11 @@
 def amazon_search(browser, asins, batch_number = 1)
 	# begin
-		error = false
+		success = "successful"
 		temp_folder = @root_folder + "/temp/amazon_#{@run_stamp}"
 		Dir.mkdir(temp_folder) unless Dir.exist?(temp_folder)
 		logfile = temp_folder + "/amazon_runlog_#{@run_stamp}_#{batch_number}.txt"
 		FileUtils.mkdir_p(temp_folder)
 
-		result_urls = []
 		result_counts = []
 
 		unless @headless
@@ -169,6 +168,7 @@ def amazon_search(browser, asins, batch_number = 1)
 			end
 		end
 	rescue => e
+		success = "failure"
 		@error = true
 		puts report_error(e, "Error occurred during batch [#{batch_number}]")
 		# browser_exist = !browser.nil? rescue false
@@ -188,8 +188,8 @@ def amazon_search(browser, asins, batch_number = 1)
 		#browser.close rescue nil
 		# headless.destroy if @headless
 		# no_dots
-		log logfile, "Amazon search #{batch_number} ended in status: #{!@error}"
+		log logfile, "Amazon search #{batch_number} ended in status: #{success}"
 
-		return [!@error, product]
+		return success
 	# end
 end

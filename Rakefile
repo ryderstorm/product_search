@@ -141,13 +141,13 @@ begin
 						client = Selenium::WebDriver::Remote::Http::Default.new
 						client.timeout = 180 # seconds – default is 60
 						@browsers[i] = Watir::Browser.new :firefox, :http_client => client
-						amazon_search(@browsers[i], data, batch_number)
+						search_result = amazon_search(@browsers[i], data, batch_number)
 					rescue => e
 						puts report_error("Encountered error during browser creation in Rake:amazon", e)
 					ensure
 						log "Closing browser instance [#{i}]..."
 						@browsers[i].close rescue nil
-						search_status = "Amazon search [#{batch_number}] with browser(#{i}) ended with status: #{!@error}"
+						search_status = "Amazon search [#{batch_number}] with browser(#{i}) ended with status: #{search_result}"
 						@completed.push search_status
 						log search_status
 					end
