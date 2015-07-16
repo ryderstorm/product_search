@@ -33,7 +33,7 @@ begin
 	end
 
 	def droplet_status(droplet)
-		"#{droplet.name.to_s.ljust(40)} | #{droplet.status.to_s.center(8).light_red} | $#{hourly_cost(droplet.size_id)} | #{droplet.id.to_s.ljust(8)} | #{droplet.ip_address.to_s.ljust(16)}"
+		"#{droplet.name.to_s.light_green.ljust(40)} | #{droplet.status.to_s.center(8).light_red} | " + "$" + hourly_cost(droplet.size_id).to_s.light_cyan + " | #{droplet.id.to_s.light_yellow.ljust(8)} | #{droplet.ip_address.to_s.light_blue.ljust(16)} | #{ seconds_to_string(Time.parse(droplet.created_at).utc.getlocal(-14400) - Time.parse(local_time)).light_magenta}"
 	end
 
 	def hourly_cost(size_id)
@@ -90,7 +90,7 @@ begin
     end
     puts "There are ".light_blue + Digitalocean::Droplet.all.droplets.count.to_s.yellow + " droplets on your account".light_blue
 		Digitalocean::Droplet.all.droplets.each do |d|
-			puts droplet_status(d).green
+			puts droplet_status(d)
 			@droplets.push d
 		end
 	end
