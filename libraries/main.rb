@@ -296,7 +296,10 @@ def run_remote_search(size = 'small', data_set = 'test')
 		end
 	end
 	init_droplets
-	new_droplet = create_droplet(size)
+	# new_droplet = create_droplet(size)
+	new_droplet = @droplets.first
+	sleep 5
+	ssh_reboot(new_droplet.ip_address)
 	sleep 5
 	rake_result = ssh_rake(new_droplet.ip_address, data_set)
 	rescue => e
