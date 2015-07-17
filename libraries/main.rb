@@ -296,7 +296,7 @@ def run_remote_search(size = 'small', data_set = 'test')
 		end
 	end
 	init_droplets
-	result = create_droplet(size)
+	# result = create_droplet(size)
 	result = [@droplets.first, true]
 	new_droplet = result.first
 	abort_test unless restult.last
@@ -323,6 +323,8 @@ end
 
 def abort_test
 	no_dots
-	puts log("Aborting test - see previous error for details.".light_yellow.on_red)
+	message = "#{local_time} | Aborting test - see previous error for details.".light_yellow.on_red
+	log(message) unless @main_log.nil?
+	puts message
 	abort
 end
