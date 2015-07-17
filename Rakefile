@@ -172,8 +172,9 @@ begin
 				end
 				sleep 10
 			end
-			if counter == 300
-				puts log("Search has been running for over 50 minutes and will now be closed.".light_red)
+			if Time.parse(local_time.uncolorize) - @start_time > 3000
+				puts log("Search has been running for over 50 minutes and will now be closed.".light_yellow.on_red)
+				abort_app
 			end
 		rescue Interrupt
 			puts log "User pressed Ctrl+C".yellow
