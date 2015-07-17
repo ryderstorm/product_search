@@ -1,12 +1,2 @@
 #content
-	// <meta http-equiv="refresh" content="5" >
-	%h1 Log Viewer
-	%hr
-	<form action="/terminate">
-	<input type="submit" value="Terminate Web Sever">
-	</form>
-	<FORM>
-	<INPUT TYPE="button" onClick="history.go(0)" VALUE="Refresh">
-	</FORM>
-	%hr
-	%p= get_logs
+	%p= create_status_log

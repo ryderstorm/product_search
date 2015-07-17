@@ -1,0 +1,21 @@
+!!!
+%html
+	%head
+		%title Search Status
+		%link(rel="stylesheet" href="http://yui.yahooapis.com/2.8.0r4/build/reset/reset-min.css")
+		%link(rel="stylesheet" href="css/styles.css")
+	%body
+		#wrapper
+			#header
+				%h1= "Search Status Server for run [#{get_run_stamp}]"
+			#menu
+				%ul
+					%li
+						%a{href:"/"}Status Report
+					%li
+						%a{href:"/file_list"}List of files
+					%li
+						%a{href:"/terminate"}Terminate the server
+				%hr				
+			#content
+				=yield

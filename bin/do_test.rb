@@ -7,13 +7,13 @@ begin
 	puts File.expand_path(File.dirname(__FILE__))[0..-5]
 	start = Time.now
 	init_droplets
-	if @droplets.empty?
-		new_droplet = create_droplet('small')
-		ip = new_droplet.ip_address
-	else
-		ip = @droplets.first.ip_address
-	end
-	puts ssh_output = ssh_rake(ip, 'test')
+	# if @droplets.nil? or @droplets.empty?
+	# 	new_droplet = create_droplet('medium')
+	# 	ip = new_droplet.ip_address
+	# else
+	# 	ip = @droplets.first.ip_address
+	# end
+	# puts ssh_output = ssh_rake(ip, 'all')
 	# @droplet = create_droplet("medium")
 	# ip = @droplet.ip_address
 	# ip = @droplets.first.ip_address
@@ -30,15 +30,17 @@ rescue => e
 	puts report_error(e, "Error encountered during do_test.rb")
 	binding.pry
 ensure
-	puts "============================================".yellow
-	puts "Do you want to destroy all droplets?".yellow
-	puts "Y".green + " for yes, anything else for no"
-	puts "============================================".yellow
-	if gets.chomp == 'y'
-		destroy_all_droplets
-		puts "Resources cleared - exiting"
-	else
-		puts "The following droplets will remain active:"
-		get_droplets
+	unless Digitalocean::Droplet.all.droplets.count == 0
+		puts "============================================".yellow
+		puts "Do you want to destroy all droplets?".yellow
+		puts "Y".green + " for yes, anything else for no"
+		puts "============================================".yellow
+		if STDIN.gets.chomp == 'y'
+			destroy_all_droplets
+			puts "Resources cleared - exiting"
+		else
+			puts "The following droplets will remain active:"
+			get_droplets
+		end
 	end
 end

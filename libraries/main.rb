@@ -269,7 +269,7 @@ end
 
 def report_error(error, note = ' ')
 	error_message = "=======================================================\n".light_red
-	error_message << note.light_blue unless note.nil?
+	error_message << note.to_s.light_blue unless note.nil?
 	error_message << "\nTime: ".ljust(12).cyan + local_time.green
 	error_message << "\nComputer: ".ljust(12).cyan + @computer.green unless @computer.nil?
 	error_message << "\nClass: ".ljust(12).cyan + error.class.to_s.light_red
@@ -296,8 +296,8 @@ def run_remote_search(size = 'small', data_set = 'test')
 		end
 	end
 	init_droplets
-	# new_droplet = create_droplet(size)
-	new_droplet = @droplets.first
+	new_droplet = create_droplet(size)
+	# new_droplet = @droplets.first
 	sleep 10
 	ssh_reboot(new_droplet.ip_address)
 	sleep 10
