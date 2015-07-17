@@ -96,8 +96,12 @@ begin
 		weblog = "temp/webserver_log_#{@run_stamp}.txt"
 		puts "\n" + log("Starting log server...")
 		@webserver = Thread.new{ system("ruby bin/log_viewer.rb #{@run_stamp} -o #{ip} -p #{port} >> #{File.absolute_path(weblog)} 2>&1 &")}
-		puts log "Log server running at: #{remote_link.blue}"
-		puts log "Log server logs at: #{File.absolute_path(weblog).blue}"
+		10.times do
+			break if File.read(weblog).include?('has taken the stage') if File.exist?(weblog)
+			sleep 1
+		end
+		puts log "Log webserver running at: #{remote_link.blue}"
+		puts log "Log webserver logs at: #{File.absolute_path(weblog).blue}"
 		pushbullet_link_to_all("Log viewer running", remote_link, "")
 	end
 
@@ -143,7 +147,7 @@ begin
 						@browsers[i] = Watir::Browser.new :chrome, :http_client => client
 						search_result = amazon_search(@browsers[i], data, batch_number)
 					rescue => e
-						puts report_error("Encountered error during browser creation in Rake:amazon", e)
+						puts report_error(e, "Encountered error during browser creation in Rake:amazon")
 					ensure
 						log "Closing browser instance [#{i}]..."
 						@browsers[i].close rescue nil
