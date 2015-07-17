@@ -71,7 +71,7 @@ begin
 			if counter == 300
 				puts "Droplet creation taking longer than 5 minutes, please investigate".light_red
 				# binding.pry
-				return create_droplet
+				return [create_droplet, false]
 			end
 			sleep 0.5
 			counter += 0.5
@@ -81,7 +81,7 @@ begin
 		puts "\nSuccess!".green
 		puts "Droplet created in #{counter} seconds.\nStatus is now #{Digitalocean::Droplet.find(id).droplet.status.green}"
 		get_droplets
-		return Digitalocean::Droplet.find(id).droplet
+		return [Digitalocean::Droplet.find(id).droplet, true]
 	end
 
 	def get_droplets
