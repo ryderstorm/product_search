@@ -159,7 +159,11 @@ def amazon_search(browser, asins, batch_number = 1)
 					log logfile, "Finished processing"
 				end
 			rescue Timeout::Error => msg
-				log logfile, "#{Time.now} | Recovered from Timeout #{seconds_to_string(Time.now - search_start)} into search for [#{product.search_term}]"
+				success = "failure"
+				log logfile, "#{Time.now} | Recovered from Timeout #{seconds_to_string(Time.now - search_start)} into search for [#{product.search_term}]\n\t#{msg}"
+			rescue => e
+				success = "failure"
+				puts report_error(e, "Error occurred during batch [#{batch_number}]")
 			ensure
 				log logfile, "#{Time.now} | Pushing product #{product.model} to @amazon_products"
 				@amazon_products.push product
@@ -169,7 +173,7 @@ def amazon_search(browser, asins, batch_number = 1)
 		end
 	rescue => e
 		success = "failure"
-		log @main_log, "Error occurred during batch [#{batch_number}]"
+		log "Error occurred during batch [#{batch_number}]"
 		puts report_error(e, "Error occurred during batch [#{batch_number}]")
 		# browser_exist = !browser.nil? rescue false
 		# if browser_exist
