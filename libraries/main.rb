@@ -288,7 +288,7 @@ end
 def run_remote_search(size = 'small', data_set = 'test')
 	init_droplets
 	result = create_droplet(size)
-	result = [@droplets.first, true]
+	# result = [@droplets.first, true]
 	new_droplet = result.first
 	abort_app unless result.last
 	# new_droplet = @droplets.first
@@ -318,4 +318,14 @@ def abort_app
 	log(message) unless @main_log.nil?
 	puts message
 	abort
+end
+
+def abort_timer
+	loop do
+		if Time.parse(local_time.uncolorize) - @start_time > 3000
+			puts log("Search has been running for over 50 minutes and will now be closed.".light_yellow.on_red)
+			abort_app
+		end
+		sleep 0.25
+	end
 end
