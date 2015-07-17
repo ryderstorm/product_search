@@ -299,7 +299,7 @@ def run_remote_search(size = 'small', data_set = 'test')
 	# result = create_droplet(size)
 	result = [@droplets.first, true]
 	new_droplet = result.first
-	abort_test unless result.last
+	abort_app unless result.last
 	# new_droplet = @droplets.first
 	sleep 10
 	ssh_reboot(new_droplet.ip_address)
@@ -321,7 +321,7 @@ def set_test_data(file_for_testing)
 	puts "Set data file to be [#{new_file.yellow}]"
 end
 
-def abort_test
+def abort_app
 	no_dots
 	message = "#{local_time} | Aborting test - see previous error for details.".light_yellow.on_red
 	log(message) unless @main_log.nil?

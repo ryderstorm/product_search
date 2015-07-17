@@ -8,6 +8,7 @@ def ssh_shutdown(ip)
   end
   rescue => e
   puts report_error(e, "Error encountered during ssh_shutdown")
+  abort_app
 end
 
 def ssh_reboot(ip)
@@ -18,6 +19,7 @@ def ssh_reboot(ip)
   end
   rescue => e
   puts report_error(e, "Error encountered during ssh_shutdown")
+  abort_app
 end
 
 def ssh_command(ip, command)
@@ -29,6 +31,7 @@ def ssh_command(ip, command)
   output
   rescue => e
   puts report_error(e, "Error encountered during ssh_command")
+  abort_app
 end
 
 def ssh_rake(ip, data_set = 'all')
