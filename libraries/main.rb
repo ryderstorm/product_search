@@ -296,12 +296,15 @@ def run_remote_search(size = 'small', data_set = 'test')
 		end
 	end
 	init_droplets
-	new_droplet = create_droplet(size)
+	result = create_droplet(size)
+	result = [@droplets.first, true]
+	new_droplet = result.first
+	abort_test unless restult.last
 	# new_droplet = @droplets.first
 	sleep 10
 	ssh_reboot(new_droplet.ip_address)
 	sleep 10
-	rake_result = ssh_rake(new_droplet.ip_address, data_set)
+	ssh_rake(new_droplet.ip_address, data_set)
 	rescue => e
 		report_error(e, "Error encountered during run_remote_search")
 	ensure
@@ -316,4 +319,10 @@ def set_test_data(file_for_testing)
 	new_file = File.absolute_path(file_for_testing).sub('.xlsx', 'ACTIVE_DATA.xlsx')
 	FileUtils.cp(file_for_testing, new_file)
 	puts "Set data file to be [#{new_file.yellow}]"
+end
+
+def abort_test
+	no_dots
+	puts log("Aborting test - see previous error for details.".light_yellow.on_red)
+	abort
 end
