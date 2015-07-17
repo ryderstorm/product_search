@@ -2,6 +2,22 @@ require 'sinatra'
 require 'haml'
 require 'sass'
 require 'tilt/haml'
+require 'usagewatch'
+$usw =  Usagewatch
+
+# puts "#{usw.uw_diskused} Gigabytes Used"
+# puts "#{usw.uw_diskused_perc} Perventage of Gigabytes Used"
+# puts "#{usw.uw_cpuused}% CPU Used"
+# puts "#{usw.uw_tcpused} TCP Connections Used"
+# puts "#{usw.uw_udpused} UDP Connections Used"
+# puts "#{usw.uw_memused}% Active Memory Used"
+# puts "#{usw.uw_load} Average System Load Of The Past Minute"
+# puts "#{usw.uw_bandrx} Mbit/s Current Bandwidth Received"
+# puts "#{usw.uw_bandtx} Mbit/s Current Bandwidth Transmitted"
+# puts "#{usw.uw_diskioreads}/s Current Disk Reads Completed"
+# puts "#{usw.uw_diskiowrites}/s Current Disk Writes Completed"
+# puts "Top Ten Processes By CPU Consumption: #{usw.uw_cputop.join(' | ')}"
+# puts "Top Ten Processes By Memory Consumption: #{usw.uw_memtop.join(' | ')}"
 folder = ENV["C9_HOSTNAME"].nil? ? 'amazon_search' : 'workspace'
 $root_folder = File.expand_path(Dir.glob("/**/#{folder}").first)
 require "#{$root_folder}/libraries/main.rb"
@@ -10,7 +26,7 @@ puts "\n#{local_time} | Log file server has started with root folder: #{$root_fo
 # set :public_folder, $root_folder
 def get_files
 	run_stamp = get_run_stamp
-	Dir.glob($root_folder + "/**/*#{run_stamp}*.*")
+	Dir.glob($root_folder + "/**/*#{run_stamp}*.*").sort
 end
 
 def file_links
@@ -44,7 +60,6 @@ def create_status_log
 	completed = 0
 	successful = 0
 	failed = 0
-	all_logs = Dir.glob($root_folder + "/**/*#{run_stamp}*.txt")
 	logs = Dir.glob($root_folder + "/temp/**/*runlog*#{run_stamp}*.txt")
 	in_progress = []
 	logs.each do |log|

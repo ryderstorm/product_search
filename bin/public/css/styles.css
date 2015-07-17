@@ -7,6 +7,7 @@
   background-color: #233c61;
   color: #f1f0f5;
   text-align: center;
+  margin: 10px;
   font-family: Verdana;
 }
 
@@ -15,7 +16,26 @@
 }
 
 #menu {
-    font-family: Verdana;
+  -webkit-border-radius: 20px;
+  -moz-border-radius: 20px;
+  -ms-border-radius: 20px;
+  border-radius: 20px;
+  padding: 8px 8px 8px 8px;
+  font-family: Verdana;
+  margin: 10px;
+  background-color: #969696;
+}
+
+#status {
+  -webkit-border-radius: 20px;
+  -moz-border-radius: 20px;
+  -ms-border-radius: 20px;
+  border-radius: 20px;
+  padding: 8px 8px 8px 8px;
+  font-family: Verdana;
+  background-color: black;
+  margin: 10px;
+  color: grey;
 }
 
 #content {
@@ -24,7 +44,7 @@
   -ms-border-radius: 20px;
   border-radius: 20px;
   padding: 8px 8px 8px 8px;
-  float: left;
+  /*float: left;*/
   background-color: #ebdace;
   margin: 10px;
   min-height: 200px;
@@ -33,23 +53,35 @@
 }
 
 #menu-list{
-    background: #f7f7f7; 
-    padding: 8px; /* Give the items some air to breathe */
+  /*background: #f7f7f7;*/
+  padding: 8px;
 }
 
 #menu-list > li {
-    display: inline-block;
-    zoom:1;
-    *display:inline;
-    /* this fix is needed for IE7- */
+  display: inline-block;
+  zoom:1;
+  *display:inline;
+  /* this fix is needed for IE7- */
 }
 
 #menu-list > li > a{
-    color: black;
-    text-decoration: none;
-    padding: 3px 8px;
+  color: black;
+  text-decoration: none;
+  /*padding: 3px 8px;*/
 }
 
 #menu-list > li > a:hover{
-    color: #666666;
+  color: #666666;
+}
+
+#system-info{
+  /*background: #black;*/
+  /*padding: 8px; */
+}
+
+#system-info > li {
+  display: inline-block;
+  zoom:1;
+  *display:inline;
+  /* this fix is needed for IE7- */
 }

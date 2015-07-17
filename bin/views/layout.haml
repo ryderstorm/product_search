@@ -8,6 +8,14 @@
 		#wrapper
 			#header
 				%h1= "Search Status Server for run [#{get_run_stamp}]"
+			#status
+				%ul#system-info
+					%li= "CPU: #{$usw.uw_cpuused}% | "
+					%li= "MEM: #{$usw.uw_memused}% used | "
+					%li= "RX: #{$usw.uw_bandrx} Mbit/s | "
+					%li= "TX: #{$usw.uw_bandtx} Mbit/s"
+					// %li= "TopCPU: #{$usw.uw_cputop.join(' | ')}"
+					// %li= "TopMEM: #{$usw.uw_memtop.join(' | ')}"
 			#menu
 				%ul#menu-list
 					%li
@@ -16,6 +24,5 @@
 						%a{href:"/file_list"}List of files
 					%li
 						%a{href:"/terminate"}Terminate the server
-				%hr	
 			#content
 				=yield
