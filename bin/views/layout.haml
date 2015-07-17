@@ -9,13 +9,13 @@
 			#header
 				%h1= "Search Status Server for run [#{get_run_stamp}]"
 			#menu
-				%ul
+				%ul#menu-list
 					%li
 						%a{href:"/"}Status Report
 					%li
 						%a{href:"/file_list"}List of files
 					%li
 						%a{href:"/terminate"}Terminate the server
-				%hr				
+				%hr	
 			#content
 				=yield
