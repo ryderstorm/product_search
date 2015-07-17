@@ -299,7 +299,7 @@ def run_remote_search(size = 'small', data_set = 'test')
 	# result = create_droplet(size)
 	result = [@droplets.first, true]
 	new_droplet = result.first
-	abort_test unless restult.last
+	abort_test unless result.last
 	# new_droplet = @droplets.first
 	sleep 10
 	ssh_reboot(new_droplet.ip_address)
