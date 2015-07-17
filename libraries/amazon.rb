@@ -163,7 +163,7 @@ def amazon_search(browser, asins, batch_number = 1)
 				log logfile, "#{Time.now} | Recovered from Timeout #{seconds_to_string(Time.now - search_start)} into search for [#{product.search_term}]\n\t#{msg}"
 			rescue => e
 				success = "failure"
-				puts report_error(e, "Error occurred during batch [#{batch_number}]")
+				puts log(logfile, report_error(e, "Error occurred during batch [#{batch_number}]"))
 			ensure
 				log logfile, "#{Time.now} | Pushing product #{product.model} to @amazon_products"
 				@amazon_products.push product
