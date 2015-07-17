@@ -7,6 +7,8 @@ end
 
 @root_folder = File.absolute_path(File.dirname(__FILE__))
 require_relative 'libraries/main.rb'
+
+Thread.new{abort_timer}
 begin
 	task default: :notify
 	# task local: %i(initialize start_logs amazon create_log create_spreadsheet pushbullet_files finish)
@@ -162,19 +164,15 @@ begin
 			puts "\n" + log("All browser instances have been created".light_blue)
 			puts local_time + " | Starting monitor loop in Rake :amazon".light_cyan
 			success = true
-			counter = 0
+			# counter = 0
 			300.times do |i|
-				counter += 1
-				puts "\n" + log("monitor loop iteration ".light_cyan + i.to_s.light_red + " | completed: " + @completed.count.to_s.green + " | total: " + @data_groups.count.to_s.light_red)
+				# counter += 1
+				# puts "\n" + log("monitor loop iteration ".light_cyan + i.to_s.light_red + " | completed: " + @completed.count.to_s.green + " | total: " + @data_groups.count.to_s.light_red)
 				if @completed.count == @data_groups.count
 					puts "\n" + log("All searches complete!".green)
 					break
 				end
 				sleep 10
-			end
-			if Time.parse(local_time.uncolorize) - @start_time > 3000
-				puts log("Search has been running for over 50 minutes and will now be closed.".light_yellow.on_red)
-				abort_app
 			end
 		rescue Interrupt
 			puts log "User pressed Ctrl+C".yellow

@@ -159,7 +159,6 @@ def amazon_search(browser, asins, batch_number = 1)
 					log logfile, "Finished processing"
 				end
 			rescue Timeout::Error => msg
-				success = "failure"
 				log logfile, "#{Time.now} | Recovered from Timeout #{seconds_to_string(Time.now - search_start)} into search for [#{product.search_term}]\n\t#{msg}"
 			rescue => e
 				success = "failure"
