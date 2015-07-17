@@ -139,7 +139,6 @@ begin
 					end
 				end
 				sleep 2
-				# break if @error
 				new = Thread.new do
 					begin
 						log "Amazon search [#{batch_number}] of [#{@data_groups.count-1}] starting..."
@@ -159,15 +158,9 @@ begin
 					end
 				end
 				@threads.push new
-				# @threads.delete_if { |t| !t.alive? }
 			end
 			puts "\n" + log("All browser instances have been created".light_blue)
-			puts local_time + " | Starting monitor loop in Rake :amazon".light_cyan
-			success = true
-			# counter = 0
 			300.times do |i|
-				# counter += 1
-				# puts "\n" + log("monitor loop iteration ".light_cyan + i.to_s.light_red + " | completed: " + @completed.count.to_s.green + " | total: " + @data_groups.count.to_s.light_red)
 				if @completed.count == @data_groups.count
 					puts "\n" + log("All searches complete!".green)
 					break
@@ -176,10 +169,8 @@ begin
 			end
 		rescue Interrupt
 			puts log "User pressed Ctrl+C".yellow
-			# binding.pry
 		rescue => e
-			puts report_error("Encountered error during Rake:amazon", e)
-			# binding.pry
+			puts report_error(e, "Encountered error during Rake:amazon")
 		ensure
 			@threads.each {|t| t.join(1)}
 			@browsers.each { |b| b.close rescue nil}

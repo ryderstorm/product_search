@@ -230,7 +230,7 @@ rescue Interrupt
 	log logfile, "User pressed Ctrl+C during workbook creation"
 	binding.pry
 rescue => e
-	puts report_error("Error encountered during workbook generation", e)
+	puts report_error(e, "Error encountered during workbook generation")
 ensure
 	unless @amazon_products.empty?
 		master_wb.write(wb_location)
